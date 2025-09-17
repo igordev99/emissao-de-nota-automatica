@@ -101,7 +101,7 @@ export function buildRpsXml(data: NfseNormalized, options?: BuildOptions) {
   const rootName = isValidXmlNcName(rawRootName) ? rawRootName : 'Rps';
   const qRoot = nsPrefix ? `${nsPrefix}:${rootName}` : rootName;
   return trim(`<?xml version="1.0" encoding="UTF-8"?>
-<${qRoot}${rootAttrString ? ' ' + rootAttrString : ''}>
+<${[qRoot, rootAttrString].filter(Boolean).join(' ')}>
   <IdentificacaoRps>
     <Numero>${escape(data.rpsNumber!)}</Numero>
     <Serie>${escape(data.rpsSeries!)}</Serie>
