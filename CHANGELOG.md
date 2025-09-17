@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.1 - 2025-09-16
+
+Hardening de segurança e pequenas melhorias.
+
+- Segurança: upgrade `xml-crypto` para `6.1.2` (corrige advisories críticos de assinatura XML).
+- Gerador ABRASF: refactor na montagem da tag raiz usando join seguro para evitar espaço extra e simplificar leitura.
+- Testes: adicionados testes de regressão garantindo que não haja espaço antes de `>` no root (`<Rps>` e `<nfse:Rps>`).
+
 ## v0.1.0 - 2025-09-16
 
 Primeiro corte do MVP com gerador ABRASF robusto, API, testes e documentação.

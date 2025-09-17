@@ -15,6 +15,17 @@ const base = {
 } as any;
 
 describe('ABRASF RPS XML generator', () => {
+  it('does not insert stray space before > in root when no extra attrs', () => {
+    const xml = buildRpsXml(base);
+    expect(xml).toContain('<Rps xmlns="http://www.abrasf.org.br/nfse.xsd">');
+    expect(xml).not.toContain('<Rps >');
+  });
+
+  it('does not insert stray space before > in namespaced root when no extra attrs', () => {
+    const xml = buildRpsXml(base, { nsPrefix: 'nfse' } as any);
+    expect(xml).toContain('<nfse:Rps xmlns:nfse="http://www.abrasf.org.br/nfse.xsd">');
+    expect(xml).not.toContain('<nfse:Rps >');
+  });
   it('renders aliquota as decimal fraction with 4 decimals', () => {
     const xml = buildRpsXml(base);
     expect(xml).toContain('<Aliquota>0.0200</Aliquota>');
