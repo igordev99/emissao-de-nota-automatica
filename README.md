@@ -346,6 +346,11 @@ Demo rápido (gera token, emite e consulta por ID):
 npm run demo:quick
 ```
 
+### Smoke no CI (Windows)
+- Status: badge no topo deste README (Smoke Windows).
+- O workflow roda o smoke com AutoStart (in-memory), salva o relatório `smoke_*.json` como artefato e publica um resumo no Job Summary da execução.
+- Para acessar: Actions → "Smoke (Windows, AutoStart)" → última execução → aba Summary (resumo) e Artifacts (arquivo JSON).
+
 Demo emissão real (usa AGENT_BASE_URL e PFX do ambiente):
 ```powershell
 $env:AGENT_BASE_URL="https://seu-agente..."

@@ -28,13 +28,19 @@ jobs:
           if ($null -eq $last) { throw 'Nenhum smoke_*.json gerado' }
           Write-Host "Relatório: $($last.FullName)"
           echo "reportPath=$($last.FullName)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Append -Encoding utf8
+          echo "reportName=$($last.Name)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Append -Encoding utf8
       - name: Upload smoke report
         uses: actions/upload-artifact@v4
         with:
-          name: smoke-report
+          name: smoke-report-${{ steps.smoke.outputs.reportName }}
           path: ${{ steps.smoke.outputs.reportPath }}
       - name: Print summary
         shell: pwsh
         run: |
-          npm run smoke:report:summary | Tee-Object -Variable summary | Write-Host
-          if ($Env:GITHUB_STEP_SUMMARY) { $summary | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Append -Encoding utf8 }
+          $summary = npm run smoke:report:summary
+          Write-Host $summary
+          if ($Env:GITHUB_STEP_SUMMARY) {
+            "# Smoke Report Summary`n" | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+            $summary | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+            "`n- Artifact: smoke-report-${{ steps.smoke.outputs.reportName }}" | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
