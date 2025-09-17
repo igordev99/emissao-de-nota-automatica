@@ -188,6 +188,17 @@ export async function buildApp() {
   }
 
   await registerAuth(app);
+  // Endpoint auxiliar para obter um token de teste (desabilitado em produção)
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      app.post('/auth/token', { schema: { tags: ['Auth'], summary: 'Obter token de teste (não disponível em produção)' } as any }, async (req: any, reply: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        const sub = (req.body && req.body.sub) || 'tester';
+        const payload = { sub, roles: ['tester'] };
+        const token = (app as any).jwt.sign(payload, { expiresIn: '1h' }); // eslint-disable-line @typescript-eslint/no-explicit-any
+        return reply.send({ token });
+      });
+    }
+  } catch {/* noop */}
   if (env.METRICS_ENABLED !== '0') { registerMetricsHooks(app); } else { app.log.debug('Metrics disabled by METRICS_ENABLED=0'); }
   await registerNfseRoutes(app);
 

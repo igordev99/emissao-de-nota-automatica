@@ -222,6 +222,7 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
           properties: {
             status: { type: 'string', enum: ['PENDING','SUCCESS','REJECTED','CANCELLED'], description: 'Filtra por status' },
             providerCnpj: { type: 'string', description: 'CNPJ do prestador' },
+            nfseNumber: { type: 'string', description: 'Número da NFS-e' },
             customerDoc: { type: 'string', description: 'Documento do tomador (CPF/CNPJ)' },
             from: { type: 'string', description: 'Data inicial (ISO)' },
             to: { type: 'string', description: 'Data final (ISO)' },
@@ -260,7 +261,7 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
           401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
       } as any
-    } as any, async (req: FastifyRequest<{ Querystring: { status?: string; providerCnpj?: string; customerDoc?: string; from?: string; to?: string; page?: number; pageSize?: number } }>, reply: FastifyReply) => {
+  } as any, async (req: FastifyRequest<{ Querystring: { status?: string; providerCnpj?: string; nfseNumber?: string; customerDoc?: string; from?: string; to?: string; page?: number; pageSize?: number } }>, reply: FastifyReply) => {
       try {
         await (req as any).jwtVerify(); // eslint-disable-line @typescript-eslint/no-explicit-any
       } catch {
@@ -271,7 +272,8 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
       const pageSize = Math.min(100, Math.max(1, Number(q.pageSize || 20)));
       const where: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
       if (q.status) where.status = q.status;
-      if (q.providerCnpj) where.providerCnpj = q.providerCnpj;
+  if (q.providerCnpj) where.providerCnpj = q.providerCnpj;
+  if (q.nfseNumber) where.nfseNumber = q.nfseNumber;
       if (q.customerDoc) where.customerDoc = q.customerDoc;
       if (q.from || q.to) {
         where.issueDate = {};
@@ -296,7 +298,7 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
       return reply.send({ page, pageSize, total, items: mapped });
     });
   } else {
-    app.get('/nfse', async (req: FastifyRequest<{ Querystring: { status?: string; providerCnpj?: string; customerDoc?: string; from?: string; to?: string; page?: number; pageSize?: number } }>, reply: FastifyReply) => {
+  app.get('/nfse', async (req: FastifyRequest<{ Querystring: { status?: string; providerCnpj?: string; nfseNumber?: string; customerDoc?: string; from?: string; to?: string; page?: number; pageSize?: number } }>, reply: FastifyReply) => {
       try {
         await (req as any).jwtVerify(); // eslint-disable-line @typescript-eslint/no-explicit-any
       } catch {
@@ -307,7 +309,8 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
       const pageSize = Math.min(100, Math.max(1, Number(q.pageSize || 20)));
       const where: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
       if (q.status) where.status = q.status;
-      if (q.providerCnpj) where.providerCnpj = q.providerCnpj;
+  if (q.providerCnpj) where.providerCnpj = q.providerCnpj;
+  if (q.nfseNumber) where.nfseNumber = q.nfseNumber;
       if (q.customerDoc) where.customerDoc = q.customerDoc;
       if (q.from || q.to) {
         where.issueDate = {};

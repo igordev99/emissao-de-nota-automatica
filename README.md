@@ -3,6 +3,7 @@
 [![CI](https://github.com/igordev99/emissao-de-nota-automatica/actions/workflows/ci.yml/badge.svg)](https://github.com/igordev99/emissao-de-nota-automatica/actions)
 [![Release](https://img.shields.io/github/v/release/igordev99/emissao-de-nota-automatica?display_name=tag&logo=github)](https://github.com/igordev99/emissao-de-nota-automatica/releases)
 [![GHCR](https://img.shields.io/badge/GHCR-emissao--de--nota--automatica-blue?logo=docker)](https://github.com/users/igordev99/packages)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 Serviço em Node.js / TypeScript para emissão de NFS-e (modelo São Paulo) com:
 - Normalização e validação (Zod)
 - Idempotência e persistência (Prisma)
@@ -335,6 +336,48 @@ Fluxo:
 Consumindo imagens:
 - Semver fixo: `ghcr.io/igordev99/emissao-de-nota-automatica:v0.1.1`
 - Última de uma série (se configurado no futuro): `v0.1` ou `latest` (consulte as tags disponíveis no GHCR)
+
+### Exemplos de uso da API (curl)
+Autenticação (JWT) — obtenha um token (fora do escopo deste README) e exporte:
+```powershell
+$env:TOKEN = "<seu-jwt>"
+```
+
+Em desenvolvimento/teste, você pode obter um token diretamente do serviço (não disponível em produção):
+```powershell
+curl -X POST http://localhost:3000/auth/token -H "Content-Type: application/json" -d '{"sub":"tester"}'
+# copie o valor de .token do JSON retornado e exporte em $env:TOKEN
+```
+
+Emitir NFS-e (com idempotência):
+```bash
+curl -X POST http://localhost:3000/nfse/emitir \
+	-H "Authorization: Bearer $TOKEN" \
+	-H "Content-Type: application/json" \
+	-H "Idempotency-Key: inv_123_$(date +%s)" \
+	-d '{
+		"rpsSeries":"A",
+		"issueDate":"2025-09-16T10:00:00.000Z",
+		"serviceCode":"101",
+		"serviceDescription":"Serviço de informática",
+		"serviceAmount":150.5,
+		"taxRate":0.02,
+		"issRetained":false,
+		"provider": { "cnpj":"12345678000199" },
+		"customer": { "cnpj":"99887766000155", "name":"Cliente Exemplo" }
+	}'
+```
+
+Consultar status por ID:
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/nfse/inv_123
+```
+
+Obter XML/PDF (base64):
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/nfse/inv_123/xml
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/nfse/inv_123/pdf
+```
 
 ### Segurança (Boas Práticas)
 - Não versionar PFX

@@ -79,6 +79,7 @@ model IdempotencyKey {
   invoice        Invoice  @relation(fields: [invoiceId], references: [id])
   statusSnapshot InvoiceStatus
   responseJson   Json?
+  payloadHash    String?
   createdAt      DateTime @default(now())
   lockedAt       DateTime?
   expiresAt      DateTime?
