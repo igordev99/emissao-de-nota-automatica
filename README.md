@@ -1,12 +1,12 @@
 ## NFSe SP Service
 
 [![CI](https://github.com/igordev99/emissao-de-nota-automatica/actions/workflows/ci.yml/badge.svg)](https://github.com/igordev99/emissao-de-nota-automatica/actions)
+[![Release](https://img.shields.io/github/v/release/igordev99/emissao-de-nota-automatica?display_name=tag&logo=github)](https://github.com/igordev99/emissao-de-nota-automatica/releases)
 [![GHCR](https://img.shields.io/badge/GHCR-emissao--de--nota--automatica-blue?logo=docker)](https://github.com/users/igordev99/packages)
-
 Serviço em Node.js / TypeScript para emissão de NFS-e (modelo São Paulo) com:
 - Normalização e validação (Zod)
 - Idempotência e persistência (Prisma)
-- Assinatura e verificação XML (xml-crypto v5)
+- Assinatura e verificação XML (xml-crypto v6.1.2)
 - Testes (Jest)
 
 ### Principais Componentes
@@ -296,6 +296,23 @@ Compose com Postgres:
 docker compose up --build
 ```
 
+Usando a imagem publicada no GHCR:
+```powershell
+docker pull ghcr.io/igordev99/emissao-de-nota-automatica:v0.1.1
+docker run --rm -p 3000:3000 ^
+	-e NODE_ENV=production ^
+	-e JWT_SECRET=change_me ^
+	-e LOG_LEVEL=info ^
+	 ghcr.io/igordev99/emissao-de-nota-automatica:v0.1.1
+```
+
+Observação sobre autenticação no GHCR:
+- Para repositórios privados, faça login antes de dar pull:
+```powershell
+echo $env:GHCR_PAT | docker login ghcr.io -u <seu-usuario-github> --password-stdin
+```
+- Gere um PAT (classic) com escopo `read:packages` e exporte em `GHCR_PAT`.
+
 ### Cobertura
 Limiares mínimos definidos em `package.json` (coverageThreshold). Ajuste conforme evolução.
 
@@ -307,22 +324,17 @@ Limiares mínimos definidos em `package.json` (coverageThreshold). Ajuste confor
 - Política de rotação de certificados
 
 ### Releases e Versionamento
-Publicação é automatizada pelo CI ao criar uma tag `vX.Y.Z`:
+Este repositório usa Release Please para automatizar o versionamento semântico, changelog, criação de tag e GitHub Release.
 
-1) Atualize a versão no `package.json` (opcional, se quiser manter alinhado):
-```powershell
-npm version 0.1.0 --no-git-tag-version
-git add package.json
-git commit -m "chore: bump version to 0.1.0"
-```
+Fluxo:
+- Ao fazer merge na `main`, um PR de release é aberto/atualizado automaticamente (ex.: `chore: release v0.1.2`).
+- Revise e faça merge do PR de release.
+- No merge, a action cria a tag `vX.Y.Z` e um GitHub Release com notas.
+- O workflow de CI é disparado para a tag e publica a imagem no GHCR com a tag semântica, além de tags de branch e SHA.
 
-2) Crie a tag semântica e envie para o origin:
-```powershell
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-O workflow em `.github/workflows/ci.yml` será disparado para a tag e publicará a imagem no GHCR em `ghcr.io/<owner>/<repo>:v0.1.0` (além de tags de branch e SHA).
+Consumindo imagens:
+- Semver fixo: `ghcr.io/igordev99/emissao-de-nota-automatica:v0.1.1`
+- Última de uma série (se configurado no futuro): `v0.1` ou `latest` (consulte as tags disponíveis no GHCR)
 
 ### Segurança (Boas Práticas)
 - Não versionar PFX

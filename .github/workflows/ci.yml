@@ -32,6 +32,7 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
+      - run: npx prisma generate
       - run: npx prisma migrate deploy
       - run: npm run lint
       - run: npm test -- --ci --runInBand
@@ -57,10 +58,17 @@ jobs:
             type=ref,event=branch
             type=sha
             type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |-
+            image=moby/buildkit:latest
+            network=host
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -71,5 +79,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

@@ -23,7 +23,7 @@ services:
       - "3000:3000"
     command: ["node", "dist/server.js"]
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/live"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/live"]
       interval: 10s
       timeout: 3s
       retries: 3

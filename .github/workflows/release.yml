@@ -1,20 +1,13 @@
-name: Release
+name: (disabled) Release via tag
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    # Desativado: deixamos o padrão impossível de casar
+    tags-ignore:
+      - '**'
 
 jobs:
-  create-release:
+  no-op:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "Release por tag desativado. Use Release Please."
