@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.2](https://github.com/igordev99/emissao-de-nota-automatica/compare/nfse-sp-service-v0.1.1...nfse-sp-service-v0.1.2) (2025-09-17)
+
+
+### Features
+
+* DX Windows e smoke autônomo (AutoStartDev), melhorias NFSe e client ([03d7bc8](https://github.com/igordev99/emissao-de-nota-automatica/commit/03d7bc8ba0c89ff473862a0f914abee7f5d5bdc5))
+
+
+### Bug Fixes
+
+* **routes:** inline NFSe route schemas to avoid  AJV issues ([08117b8](https://github.com/igordev99/emissao-de-nota-automatica/commit/08117b8af99e294f71af55b1811d5d5e22af9a56))
+* **smoke:** ensure Param is first and set working directory for auto-start; feat(nfse): include verificationCode in GET /nfse/:id response ([0ead4a7](https://github.com/igordev99/emissao-de-nota-automatica/commit/0ead4a7d19f96f26e18b53ba59727994807e7aac))
+
 ## v0.1.1 - 2025-09-16
 
 Hardening de segurança e pequenas melhorias.
