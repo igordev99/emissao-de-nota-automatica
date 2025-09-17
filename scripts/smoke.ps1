@@ -1,10 +1,4 @@
 #requires -version 5.1
-try {
-  [Console]::InputEncoding  = [System.Text.Encoding]::UTF8
-  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-  $OutputEncoding = [System.Text.Encoding]::UTF8
-  cmd /c chcp 65001 > $null 2>&1
-} catch {}
 Param(
   [string]$BaseUrl = "http://127.0.0.1:3000",
   [string]$IdempotencyKey = "smoke-1",
@@ -19,6 +13,14 @@ Param(
   [switch]$Pretty,
   [string]$Token
 )
+
+# Ensure UTF-8 encoding and code page after parameters to keep Param as first statement
+try {
+  [Console]::InputEncoding  = [System.Text.Encoding]::UTF8
+  [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+  $OutputEncoding = [System.Text.Encoding]::UTF8
+  cmd /c chcp 65001 > $null 2>&1
+} catch {}
 
 $ErrorActionPreference = 'Stop'
 Write-Host "[smoke] BaseUrl = $BaseUrl"
@@ -83,7 +85,8 @@ if (-not (Wait-ForLive -Url "$BaseUrl/live" -TimeoutSec $LiveTimeoutSec)) {
     $env:IN_MEMORY_DB = '1'
     $env:METRICS_ENABLED = '1'
     $script = "[Console]::InputEncoding=[System.Text.Encoding]::UTF8; [Console]::OutputEncoding=[System.Text.Encoding]::UTF8; cmd /c chcp 65001 > $null 2>&1; npm run dev:mem"
-    $null = Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-Command", $script -PassThru -WindowStyle Minimized
+    $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
+    $null = Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-Command", $script -PassThru -WindowStyle Minimized -WorkingDirectory $repoRoot
     if (-not (Wait-ForLive -Url "$BaseUrl/live" -TimeoutSec ($LiveTimeoutSec + 45))) {
       Write-Error "Service not live at $BaseUrl/live after auto-start"
       exit 1

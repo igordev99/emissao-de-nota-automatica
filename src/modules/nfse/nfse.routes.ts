@@ -78,7 +78,7 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         security: [{ bearerAuth: [] }],
         params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
         response: {
-          200: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string' }, nfseNumber: { type: 'string' }, cancelReason: { type: 'string' }, canceledAt: { type: 'string' } }, required: ['id','status'] },
+          200: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string' }, nfseNumber: { type: 'string' }, verificationCode: { type: 'string' }, cancelReason: { type: 'string' }, canceledAt: { type: 'string' } }, required: ['id','status'] },
           401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
           404: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
           422: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
@@ -89,14 +89,14 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
       const id = req.params.id;
       const invoice = await getInvoice(id);
       if (!invoice) return reply.code(404).send({ error: { message: 'Not found' } });
-      return reply.send({ id: invoice.id, status: invoice.status, nfseNumber: invoice.nfseNumber, cancelReason: (invoice as any).cancelReason, canceledAt: (invoice as any).canceledAt ? new Date((invoice as any).canceledAt).toISOString() : undefined });
+      return reply.send({ id: invoice.id, status: invoice.status, nfseNumber: invoice.nfseNumber, verificationCode: (invoice as any).verificationCode, cancelReason: (invoice as any).cancelReason, canceledAt: (invoice as any).canceledAt ? new Date((invoice as any).canceledAt).toISOString() : undefined });
     });
   } else {
     app.get('/nfse/:id', { preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } } } as any, async (req: IdRequest, reply: FastifyReply) => {
       const id = req.params.id;
       const invoice = await getInvoice(id);
       if (!invoice) return reply.code(404).send({ error: { message: 'Not found' } });
-      return reply.send({ id: invoice.id, status: invoice.status, nfseNumber: invoice.nfseNumber, cancelReason: (invoice as any).cancelReason, canceledAt: (invoice as any).canceledAt ? new Date((invoice as any).canceledAt).toISOString() : undefined });
+      return reply.send({ id: invoice.id, status: invoice.status, nfseNumber: invoice.nfseNumber, verificationCode: (invoice as any).verificationCode, cancelReason: (invoice as any).cancelReason, canceledAt: (invoice as any).canceledAt ? new Date((invoice as any).canceledAt).toISOString() : undefined });
     });
   }
 
