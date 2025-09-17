@@ -21,6 +21,7 @@ try {
   elMonitor.enable();
 } catch {
   // ignore if not supported
+  /* noop */
 }
 
 export function getEventLoopLagSeconds(): { mean: number; max: number } | undefined {
@@ -94,7 +95,9 @@ export function renderPrometheus() {
     lines.push(`# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.`);
     lines.push(`# TYPE process_cpu_seconds_total counter`);
     lines.push(`process_cpu_seconds_total ${totalSeconds.toFixed(6)}`);
-  } catch {}
+  } catch {
+    /* noop */
+  }
 
   // Heap used bytes
   if (mem && typeof mem.heapUsed === 'number') {

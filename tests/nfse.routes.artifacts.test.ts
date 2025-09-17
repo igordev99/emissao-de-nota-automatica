@@ -23,13 +23,11 @@ jest.mock('../src/infra/db/prisma', () => {
               return { id: 'i-xml-raw', xmlBase64: xmlB64 };
             case 'i-pdf-enc': {
               // Constrói payload criptografado em tempo de chamada usando a ENCRYPTION_KEY atual
-              const { encryptBase64 } = require('../src/infra/security/crypto');
               const origB64 = Buffer.from('Encrypted PDF payload').toString('base64');
               const enc = encryptBase64(origB64);
               return { id: 'i-pdf-enc', pdfBase64: JSON.stringify(enc) };
             }
             case 'i-xml-enc': {
-              const { encryptBase64 } = require('../src/infra/security/crypto');
               const xml = '<?xml version="1.0"?><data>secret</data>';
               const origB64 = Buffer.from(xml, 'utf8').toString('base64');
               const enc = encryptBase64(origB64);

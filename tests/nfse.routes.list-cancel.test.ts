@@ -58,7 +58,7 @@ describe('NFSe routes - list and cancel', () => {
     app.decorate('genToken', function () {
       return (app as any).jwt.sign({ sub: 'u1' });
     });
-    app.addHook('preHandler', async (req: any, res: any) => {
+    app.addHook('preHandler', async () => {
       // nada
     });
     registerNfseRoutes(app as any);

@@ -81,22 +81,23 @@ export async function buildApp() {
 
   // Exposição opcional do OpenAPI JSON
   try {
-    // @ts-ignore
     if (typeof (app as any).swagger === 'function') {
       app.get('/openapi.json', { schema: { tags: ['Docs'], summary: 'OpenAPI JSON' } as any }, async () => { return (app as any).swagger(); });
     } else {
       app.get('/openapi.json', async (_req, reply) => reply.code(503).send({ error: 'unavailable', message: 'Swagger não instalado' }));
     }
-  } catch {}
+  } catch {
+    /* noop */
+  }
 
   // Rotas de saúde com/sem schema
   if (hasSwagger) {
-    app.get('/health', { schema: { tags: ['Health'], summary: 'Health check', response: { 200: { $ref: '#/components/schemas/HealthResponse' } } } as any }, async () => ({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString(), version: process.env.npm_package_version || '0.0.0' }));
+    app.get('/health', { schema: { tags: ['Health'], summary: 'Health check', response: { 200: { type: 'object', properties: { status: { type: 'string' }, uptime: { type: 'number' }, timestamp: { type: 'string' }, version: { type: 'string' } }, required: ['status','uptime','timestamp','version'] } } } as any }, async () => ({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString(), version: process.env.npm_package_version || '0.0.0' }));
   } else {
     app.get('/health', async () => ({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString(), version: process.env.npm_package_version || '0.0.0' }));
   }
   if (hasSwagger) {
-    app.get('/live', { schema: { tags: ['Health'], summary: 'Liveness probe', response: { 200: { $ref: '#/components/schemas/LiveResponse' } } } as any }, async () => ({ status: 'ok' }));
+    app.get('/live', { schema: { tags: ['Health'], summary: 'Liveness probe', response: { 200: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] } } } as any }, async () => ({ status: 'ok' }));
   } else {
     app.get('/live', async () => ({ status: 'ok' }));
   }
@@ -124,13 +125,13 @@ export async function buildApp() {
     return { status: ok ? 'ok' : 'degraded', issues, timestamp: new Date().toISOString() };
   };
   if (hasSwagger) {
-    app.get('/ready', { schema: { tags: ['Health'], summary: 'Readiness probe', response: { 200: { $ref: '#/components/schemas/ReadyResponse' } } } as any }, readinessHandler);
+    app.get('/ready', { schema: { tags: ['Health'], summary: 'Readiness probe', response: { 200: { type: 'object', properties: { status: { type: 'string' }, issues: { type: 'array', items: { type: 'string' } }, timestamp: { type: 'string' } }, required: ['status','issues','timestamp'] } } } as any }, readinessHandler);
   } else {
     app.get('/ready', readinessHandler);
   }
   if (hasSwagger) {
-    app.get('/version', { schema: { tags: ['Health'], summary: 'Version info', response: { 200: { $ref: '#/components/schemas/VersionResponse' } } } as any }, async () => ({ version: process.env.npm_package_version || '0.0.0' }));
-    app.get('/health/cert', { schema: { tags: ['Health'], summary: 'Certificate health info', response: { 200: { $ref: '#/components/schemas/CertHealthResponse' } } } as any }, async () => {
+    app.get('/version', { schema: { tags: ['Health'], summary: 'Version info', response: { 200: { type: 'object', properties: { version: { type: 'string' } }, required: ['version'] } } } as any }, async () => ({ version: process.env.npm_package_version || '0.0.0' }));
+    app.get('/health/cert', { schema: { tags: ['Health'], summary: 'Certificate health info', response: { 200: { type: 'object', properties: { loaded: { type: 'boolean' }, error: { type: 'string' }, thumbprint: { type: 'string' }, hasPrivateKey: { type: 'boolean' }, notBefore: { type: 'string' }, notAfter: { type: 'string' }, daysToExpire: { type: 'number' } }, required: ['loaded'] } } } as any }, async () => {
       try {
         if (!env.CERT_PFX_PATH) throw new Error('CERT_PFX_PATH not set');
         const material = loadPfxMaterial(env.CERT_PFX_PATH!, env.CERT_PFX_PASSWORD);
@@ -142,7 +143,7 @@ export async function buildApp() {
         return { loaded: false, error: msg };
       }
     });
-    app.get('/health/deps', { schema: { tags: ['Health'], summary: 'Dependencies health (DB and certificate)', response: { 200: { $ref: '#/components/schemas/DepsHealthResponse' } } } as any }, async () => {
+  app.get('/health/deps', { schema: { tags: ['Health'], summary: 'Dependencies health (DB and certificate)', response: { 200: { type: 'object', properties: { db: { type: 'object', properties: { ok: { type: 'boolean' }, error: { type: 'string' } }, required: ['ok'] }, cert: { type: 'object', properties: { ok: { type: 'boolean' }, error: { type: 'string' }, thumbprint: { type: 'string' }, notBefore: { type: 'string' }, notAfter: { type: 'string' }, daysToExpire: { type: 'number' } }, required: ['ok'] }, status: { type: 'string' }, timestamp: { type: 'string' } }, required: ['db','cert','status','timestamp'] } } } as any }, async () => {
       const result: { db: { ok: boolean; error?: string }, cert: { ok: boolean; error?: string; thumbprint?: string; notBefore?: string; notAfter?: string; daysToExpire?: number }, status?: string; timestamp?: string } = { db: { ok: false }, cert: { ok: false } };
       try { await prisma.$queryRaw`SELECT 1`; result.db.ok = true; } catch (e: unknown) { result.db.ok = false; result.db.error = e instanceof Error ? e.message : String(e); }
       try {

@@ -21,7 +21,7 @@ describe('metrics', () => {
     const app = Fastify({ logger: buildLogger(), trustProxy: true });
     registerMetricsHooks(app as any);
 
-    app.get('/hello/:id', async (req, reply) => {
+    app.get('/hello/:id', async () => {
       return { ok: true };
     });
 

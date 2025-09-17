@@ -1,5 +1,8 @@
 ## NFSe SP Service
 
+[![CI](https://github.com/igordev99/emissao-de-nota-automatica/actions/workflows/ci.yml/badge.svg)](https://github.com/igordev99/emissao-de-nota-automatica/actions)
+[![GHCR](https://img.shields.io/badge/GHCR-emissao--de--nota--automatica-blue?logo=docker)](https://github.com/users/igordev99/packages)
+
 Serviço em Node.js / TypeScript para emissão de NFS-e (modelo São Paulo) com:
 - Normalização e validação (Zod)
 - Idempotência e persistência (Prisma)

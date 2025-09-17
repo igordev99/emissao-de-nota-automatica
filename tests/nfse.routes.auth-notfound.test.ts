@@ -9,7 +9,7 @@ jest.mock('../src/infra/db/prisma', () => {
   return {
     prisma: {
       invoice: {
-        findUnique: jest.fn(async ({ where }: any) => null),
+  findUnique: jest.fn(async () => null),
         count: jest.fn(async () => 0),
         findMany: jest.fn(async () => [])
       }
@@ -39,8 +39,8 @@ describe('NFSe routes - auth (401) and not found (404)', () => {
   it('GET /nfse requires auth (401 when missing)', async () => {
     const app = makeApp();
     await app.ready();
-    const r = await app.inject({ method: 'GET', url: '/nfse' });
-    expect(r.statusCode).toBe(401);
+  const res = await app.inject({ method: 'GET', url: '/nfse' });
+  expect(res.statusCode).toBe(401);
     await app.close();
   });
 

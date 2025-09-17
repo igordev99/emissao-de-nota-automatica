@@ -20,14 +20,32 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         tags: ['NFSe'],
         summary: 'Emitir NFS-e',
         security: [{ bearerAuth: [] }],
-        headers: { $ref: '#/components/schemas/NfseIdempotencyHeaders' },
-        body: { $ref: '#/components/schemas/NfseEmitRequest' },
+        headers: { type: 'object', properties: { 'idempotency-key': { type: 'string' } } },
+        body: {
+          type: 'object',
+          properties: {
+            rpsNumber: { type: 'string' },
+            rpsSeries: { type: 'string' },
+            issueDate: { type: 'string' },
+            serviceCode: { type: 'string' },
+            serviceDescription: { type: 'string' },
+            serviceAmount: { type: 'number' },
+            taxRate: { type: 'number' },
+            issRetained: { type: 'boolean' },
+            cnae: { type: 'string' },
+            deductionsAmount: { type: 'number' },
+            provider: { type: 'object', properties: { cnpj: { type: 'string' } }, required: ['cnpj'] },
+            customer: { type: 'object', properties: { cpf: { type: 'string' }, cnpj: { type: 'string' }, name: { type: 'string' }, email: { type: 'string' } }, required: ['name'] },
+            additionalInfo: { type: 'string' }
+          },
+          required: ['rpsSeries','issueDate','serviceCode','serviceDescription','serviceAmount','taxRate','issRetained','provider','customer']
+        },
         response: {
-          200: { $ref: '#/components/schemas/NfseEmitResponse' },
-          202: { $ref: '#/components/schemas/NfseEmitResponse' },
-          400: { $ref: '#/components/schemas/ErrorEnvelope' },
-          422: { $ref: '#/components/schemas/ErrorEnvelope' },
-          401: { $ref: '#/components/schemas/ErrorEnvelope' }
+          200: { type: 'object', properties: { status: { type: 'string' }, id: { type: 'string' }, nfseNumber: { type: 'string' } }, required: ['status','id'] },
+          202: { type: 'object', properties: { status: { type: 'string' }, id: { type: 'string' }, nfseNumber: { type: 'string' } }, required: ['status','id'] },
+          400: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
+          422: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
+          401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
       } as any
     } as any, async (req: EmitRequest, reply: FastifyReply) => {
@@ -63,12 +81,12 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         tags: ['NFSe'],
         summary: 'Consultar NFS-e por ID',
         security: [{ bearerAuth: [] }],
-        params: { $ref: '#/components/schemas/IdParam' },
+        params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
         response: {
-          200: { $ref: '#/components/schemas/NfseStatusResponse' },
-          401: { $ref: '#/components/schemas/ErrorEnvelope' },
-          404: { $ref: '#/components/schemas/ErrorEnvelope' },
-          422: { $ref: '#/components/schemas/ErrorEnvelope' }
+          200: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string' }, nfseNumber: { type: 'string' } }, required: ['id','status'] },
+          401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
+          404: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
+          422: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
       } as any
     } as any, async (req: IdRequest, reply: FastifyReply) => {
@@ -94,11 +112,11 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         tags: ['NFSe'],
         summary: 'Obter PDF em base64',
         security: [{ bearerAuth: [] }],
-        params: { $ref: '#/components/schemas/IdParam' },
+        params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
         response: {
-          200: { $ref: '#/components/schemas/NfsePdfResponse' },
-          401: { $ref: '#/components/schemas/ErrorEnvelope' },
-          404: { $ref: '#/components/schemas/ErrorEnvelope' }
+          200: { type: 'object', properties: { id: { type: 'string' }, pdfBase64: { type: 'string' } }, required: ['id','pdfBase64'] },
+          401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
+          404: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
       } as any
     } as any, async (req: IdRequest, reply: FastifyReply) => {
@@ -146,11 +164,11 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         tags: ['NFSe'],
         summary: 'Obter XML em base64',
         security: [{ bearerAuth: [] }],
-        params: { $ref: '#/components/schemas/IdParam' },
+        params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
         response: {
-          200: { $ref: '#/components/schemas/NfseXmlResponse' },
-          401: { $ref: '#/components/schemas/ErrorEnvelope' },
-          404: { $ref: '#/components/schemas/ErrorEnvelope' }
+          200: { type: 'object', properties: { id: { type: 'string' }, xmlBase64: { type: 'string' } }, required: ['id','xmlBase64'] },
+          401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
+          404: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
       } as any
     } as any, async (req: IdRequest, reply: FastifyReply) => {
@@ -199,10 +217,47 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         tags: ['NFSe'],
         summary: 'Listar NFS-e',
         security: [{ bearerAuth: [] }],
-        querystring: { $ref: '#/components/schemas/NfseListQuery' },
+        querystring: {
+          type: 'object',
+          properties: {
+            status: { type: 'string', enum: ['PENDING','SUCCESS','REJECTED','CANCELLED'], description: 'Filtra por status' },
+            providerCnpj: { type: 'string', description: 'CNPJ do prestador' },
+            customerDoc: { type: 'string', description: 'Documento do tomador (CPF/CNPJ)' },
+            from: { type: 'string', description: 'Data inicial (ISO)' },
+            to: { type: 'string', description: 'Data final (ISO)' },
+            page: { type: 'integer', minimum: 1, default: 1, description: 'Página (1-based)' },
+            pageSize: { type: 'integer', minimum: 1, maximum: 100, default: 20, description: 'Itens por página' }
+          }
+        },
         response: {
-          200: { $ref: '#/components/schemas/NfseListResponse' },
-          401: { $ref: '#/components/schemas/ErrorEnvelope' }
+          200: {
+            type: 'object',
+            properties: {
+              page: { type: 'integer' },
+              pageSize: { type: 'integer' },
+              total: { type: 'integer' },
+              items: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    status: { type: 'string' },
+                    nfseNumber: { type: 'string' },
+                    rpsNumber: { type: 'string' },
+                    rpsSeries: { type: 'string' },
+                    issueDate: { type: 'string' },
+                    providerCnpj: { type: 'string' },
+                    customerDoc: { type: 'string' },
+                    serviceAmount: { type: 'number' }
+                  },
+                  required: ['id','status','rpsNumber','rpsSeries','issueDate','providerCnpj','serviceAmount']
+                }
+              }
+            },
+            required: ['page','pageSize','total','items']
+          },
+          401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
       } as any
     } as any, async (req: FastifyRequest<{ Querystring: { status?: string; providerCnpj?: string; customerDoc?: string; from?: string; to?: string; page?: number; pageSize?: number } }>, reply: FastifyReply) => {
@@ -285,11 +340,11 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         tags: ['NFSe'],
         summary: 'Cancelar NFS-e',
         security: [{ bearerAuth: [] }],
-        params: { $ref: '#/components/schemas/IdParam' },
+        params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
         response: {
-          200: { $ref: '#/components/schemas/NfseCancelResponse' },
-          401: { $ref: '#/components/schemas/ErrorEnvelope' },
-          404: { $ref: '#/components/schemas/ErrorEnvelope' }
+          200: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string' } }, required: ['id','status'] },
+          401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
+          404: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
       } as any
     } as any, async (req: IdRequest, reply: FastifyReply) => {
