@@ -1,0 +1,47 @@
+groups:
+  - name: nfse-sp-service
+    rules:
+      - alert: NFSeAppDown
+        expr: app_live == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "NFSe app is not live"
+          description: "app_live is 0 for more than 1 minute"
+
+      - alert: NFSeDBDown
+        expr: db_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "NFSe database is down"
+          description: "db_up is 0 for more than 1 minute"
+
+      - alert: NFSeLatencyHighP95
+        expr: histogram_quantile(0.95, sum by (le, method, route) (rate(http_request_duration_seconds_by_route_bucket[5m]))) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NFSe p95 latency high (>500ms)"
+          description: "p95 latency above threshold for 5 minutes"
+
+      - alert: NFSeEventLoopLagHigh
+        expr: nodejs_eventloop_lag_seconds{stat="mean"} > 0.2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NFSe event loop lag high"
+          description: "Mean event loop lag above 200ms for 5 minutes"
+
+      - alert: NFSeInflightTooHigh
+        expr: sum(http_requests_in_flight) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NFSe many requests in flight"
+          description: "In-flight requests above 100 for 5 minutes"

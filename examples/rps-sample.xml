@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nfse:Rps xmlns:nfse="http://www.abrasf.org.br/nfse.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.abrasf.org.br/nfse.xsd NFSe.xsd" versao="2.03">
+  <IdentificacaoRps>
+    <Numero>10</Numero>
+    <Serie>A</Serie>
+    <Tipo>1</Tipo>
+  </IdentificacaoRps>
+  <DataEmissao>2024-01-01T10:00:00.000Z</DataEmissao>
+  <NaturezaOperacao>1</NaturezaOperacao>
+  <OptanteSimplesNacional>2</OptanteSimplesNacional>
+  <IncentivadorCultural>2</IncentivadorCultural>
+  <Status>1</Status>
+  <Servico>
+    <Valores>
+      <ValorServicos>123.45</ValorServicos>
+      <IssRetido>2</IssRetido>
+      <Aliquota>0.0200</Aliquota>
+    </Valores>
+    <ItemListaServico>101</ItemListaServico>
+    <Discriminacao>Serviço de &lt;Teste&gt; &amp; &quot;Escapes&quot;</Discriminacao>
+  <CodigoTributacaoMunicipio>0107</CodigoTributacaoMunicipio>
+  <CodigoCnae>6201500</CodigoCnae>
+  </Servico>
+  <Prestador>
+    <Cnpj>11111111000111</Cnpj>
+    <InscricaoMunicipal>123456</InscricaoMunicipal>
+  </Prestador>
+  <Tomador>
+    <IdentificacaoTomador>
+      <CpfCnpj>
+        <Cnpj>22222222000122</Cnpj>
+      </CpfCnpj>
+    </IdentificacaoTomador>
+    <RazaoSocial>Empresa &amp; Co</RazaoSocial>
+    <Email>cliente@example.com</Email>
+    <Endereco>
+      <Endereco>Rua &amp; Principal</Endereco>
+      <Numero>123</Numero>
+      <Complemento>Sala &lt;2&gt;</Complemento>
+      <Bairro>Centro</Bairro>
+      <CodigoMunicipio>3550308</CodigoMunicipio>
+      <Uf>SP</Uf>
+      <Cep>01001000</Cep>
+    </Endereco>
+  </Tomador>
+  <OutrasInformacoes>Obs &amp; detalhes &lt;importantes&gt;</OutrasInformacoes>
+</nfse:Rps>

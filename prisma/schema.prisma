@@ -1,0 +1,87 @@
+// Prisma schema for NFSe service
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InvoiceStatus {
+  PENDING
+  SUCCESS
+  REJECTED
+  CANCELLED
+}
+
+enum LogLevel {
+  TRACE
+  DEBUG
+  INFO
+  WARN
+  ERROR
+}
+
+model Invoice {
+  id                String        @id @default(uuid())
+  rpsNumber         String
+  rpsSeries         String
+  issueDate         DateTime
+  providerCnpj      String
+  customerDoc       String?
+  serviceCode       String
+  serviceDescription String?
+  serviceAmount     Decimal       @db.Decimal(14,2)
+  taxRate           Decimal       @db.Decimal(5,2)
+  issRetained       Boolean       @default(false)
+  cnae              String?
+  deductionsAmount  Decimal?      @db.Decimal(14,2)
+  status            InvoiceStatus @default(PENDING)
+  nfseNumber        String?
+  verificationCode  String?
+  xmlBase64         String?
+  pdfBase64         String?
+  xmlHash           String?
+  pdfHash           String?
+  xmlSignedEncrypted String?      // JSON com objeto {iv,tag,data} ou null
+  rawNormalizedJson Json
+  agentRequestHash  String?
+  agentResponseHash String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  logs              LogEntry[]
+  idempotencyKeys   IdempotencyKey[]
+
+  @@unique([rpsNumber, rpsSeries, providerCnpj])
+  @@index([status])
+}
+
+model LogEntry {
+  id        String    @id @default(uuid())
+  invoiceId String?
+  invoice   Invoice?  @relation(fields: [invoiceId], references: [id])
+  level     LogLevel
+  message   String
+  context   Json?
+  traceId   String?
+  createdAt DateTime  @default(now())
+
+  @@index([invoiceId])
+  @@index([createdAt])
+}
+
+model IdempotencyKey {
+  key            String   @id
+  invoiceId      String
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id])
+  statusSnapshot InvoiceStatus
+  responseJson   Json?
+  createdAt      DateTime @default(now())
+  lockedAt       DateTime?
+  expiresAt      DateTime?
+
+  @@index([expiresAt])
+}

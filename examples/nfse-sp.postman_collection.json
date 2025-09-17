@@ -1,0 +1,121 @@
+{
+  "info": {
+    "_postman_id": "3c6cf9de-9f88-4c36-9b0b-6e0f17f7be9e",
+    "name": "NFSe SP Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleção de endpoints do NFSe SP Service"
+  },
+  "item": [
+    {
+      "name": "Ready",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/ready",
+          "host": ["{{baseUrl}}"],
+          "path": ["ready"]
+        }
+      }
+    },
+    {
+      "name": "Metrics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/metrics",
+          "host": ["{{baseUrl}}"],
+          "path": ["metrics"]
+        }
+      }
+    },
+    {
+      "name": "Emitir NFSe",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{jwt}}"},
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "idempotency-key", "value": "idem-{{idem}}"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rpsNumber\": \"1\",\n  \"rpsSeries\": \"A\",\n  \"issueDate\": \"2025-09-16T10:00:00.000Z\",\n  \"serviceCode\": \"101\",\n  \"serviceDescription\": \"Serviço de informática\",\n  \"serviceAmount\": 150.5,\n  \"taxRate\": 0.02,\n  \"issRetained\": false,\n  \"provider\": { \"cnpj\": \"12345678000199\" },\n  \"customer\": { \"cnpj\": \"99887766000155\", \"name\": \"Cliente Exemplo\" }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/nfse/emitir",
+          "host": ["{{baseUrl}}"],
+          "path": ["nfse","emitir"]
+        }
+      }
+    },
+    {
+      "name": "Listar NFSe",
+      "request": {
+        "method": "GET",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{jwt}}"}
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/nfse?page=1&pageSize=10&status=SUCCESS",
+          "host": ["{{baseUrl}}"],
+          "path": ["nfse"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "pageSize", "value": "10"},
+            {"key": "status", "value": "SUCCESS"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Obter XML",
+      "request": {
+        "method": "GET",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{jwt}}"}
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/nfse/{{id}}/xml",
+          "host": ["{{baseUrl}}"],
+          "path": ["nfse","{{id}}","xml"]
+        }
+      }
+    },
+    {
+      "name": "Obter PDF",
+      "request": {
+        "method": "GET",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{jwt}}"}
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/nfse/{{id}}/pdf",
+          "host": ["{{baseUrl}}"],
+          "path": ["nfse","{{id}}","pdf"]
+        }
+      }
+    },
+    {
+      "name": "Cancelar NFSe",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{jwt}}"}
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/nfse/{{id}}/cancel",
+          "host": ["{{baseUrl}}"],
+          "path": ["nfse","{{id}}","cancel"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:3000"},
+    {"key": "jwt", "value": "<cole aqui o token>"},
+    {"key": "idem", "value": "123"},
+    {"key": "id", "value": "inv_1"}
+  ]
+}

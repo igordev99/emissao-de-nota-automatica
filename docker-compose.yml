@@ -1,0 +1,32 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: nfse
+      POSTGRES_PASSWORD: nfse
+      POSTGRES_DB: nfse
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://nfse:nfse@db:5432/nfse?schema=public
+      JWT_SECRET: change_this_development_secret_please
+      AGENT_BASE_URL: https://agente-homolog.fake
+      METRICS_ENABLED: "1"
+    ports:
+      - "3000:3000"
+    command: ["node", "dist/server.js"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+volumes:
+  pgdata:
