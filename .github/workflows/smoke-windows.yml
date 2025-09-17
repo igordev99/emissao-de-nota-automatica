@@ -1,0 +1,38 @@
+name: Smoke (Windows, AutoStart)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  smoke-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci
+      - name: Generate Prisma Client
+        run: npx prisma generate
+      - name: Run smoke with AutoStart and save report
+        shell: pwsh
+        id: smoke
+        run: |
+          $ts = (Get-Date -Format yyyyMMdd_HHmmss)
+          npm run smoke:report
+          $last = Get-ChildItem -Path . -Filter 'smoke_*.json' | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if ($null -eq $last) { throw 'Nenhum smoke_*.json gerado' }
+          Write-Host "Relatório: $($last.FullName)"
+          echo "reportPath=$($last.FullName)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Append -Encoding utf8
+      - name: Upload smoke report
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-report
+          path: ${{ steps.smoke.outputs.reportPath }}
+      - name: Print summary
+        run: npm run smoke:report:summary
+        shell: pwsh

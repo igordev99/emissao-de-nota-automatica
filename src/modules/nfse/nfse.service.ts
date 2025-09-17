@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { agentClient } from '../../core/agent/agent-client';
-import { RejectionError, IdempotencyConflictError } from '../../core/errors';
+import { RejectionError, IdempotencyConflictError, BaseAppError } from '../../core/errors';
 import { normalizeInvoice } from '../../core/normalization/normalizer';
 import { buildRpsXml } from '../../core/xml/abrassf-generator';
 import { signXmlEnveloped } from '../../core/xml/signer';
@@ -39,40 +39,83 @@ export async function emitInvoice(raw: unknown, idempotencyKey?: string): Promis
     await audit('INFO', 'Auto-generated RPS number', { providerCnpj: normalized.provider.cnpj, rpsSeries: normalized.rpsSeries, rpsNumber: next });
   }
 
-  // Idempotency check
-  if (idempotencyKey) {
-    const existing = await prisma.idempotencyKey.findUnique({ where: { key: idempotencyKey }, include: { invoice: true } });
-    if (existing) {
-      if (existing.payloadHash && existing.payloadHash !== payloadHash) {
-        throw new IdempotencyConflictError('Same idempotency-key used with a different payload');
+  // Idempotency check + criação inicial dentro de uma transação para garantir atomicidade
+  let invoice: any; let reused = false; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const hasTx = typeof (prisma as any).$transaction === 'function'; // eslint-disable-line @typescript-eslint/no-explicit-any
+  if (hasTx) {
+    const txResult = await (prisma as any).$transaction(async (tx: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+      if (idempotencyKey) {
+        const existing = await tx.idempotencyKey.findUnique({ where: { key: idempotencyKey }, include: { invoice: true } });
+        if (existing) {
+          if (existing.payloadHash && existing.payloadHash !== payloadHash) {
+            throw new IdempotencyConflictError('Same idempotency-key used with a different payload');
+          }
+          if (existing.invoice) {
+            return { invoice: existing.invoice, reused: true };
+          }
+        }
       }
-      if (existing.invoice) {
-        return { status: existing.statusSnapshot, id: existing.invoiceId, nfseNumber: existing.invoice.nfseNumber || undefined };
+      const created = await tx.invoice.create({
+        data: {
+          rpsNumber: normalized.rpsNumber,
+          rpsSeries: normalized.rpsSeries,
+          issueDate: new Date(normalized.issueDate),
+          providerCnpj: normalized.provider.cnpj,
+          customerDoc: normalized.customer.cnpj || normalized.customer.cpf || null,
+          serviceCode: normalized.serviceCode,
+          serviceDescription: normalized.serviceDescription,
+          serviceAmount: normalized.serviceAmount,
+          taxRate: normalized.taxRate,
+          issRetained: normalized.issRetained,
+          cnae: normalized.cnae,
+          deductionsAmount: normalized.deductionsAmount,
+          rawNormalizedJson: normalized
+        }
+      });
+      if (idempotencyKey) {
+        await tx.idempotencyKey.create({ data: { key: idempotencyKey, invoiceId: created.id, statusSnapshot: created.status, payloadHash } });
+      }
+      return { invoice: created, reused: false };
+    });
+    invoice = (txResult as any).invoice; reused = (txResult as any).reused; // eslint-disable-line @typescript-eslint/no-explicit-any
+  } else {
+    // Fallback non-transactional path (suficiente para testes/memória)
+    if (idempotencyKey) {
+      const existing = await (prisma as any).idempotencyKey.findUnique({ where: { key: idempotencyKey }, include: { invoice: true } }); // eslint-disable-line @typescript-eslint/no-explicit-any
+      if (existing) {
+        if (existing.payloadHash && existing.payloadHash !== payloadHash) {
+          throw new IdempotencyConflictError('Same idempotency-key used with a different payload');
+        }
+        if (existing.invoice) {
+          invoice = existing.invoice; reused = true;
+        }
+      }
+    }
+    if (!invoice) {
+      invoice = await (prisma as any).invoice.create({ data: {
+        rpsNumber: normalized.rpsNumber,
+        rpsSeries: normalized.rpsSeries,
+        issueDate: new Date(normalized.issueDate),
+        providerCnpj: normalized.provider.cnpj,
+        customerDoc: normalized.customer.cnpj || normalized.customer.cpf || null,
+        serviceCode: normalized.serviceCode,
+        serviceDescription: normalized.serviceDescription,
+        serviceAmount: normalized.serviceAmount,
+        taxRate: normalized.taxRate,
+        issRetained: normalized.issRetained,
+        cnae: normalized.cnae,
+        deductionsAmount: normalized.deductionsAmount,
+        rawNormalizedJson: normalized
+      } });
+      if (idempotencyKey) {
+        await (prisma as any).idempotencyKey.create({ data: { key: idempotencyKey, invoiceId: invoice.id, statusSnapshot: invoice.status, payloadHash } });
       }
     }
   }
-
-  // Cria invoice inicial PENDING
-  const invoice = await prisma.invoice.create({
-    data: {
-      rpsNumber: normalized.rpsNumber,
-      rpsSeries: normalized.rpsSeries,
-      issueDate: new Date(normalized.issueDate),
-      providerCnpj: normalized.provider.cnpj,
-      customerDoc: normalized.customer.cnpj || normalized.customer.cpf || null,
-      serviceCode: normalized.serviceCode,
-      serviceDescription: normalized.serviceDescription,
-      serviceAmount: normalized.serviceAmount,
-      taxRate: normalized.taxRate,
-      issRetained: normalized.issRetained,
-      cnae: normalized.cnae,
-      deductionsAmount: normalized.deductionsAmount,
-      rawNormalizedJson: normalized
-    }
-  });
-
-  if (idempotencyKey) {
-    await prisma.idempotencyKey.create({ data: { key: idempotencyKey, invoiceId: invoice.id, statusSnapshot: invoice.status, payloadHash } });
+  const reusedResult = reused ? { status: invoice.status, id: invoice.id, nfseNumber: invoice.nfseNumber || undefined } : null;
+  if (reusedResult) return reusedResult;
+  if (reused) {
+    return { status: invoice.status, id: invoice.id, nfseNumber: invoice.nfseNumber || undefined };
   }
   await audit('INFO', 'Invoice created PENDING', { invoiceId: invoice.id, rpsNumber: invoice.rpsNumber });
 
@@ -140,13 +183,22 @@ export async function getInvoice(id: string) {
   return prisma.invoice.findUnique({ where: { id } });
 }
 
-export async function cancelInvoiceById(id: string) {
+export async function cancelInvoiceById(id: string, reason?: string) {
   const invoice = await prisma.invoice.findUnique({ where: { id } });
   if (!invoice) return null;
-  await audit('INFO', 'Cancel request started', { invoiceId: id });
-  const agent = await agentClient.cancelInvoice(id);
+  if (invoice.status === 'CANCELLED' || invoice.status === 'REJECTED') {
+    throw new BaseAppError('INVALID_STATE', `Cannot cancel invoice in status ${invoice.status}`, 409);
+  }
+  await audit('INFO', 'Cancel request started', { invoiceId: id, reason });
+  const agent = await agentClient.cancelInvoice(id, reason);
   const newStatus = agent.status === 'CANCELLED' ? 'CANCELLED' : (agent.status === 'REJECTED' ? 'REJECTED' : 'PENDING');
-  const updated = await prisma.invoice.update({ where: { id }, data: { status: newStatus as any } }); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const data: any = { status: newStatus }; // eslint-disable-line @typescript-eslint/no-explicit-any
+  if (newStatus === 'CANCELLED') {
+    data.cancelReason = reason || data.cancelReason;
+    data.canceledAt = new Date();
+  }
+  const updated = await (prisma as any).invoice.update({ where: { id }, data }); // eslint-disable-line @typescript-eslint/no-explicit-any
   await audit('INFO', 'Cancel request finished', { invoiceId: id, status: updated.status });
-  return { id: updated.id, status: updated.status };
+  const canceledAt = updated.status === 'CANCELLED' ? (updated.canceledAt ? new Date(updated.canceledAt).toISOString() : new Date().toISOString()) : undefined;
+  return { id: updated.id, status: updated.status, canceledAt };
 }

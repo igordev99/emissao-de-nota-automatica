@@ -33,6 +33,12 @@ export const env = (() => {
     console.error('JWT_SECRET is required in production');
     throw new Error('JWT_SECRET is required in production');
   }
+  // Require DATABASE_URL for production by default
+  if (parsed.data.NODE_ENV === 'production' && !parsed.data.DATABASE_URL) {
+    // eslint-disable-next-line no-console
+    console.error('DATABASE_URL is required in production');
+    throw new Error('DATABASE_URL is required in production');
+  }
   // Defaults pós-parse
   const data = parsed.data;
   if (!data.METRICS_ENABLED && data.NODE_ENV !== 'production') {

@@ -1,0 +1,12 @@
+{
+  "rpsSeries": "A",
+  "issueDate": "2025-09-16T10:00:00.000Z",
+  "serviceCode": "101",
+  "serviceDescription": "Serviço com deduções",
+  "serviceAmount": 500.0,
+  "deductionsAmount": 50.0,
+  "taxRate": 0.02,
+  "issRetained": false,
+  "provider": { "cnpj": "66666666000150" },
+  "customer": { "cnpj": "77777777000131", "name": "Cliente Dedução" }
+}

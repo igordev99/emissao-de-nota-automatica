@@ -1,0 +1,24 @@
+{
+  "rpsSeries": "A",
+  "issueDate": "2025-09-16T10:00:00.000Z",
+  "serviceCode": "101",
+  "serviceDescription": "Serviço com endereço completo",
+  "serviceAmount": 350.75,
+  "taxRate": 0.03,
+  "issRetained": false,
+  "provider": { "cnpj": "44444444000115" },
+  "customer": {
+    "cnpj": "55555555000108",
+    "name": "Cliente Endereço",
+    "email": "cliente@endereco.com",
+    "address": {
+      "street": "Rua Exemplo",
+      "number": "123",
+      "complement": "Conj. 45",
+      "district": "Centro",
+      "cityCode": "3550308",
+      "state": "SP",
+      "zip": "01001000"
+    }
+  }
+}

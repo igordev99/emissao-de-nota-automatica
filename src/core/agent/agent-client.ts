@@ -97,12 +97,12 @@ export class AgentClient {
     }
   }
 
-  async cancelInvoice(id: string): Promise<{ status: 'CANCELLED' | 'REJECTED' | 'ERROR'; raw?: unknown }> {
+  async cancelInvoice(id: string, reason?: string): Promise<{ status: 'CANCELLED' | 'REJECTED' | 'ERROR'; raw?: unknown }> {
     if (this.stub) {
-      return { status: 'CANCELLED', raw: { stub: true } };
+      return { status: 'CANCELLED', raw: { stub: true, reason } };
     }
     try {
-  const resp = await this.http!.post(`/nfse/${id}/cancelar`);
+  const resp = await this.http!.post(`/nfse/${id}/cancelar`, reason ? { reason } : undefined);
       const body = resp.data || {};
       return { status: (body.status as any) || 'CANCELLED', raw: body }; // eslint-disable-line @typescript-eslint/no-explicit-any
     } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any

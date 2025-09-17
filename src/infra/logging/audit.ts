@@ -1,5 +1,6 @@
 import { maskDocument } from '../../core/errors';
 import { prisma } from '../db/prisma';
+import { getCorrelationId } from '../context/async-context';
 
 type AuditContext = Record<string, unknown>;
 type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
@@ -7,13 +8,14 @@ type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 export async function audit(level: 'INFO' | 'ERROR' | 'DEBUG', message: string, ctx?: AuditContext, invoiceId?: string, traceId?: string) {
   try {
   const safeCtx = sanitize(ctx);
+    const corr = traceId || getCorrelationId();
     await prisma.logEntry.create({
       data: {
         level,
         message,
         context: safeCtx || undefined,
         invoiceId: invoiceId || undefined,
-        traceId
+        traceId: corr
       }
     });
   } catch (err) {

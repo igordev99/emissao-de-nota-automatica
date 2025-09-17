@@ -12,9 +12,17 @@ import { errorHandler } from './infra/http/error-handler';
 import { buildLogger } from './infra/logging/logger';
 import { getEventLoopLagSeconds, observeDbPingSeconds, registerMetricsHooks, setAppReadiness, setDbStatus } from './infra/observability/metrics';
 import { registerNfseRoutes } from './modules/nfse/nfse.routes';
+import { setContext } from './infra/context/async-context';
 
 export async function buildApp() {
-  const app = Fastify({ logger: buildLogger(), trustProxy: true });
+  const app = Fastify({
+    logger: buildLogger(),
+    trustProxy: true,
+    ajv: {
+      // Allow OpenAPI-friendly keywords in route schemas and relax strictness for DX
+      customOptions: { keywords: ['example'], strict: false }
+    }
+  });
   let hasSwagger = false;
 
   // Plugins base
@@ -76,8 +84,22 @@ export async function buildApp() {
   }
 
   app.setErrorHandler(errorHandler);
-  app.addHook('onRequest', async (req: any) => { req.log.setBindings({ traceId: req.id }); }); // eslint-disable-line @typescript-eslint/no-explicit-any
-  app.addHook('onSend', async (req: any, reply: any, payload: any) => { if (typeof reply.header === 'function') { reply.header('x-trace-id', req.id); } return payload; }); // eslint-disable-line @typescript-eslint/no-explicit-any
+  // Correlation ID: aceita x-correlation-id/x-request-id ou gera a partir de req.id
+  app.addHook('onRequest', async (req: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    const hdrs = (req.headers || {}) as Record<string, string>;
+    const corr = hdrs['x-correlation-id'] || hdrs['x-request-id'] || req.id;
+    (req as any).correlationId = corr;
+    req.log.setBindings({ traceId: corr });
+    setContext({ correlationId: corr, traceId: corr });
+  });
+  app.addHook('onSend', async (req: any, reply: any, payload: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    const corr = (req as any).correlationId || req.id;
+    if (typeof reply.header === 'function') {
+      reply.header('x-trace-id', corr);
+      reply.header('x-correlation-id', corr);
+    }
+    return payload;
+  });
 
   // Exposição opcional do OpenAPI JSON
   try {

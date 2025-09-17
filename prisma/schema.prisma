@@ -46,6 +46,8 @@ model Invoice {
   xmlHash           String?
   pdfHash           String?
   xmlSignedEncrypted String?      // JSON com objeto {iv,tag,data} ou null
+  cancelReason      String?
+  canceledAt        DateTime?
   rawNormalizedJson Json
   agentRequestHash  String?
   agentResponseHash String?

@@ -205,6 +205,198 @@ npm test          # Testes
 npm run coverage  # Cobertura
 ```
 
+### Quickstart local (resumo)
+1) Dependências e Prisma Client:
+```powershell
+npm ci
+npm run prisma:generate
+```
+2) Banco e migrações (ou use um comando só no passo 3):
+```powershell
+# Subir Postgres (Docker)
+npm run db:up
+# Aplicar migrações Prisma
+npm run prisma:migrate
+```
+3) Subir API (dev):
+```powershell
+npm run dev:local
+```
+
+Atalho (um comando só):
+```powershell
+npm run dev:up
+```
+Esse script: sobe o DB via Docker, aguarda a porta 5432 responder, aplica migrações e inicia o servidor de desenvolvimento.
+
+Modo sem banco (memória) — útil quando você não tem Docker/Postgres:
+```powershell
+npm run dev:mem
+```
+
+Atalho Windows (libera a porta e inicia em memória):
+```powershell
+npm run dev:mem:win
+```
+
+Start completo no Windows (libera porta, sobe servidor, espera /live e roda smoke):
+```powershell
+npm run dev:win:start
+```
+Start completo no Windows salvando relatório JSON automaticamente:
+```powershell
+npm run dev:win:start-report
+```
+Atalho Windows para teste rápido de emissão (sem baixar artefatos e sem cancelar):
+```powershell
+npm run dev:win:emit-only
+```
+Atalho Windows (emit-only) salvando relatório JSON automaticamente:
+```powershell
+npm run dev:win:emit-report
+```
+Observações do modo memória:
+- Os dados não são persistidos (somem ao reiniciar).
+- Idempotência e numeração RPS funcionam na sessão atual.
+- O smoke funciona normalmente (agente em modo stub se `AGENT_BASE_URL` não estiver definido).
+4) Token de dev e chamadas (PowerShell):
+```powershell
+# Opção A: gerar um token localmente (sem chamar a API)
+$jwt = (npm run -s token -- --sub dev --roles tester | ConvertFrom-Json).token
+
+# Opção B: obter token do endpoint de dev (não disponível em produção)
+$jwt = Invoke-RestMethod -Method Post -Uri http://127.0.0.1:3000/auth/token -ContentType 'application/json' -Body '{}' | Select-Object -ExpandProperty token
+
+Invoke-RestMethod -Method Get -Uri http://127.0.0.1:3000/live -Headers @{ Authorization = "Bearer $jwt" } | ConvertTo-Json
+```
+
+Diagnóstico rápido e smoke enxuto:
+```powershell
+npm run health
+# Usando token gerado localmente
+$jwt = (npm run -s token -- --sub dev --roles tester | ConvertFrom-Json).token
+npm run smoke:fast -- -Token $jwt
+```
+
+Smoke somente de emissão (sem artefatos e sem cancelamento):
+```powershell
+npm run smoke:emit-only
+```
+Você também pode passar os parâmetros manualmente:
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BaseUrl http://127.0.0.1:3000 -SkipArtifacts -NoCancel
+```
+Notas do smoke:
+- O script imprime `x-correlation-id` das respostas para facilitar a correlação com logs.
+- A chave padrão de idempotência é randomizada por execução e, se receber `409 Conflict`, o script rotaciona a chave e reenvia.
+
+Gerar relatório JSON do smoke (útil para CI/diagnóstico):
+```powershell
+npm run smoke:report
+# ou manualmente
+$ts = Get-Date -Format yyyyMMdd_HHmmss
+./scripts/smoke.ps1 -SkipArtifacts -NoCancel -JsonOut "./smoke_$ts.json"
+```
+Campos incluídos no JSON: `baseUrl`, `startedAt`, `finishedAt`, `idempotencyKey`,
+`emit{ id, nfseNumber, status, correlationId, httpStatus, httpStatusCode, durationMs }`,
+`list{ total, itemsCount, durationMs }`,
+`artifacts{ xmlLength, pdfLength, durationMs }`,
+`cancel{ status|skipped, canceledAt, correlationId, httpStatus, httpStatusCode, durationMs }`,
+`steps[]` (cada passo contém `step`, `ok`, `durationMs` e, quando aplicável, `error`, `httpStatusCode`). O relatório também inclui `totalDurationMs` para o tempo total da execução.
+
+### Correlação (Correlation ID)
+- A API aceita o cabeçalho `x-correlation-id` (ou `x-request-id`) em qualquer requisição e o propaga no contexto.
+- Todas as respostas retornam o cabeçalho `x-correlation-id`. O `smoke.ps1` imprime esse valor para ajudar no trace.
+- O cliente TypeScript (`src/client/nfse-client.ts`) injeta automaticamente um `x-correlation-id` (customizável por callback/string) e expõe o valor retornado no `onResponse`.
+
+### Atalhos no VS Code
+- Tasks adicionadas em `.vscode/tasks.json`:
+  - `Smoke: Emit Only` → roda `npm run smoke:emit-only`.
+  - `Dev: Start + Emit Only (Windows)` → roda `npm run dev:win:emit-only` (libera porta, inicia em memória e executa smoke sem cancelar).
+	- `Smoke: Report` → roda `npm run smoke:report` e salva um arquivo `smoke_YYYYMMDD_HHMMSS.json` no diretório raiz.
+
+Resumo rápido do último relatório gerado:
+```powershell
+npm run smoke:report:summary
+```
+Ou de um arquivo específico:
+```powershell
+npm run smoke:summary -- ./smoke_20250917_170932.json
+```
+
+### Troubleshooting
+1) `409 Conflict` ao emitir:
+	- Causa comum: reutilização de `Idempotency-Key` com payload diferente (o serviço associa a chave ao hash do payload na primeira chamada).
+	- Soluções:
+	  - Gere uma nova chave (ex.: GUID) ou deixe o `smoke.ps1` randomizar automaticamente.
+	  - Se a intenção é reprocessar a mesma emissão, garanta que o payload seja idêntico ao da primeira tentativa.
+2) Token de dev indisponível (`/auth/token`):
+	- Gere localmente: `npm run -s token -- --sub dev --roles tester | ConvertFrom-Json` e passe `-Token` no smoke/CLI.
+3) Serviço não fica live:
+	- Use `npm run dev:win:start` para iniciar + diagnosticar; veja o PID e verifique logs.
+
+Demo fim-a-fim (gera token, emite, lista, baixa XML/PDF, cancela):
+```powershell
+npm run demo:emit
+```
+
+Demo rápido (gera token, emite e consulta por ID):
+```powershell
+npm run demo:quick
+```
+
+Demo emissão real (usa AGENT_BASE_URL e PFX do ambiente):
+```powershell
+$env:AGENT_BASE_URL="https://seu-agente..."
+$env:CERT_PFX_PATH="C:\caminho\seu.pfx"
+$env:CERT_PFX_PASSWORD="senha"
+npm run demo:real
+```
+
+CLI de desenvolvimento (sem depender de curl/Postman):
+```powershell
+# Preparar um token (gerado localmente)
+$jwt = (npm run -s token -- --sub dev --roles tester | ConvertFrom-Json).token
+
+# Emitir usando um arquivo JSON de exemplo (temos vários):
+# - examples/emit.json (mínimo)
+# - examples/emit-cpf.json (tomador CPF)
+# - examples/emit-iss-retido.json (ISS retido)
+# - examples/emit-address.json (endereço completo)
+# - examples/emit-deductions.json (com deduções)
+npm run -s cli -- emit --body examples/emit.json --idem idem-123 --token $jwt --pretty
+
+# Exemplos individuais
+npm run -s cli -- emit --body examples/emit-cpf.json --idem idem-cpf --token $jwt --pretty
+npm run -s cli -- emit --body examples/emit-iss-retido.json --idem idem-iss --token $jwt --pretty
+npm run -s cli -- emit --body examples/emit-address.json --idem idem-end --token $jwt --pretty
+npm run -s cli -- emit --body examples/emit-deductions.json --idem idem-ded --token $jwt --pretty
+
+# Consultar por ID
+npm run -s cli -- get --id inv_1 --token $jwt --pretty
+
+# Listar com filtros
+npm run -s cli -- list --status SUCCESS --page 1 --pageSize 5 --token $jwt --pretty
+
+# Baixar XML (base64 para arquivo)
+npm run -s cli -- xml --id inv_1 --out xml.b64 --token $jwt
+
+# Baixar PDF (decodificar base64 e salvar binário)
+npm run -s cli -- pdf --id inv_1 --out nfse.pdf --decode --token $jwt
+
+# Cancelar com motivo
+npm run -s cli -- cancel --id inv_1 --reason "Erro de digitação" --token $jwt --pretty
+```
+
+Liberar porta (Windows):
+```powershell
+npm run port:free
+```
+
+Observações de desenvolvimento:
+- Quando `AGENT_BASE_URL` não está definido, o cliente do agente opera em modo stub: retorna NFS-e fake (`status: SUCCESS`), XML/PDF base64 e cancelamento `CANCELLED`. Defina `AGENT_BASE_URL` (e opcionalmente `CERT_PFX_PATH`/`CERT_PFX_PASSWORD`) para usar o agente real.
+- O endpoint `POST /auth/token` só existe quando `NODE_ENV` não é `production`.
+
 ### Métricas (Prometheus)
 - Endpoint: `GET /metrics` (exposto quando `METRICS_ENABLED != 0`)
 - Métricas expostas:
@@ -379,6 +571,12 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/nfse/inv_123/xml
 curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/nfse/inv_123/pdf
 ```
 
+Listar com filtros (inclui nfseNumber):
+```bash
+curl -H "Authorization: Bearer $TOKEN" "http://localhost:3000/nfse?page=1&pageSize=20&status=SUCCESS"
+curl -H "Authorization: Bearer $TOKEN" "http://localhost:3000/nfse?nfseNumber=2025XXXX"
+```
+
 ### Segurança (Boas Práticas)
 - Não versionar PFX
 - Restringir permissões de leitura do certificado
@@ -438,6 +636,164 @@ Autenticação e Components
 Obter o documento OpenAPI (JSON):
 - Se os pacotes de Swagger estiverem instalados, o documento estará disponível em `GET /openapi.json`.
 - Caso não estejam, esse endpoint responderá `503` com a mensagem `Swagger não instalado`.
+
+Dump via script (sem depender da rota HTTP):
+```powershell
+# Imprime no stdout
+npm run openapi:dump
+# Salva no arquivo
+npm run openapi:dump > openapi.json
+```
+
+Gerar tipos TypeScript a partir do OpenAPI (útil para clientes):
+```powershell
+npm run openapi:types
+# Tipos gerados em: src/types/openapi.d.ts
+```
+
+### Sanidade de Certificado PFX e Agente (TLS)
+Verifique rapidamente se seu PFX e o endpoint do agente estão OK antes de habilitar a integração real.
+
+1) Checar PFX (thumbprint e validade):
+```powershell
+$env:CERT_PFX_PATH="C:\caminho\seu.pfx"
+$env:CERT_PFX_PASSWORD="senha-opcional"
+npm run -s check:pfx
+```
+Saída JSON esperada (exemplo):
+```json
+{"ok":true,"thumbprint":"ABC123...","notBefore":"2025-08-01T12:00:00.000Z","notAfter":"2026-08-01T12:00:00.000Z","daysToExpire":300}
+```
+
+2) Checar agente (TLS/mTLS):
+```powershell
+$env:AGENT_BASE_URL="https://seu-agente.exemplo.com/ping"
+# opcional mTLS
+$env:CERT_PFX_PATH="C:\caminho\seu.pfx"
+$env:CERT_PFX_PASSWORD="senha"
+npm run -s check:agent
+```
+Saída JSON esperada (exemplo):
+```json
+{"ok":true,"status":200}
+```
+
+### Playbook: Integrando com agente real
+Passo a passo recomendado para ligar a integração real com mTLS:
+
+1) Pré-checagens
+- `npm run -s check:pfx` → confirme `thumbprint` e `daysToExpire` > 0
+- `npm run -s check:agent` com `AGENT_BASE_URL` e PFX (se o agente exigir mTLS)
+
+2) Subir o serviço apontando para o agente (pode ser em memória):
+```powershell
+$env:AGENT_BASE_URL="https://seu-agente..."
+$env:CERT_PFX_PATH="C:\caminho\seu.pfx"
+$env:CERT_PFX_PASSWORD="senha"
+npm run dev:win:start
+```
+
+3) Emissão real (via CLI ou cliente TS)
+- CLI: `npm run -s cli -- emit --body examples/emit.json --idem idem-$(Get-Date -Format yyyyMMddHHmmss) --token (npm run -s token | ConvertFrom-Json).token --pretty`
+- Cliente TS: use `createNfseClient` e os métodos `emit/get/list/...` com timeouts/retries e `onResponse` para logar `x-correlation-id`.
+
+4) Troubleshooting (erros comuns)
+- "CERT_PFX_PATH not configured": defina as variáveis e valide com `check:pfx`.
+- "certificate unknown/SELF_SIGNED_CERT_IN_CHAIN": verifique cadeia/intermediários no agente ou ajuste trust store conforme política da sua infra.
+- TLS protocol/version: requer TLS 1.2+ (ajustado no `https.Agent`).
+- SNI/Hostname mismatch: confirme que o `AGENT_BASE_URL` corresponde ao CN/SAN do certificado do servidor.
+- Timeout/conexão reset: ajuste `retry` e `defaultTimeoutMs` no cliente; verifique firewall/proxy.
+
+Cliente TypeScript (Node 18+)
+```ts
+import { createNfseClient } from './src/client';
+
+const client = createNfseClient({
+	baseUrl: 'http://127.0.0.1:3000',
+	token: process.env.JWT_TOKEN // ou use getToken()
+});
+
+const emitted = await client.emit({
+	rpsSeries: 'A',
+	issueDate: new Date().toISOString(),
+	serviceCode: '101',
+	serviceDescription: 'Teste',
+	serviceAmount: 100,
+	taxRate: 0.02,
+	issRetained: false,
+	provider: { cnpj: '11111111000191' },
+	customer: { name: 'Cliente Teste', cpf: '12345678909' }
+}, { idempotencyKey: 'demo-' + Date.now() });
+
+const got = await client.get(emitted.id);
+const list = await client.list({ page: 1, pageSize: 10 });
+const xml = await client.xml(emitted.id);
+const pdf = await client.pdf(emitted.id);
+const cancelled = await client.cancel(emitted.id, 'Cancel demo');
+```
+
+Overrides por chamada (timeout/retry/correlation):
+```ts
+// Exemplo: aumentar timeout e tentativas apenas nesta chamada
+const got = await client.get('inv_123', {
+	timeoutMs: 15000,
+	retry: { retries: 3, minDelayMs: 500 },
+	correlationId: 'get-inv-123'
+});
+```
+
+Capturar headers/resposta (ex.: correlation-id) com callback:
+```ts
+const client = createNfseClient({
+	baseUrl: 'http://127.0.0.1:3000',
+	getToken: () => process.env.JWT_TOKEN!,
+	onResponse: ({ status, headers, correlationId, url }) => {
+		console.log('HTTP', status, 'cid=', correlationId, 'url=', url);
+	}
+});
+
+// Ou apenas nesta chamada
+await client.emit(payload, {
+	idempotencyKey: 'idem-1',
+	onResponse: (meta) => console.log('emit meta:', meta)
+});
+```
+
+Opções avançadas do cliente (timeouts, retries, correlation-id):
+```ts
+const client = createNfseClient({
+	baseUrl: 'http://127.0.0.1:3000',
+	getToken: () => process.env.JWT_TOKEN!,
+	// Timeout por requisição (ms). Padrão: 10000
+	defaultTimeoutMs: 10000,
+	// Política de retry para erros transitórios
+	retry: {
+		retries: 2,        // tentativas adicionais (total = 1 + retries)
+		minDelayMs: 300,   // backoff inicial
+		maxDelayMs: 2000,  // teto do backoff
+		backoffFactor: 2,  // multiplicador do delay
+		// opcional: personalizar quando fazer retry
+		// retryOn: (status) => status === 429 || (status >= 500 && status < 600)
+	},
+	// Correlation-id por request (aparece nos logs do servidor)
+	correlationId: () => `cli-${Date.now().toString(16)}-${Math.random().toString(16).slice(2,10)}`,
+});
+```
+
+Demo do cliente:
+```powershell
+npm run client:demo
+```
+
+Verificar assinatura XML (arquivo ou base64):
+```powershell
+# De um arquivo XML assinado
+npm run -s verify:xml -- --file examples/rps-sample.xml
+
+# A partir de base64 (ex.: xml.b64)
+$b64 = Get-Content xml.b64 -Raw
+npm run -s verify:xml -- --b64 $b64
+```
 
 ### Autenticação (JWT) nos endpoints de NFSe
 - As rotas `GET /nfse/:id`, `GET /nfse/:id/pdf`, `GET /nfse/:id/xml` e `GET /nfse` exigem o cabeçalho `Authorization: Bearer <token>`.
@@ -523,4 +879,53 @@ Exemplo de erro 409 (conflito de idempotência):
 		"message": "Same idempotency-key used with a different payload"
 	}
 }
+```
+
+## Quickstart local no Windows (PowerShell)
+
+Pré-requisitos:
+- Docker Desktop (para banco local opcional)
+- Node.js 20.x e npm
+
+1) Subir Postgres via Docker (opcional, se não tiver banco):
+```powershell
+docker run --name nfse-postgres -e POSTGRES_USER=nfse -e POSTGRES_PASSWORD=nfse -e POSTGRES_DB=nfse -p 5432:5432 -d postgres:16-alpine
+```
+
+2) Aplicar migrações do Prisma (gera também o Prisma Client):
+```powershell
+npm install
+npm run prisma:migrate
+```
+
+3) Iniciar o servidor em modo desenvolvimento (com variáveis padrão):
+```powershell
+npm run dev:local
+```
+Observações:
+- O modo desenvolvimento expõe um endpoint `POST /auth/token` para obter um token JWT temporário.
+- Se a variável `AGENT_BASE_URL` NÃO estiver definida, o cliente de agente roda em modo stub, permitindo testes end-to-end locais sem integrações externas.
+
+4) Smoke test automático (opcional):
+```powershell
+./scripts/smoke.ps1 -BaseUrl "http://localhost:3000"
+# ou
+npm run smoke
+```
+Esse script realiza: emissão (stub), listagem (com filtro `nfseNumber` quando disponível), download de XML/PDF e cancelamento.
+
+5) Testes e build:
+```powershell
+npm test
+npm run build
+```
+
+### Nota de migração (payloadHash)
+Foi adicionada a coluna `payloadHash` à tabela `IdempotencyKey`. Após atualizar o código, aplique a migração:
+```powershell
+npm run prisma:migrate
+```
+Em produção, use:
+```powershell
+npx prisma migrate deploy
 ```

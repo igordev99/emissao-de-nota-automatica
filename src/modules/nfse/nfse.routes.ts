@@ -20,25 +20,31 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         tags: ['NFSe'],
         summary: 'Emitir NFS-e',
         security: [{ bearerAuth: [] }],
-        headers: { type: 'object', properties: { 'idempotency-key': { type: 'string' } } },
         body: {
           type: 'object',
+          additionalProperties: true,
           properties: {
-            rpsNumber: { type: 'string' },
-            rpsSeries: { type: 'string' },
-            issueDate: { type: 'string' },
-            serviceCode: { type: 'string' },
-            serviceDescription: { type: 'string' },
-            serviceAmount: { type: 'number' },
-            taxRate: { type: 'number' },
-            issRetained: { type: 'boolean' },
-            cnae: { type: 'string' },
-            deductionsAmount: { type: 'number' },
-            provider: { type: 'object', properties: { cnpj: { type: 'string' } }, required: ['cnpj'] },
-            customer: { type: 'object', properties: { cpf: { type: 'string' }, cnpj: { type: 'string' }, name: { type: 'string' }, email: { type: 'string' } }, required: ['name'] },
-            additionalInfo: { type: 'string' }
+            rpsNumber: { type: 'string', description: 'Número do RPS (opcional; auto numeração se ausente)' },
+            rpsSeries: { type: 'string', description: 'Série do RPS' },
+            issueDate: { type: 'string', description: 'Data de emissão ISO; default no servidor' },
+            serviceCode: { type: 'string', description: 'Código do serviço (ex.: 101)' },
+            serviceDescription: { type: 'string', description: 'Descrição do serviço' },
+            serviceAmount: { type: 'number', description: 'Valor do serviço' },
+            taxRate: { type: 'number', description: 'Alíquota (0.01 = 1%)' },
+            issRetained: { type: 'boolean', description: 'ISS retido pelo tomador?' },
+            provider: { type: 'object', properties: { cnpj: { type: 'string', description: 'CNPJ do prestador (somente dígitos)' } }, required: ['cnpj'] },
+            customer: { type: 'object', properties: { cnpj: { type: 'string' }, cpf: { type: 'string' }, name: { type: 'string' } }, required: ['name'] }
           },
-          required: ['rpsSeries','issueDate','serviceCode','serviceDescription','serviceAmount','taxRate','issRetained','provider','customer']
+          example: {
+            rpsSeries: 'A',
+            serviceCode: '101',
+            serviceDescription: 'Serviço de teste',
+            serviceAmount: 100.5,
+            taxRate: 0.02,
+            issRetained: false,
+            provider: { cnpj: '11111111000111' },
+            customer: { cpf: '12345678909', name: 'Cliente Teste' }
+          }
         },
         response: {
           200: { type: 'object', properties: { status: { type: 'string' }, id: { type: 'string' }, nfseNumber: { type: 'string' } }, required: ['status','id'] },
@@ -47,26 +53,15 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
           422: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
           401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
-      } as any
+      } as any,
+      preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } }
     } as any, async (req: EmitRequest, reply: FastifyReply) => {
-      // Autenticação JWT (simplificada) - futuramente hook global
-      try {
-        await req.jwtVerify();
-      } catch {
-        throw new AuthError();
-      }
       const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
       const result = await emitInvoice(req.body, idempotencyKey);
       return reply.code(result.status === 'PENDING' ? 202 : 200).send(result);
     });
   } else {
-    app.post('/nfse/emitir', async (req: EmitRequest, reply: FastifyReply) => {
-      // Autenticação JWT (simplificada) - futuramente hook global
-      try {
-        await req.jwtVerify();
-      } catch {
-        throw new AuthError();
-      }
+    app.post('/nfse/emitir', { preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } } } as any, async (req: EmitRequest, reply: FastifyReply) => {
       const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
       const result = await emitInvoice(req.body, idempotencyKey);
       return reply.code(result.status === 'PENDING' ? 202 : 200).send(result);
@@ -83,26 +78,25 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         security: [{ bearerAuth: [] }],
         params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
         response: {
-          200: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string' }, nfseNumber: { type: 'string' } }, required: ['id','status'] },
+          200: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string' }, nfseNumber: { type: 'string' }, cancelReason: { type: 'string' }, canceledAt: { type: 'string' } }, required: ['id','status'] },
           401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
           404: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
           422: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
-      } as any
+      } as any,
+      preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } }
     } as any, async (req: IdRequest, reply: FastifyReply) => {
-      try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } // eslint-disable-line @typescript-eslint/no-explicit-any
       const id = req.params.id;
       const invoice = await getInvoice(id);
       if (!invoice) return reply.code(404).send({ error: { message: 'Not found' } });
-      return reply.send({ id: invoice.id, status: invoice.status, nfseNumber: invoice.nfseNumber });
+      return reply.send({ id: invoice.id, status: invoice.status, nfseNumber: invoice.nfseNumber, cancelReason: (invoice as any).cancelReason, canceledAt: (invoice as any).canceledAt ? new Date((invoice as any).canceledAt).toISOString() : undefined });
     });
   } else {
-    app.get('/nfse/:id', async (req: IdRequest, reply: FastifyReply) => {
-      try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } // eslint-disable-line @typescript-eslint/no-explicit-any
+    app.get('/nfse/:id', { preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } } } as any, async (req: IdRequest, reply: FastifyReply) => {
       const id = req.params.id;
       const invoice = await getInvoice(id);
       if (!invoice) return reply.code(404).send({ error: { message: 'Not found' } });
-      return reply.send({ id: invoice.id, status: invoice.status, nfseNumber: invoice.nfseNumber });
+      return reply.send({ id: invoice.id, status: invoice.status, nfseNumber: invoice.nfseNumber, cancelReason: (invoice as any).cancelReason, canceledAt: (invoice as any).canceledAt ? new Date((invoice as any).canceledAt).toISOString() : undefined });
     });
   }
 
@@ -118,9 +112,9 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
           401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
           404: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
-      } as any
+      } as any,
+      preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } }
     } as any, async (req: IdRequest, reply: FastifyReply) => {
-      try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } // eslint-disable-line @typescript-eslint/no-explicit-any
       const id = req.params.id;
       const invoice = await getInvoice(id);
       if (!invoice || !invoice.pdfBase64) return reply.code(404).send({ error: { message: 'PDF not found' } });
@@ -138,8 +132,7 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
       return reply.send({ id: invoice.id, pdfBase64: b64 });
     });
   } else {
-    app.get('/nfse/:id/pdf', async (req: IdRequest, reply: FastifyReply) => {
-      try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } // eslint-disable-line @typescript-eslint/no-explicit-any
+    app.get('/nfse/:id/pdf', { preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } } } as any, async (req: IdRequest, reply: FastifyReply) => {
       const id = req.params.id;
       const invoice = await getInvoice(id);
       if (!invoice || !invoice.pdfBase64) return reply.code(404).send({ error: { message: 'PDF not found' } });
@@ -170,9 +163,9 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
           401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
           404: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
-      } as any
+      } as any,
+      preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } }
     } as any, async (req: IdRequest, reply: FastifyReply) => {
-      try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } // eslint-disable-line @typescript-eslint/no-explicit-any
       const id = req.params.id;
       const invoice = await getInvoice(id);
       if (!invoice || !invoice.xmlBase64) return reply.code(404).send({ error: { message: 'XML not found' } });
@@ -190,8 +183,7 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
       return reply.send({ id: invoice.id, xmlBase64: b64 });
     });
   } else {
-    app.get('/nfse/:id/xml', async (req: IdRequest, reply: FastifyReply) => {
-      try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } // eslint-disable-line @typescript-eslint/no-explicit-any
+    app.get('/nfse/:id/xml', { preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } } } as any, async (req: IdRequest, reply: FastifyReply) => {
       const id = req.params.id;
       const invoice = await getInvoice(id);
       if (!invoice || !invoice.xmlBase64) return reply.code(404).send({ error: { message: 'XML not found' } });
@@ -223,9 +215,15 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
             status: { type: 'string', enum: ['PENDING','SUCCESS','REJECTED','CANCELLED'], description: 'Filtra por status' },
             providerCnpj: { type: 'string', description: 'CNPJ do prestador' },
             nfseNumber: { type: 'string', description: 'Número da NFS-e' },
+            verificationCode: { type: 'string', description: 'Código de verificação' },
             customerDoc: { type: 'string', description: 'Documento do tomador (CPF/CNPJ)' },
             from: { type: 'string', description: 'Data inicial (ISO)' },
             to: { type: 'string', description: 'Data final (ISO)' },
+            minAmount: { type: 'number', description: 'Valor mínimo do serviço' },
+            maxAmount: { type: 'number', description: 'Valor máximo do serviço' },
+            q: { type: 'string', description: 'Busca textual simples em serviceDescription' },
+            sortBy: { type: 'string', enum: ['createdAt','issueDate','nfseNumber'], default: 'createdAt', description: 'Campo de ordenação' },
+            sortDir: { type: 'string', enum: ['asc','desc'], default: 'desc', description: 'Direção de ordenação' },
             page: { type: 'integer', minimum: 1, default: 1, description: 'Página (1-based)' },
             pageSize: { type: 'integer', minimum: 1, maximum: 100, default: 20, description: 'Itens por página' }
           }
@@ -260,31 +258,39 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
           },
           401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
-      } as any
-  } as any, async (req: FastifyRequest<{ Querystring: { status?: string; providerCnpj?: string; nfseNumber?: string; customerDoc?: string; from?: string; to?: string; page?: number; pageSize?: number } }>, reply: FastifyReply) => {
-      try {
-        await (req as any).jwtVerify(); // eslint-disable-line @typescript-eslint/no-explicit-any
-      } catch {
-        throw new AuthError();
-      }
+      } as any,
+      preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } }
+  } as any, async (req: FastifyRequest<{ Querystring: { status?: string; providerCnpj?: string; nfseNumber?: string; verificationCode?: string; customerDoc?: string; from?: string; to?: string; minAmount?: number; maxAmount?: number; q?: string; sortBy?: 'createdAt'|'issueDate'|'nfseNumber'; sortDir?: 'asc'|'desc'; page?: number; pageSize?: number } }>, reply: FastifyReply) => {
       const q = req.query;
       const page = Math.max(1, Number(q.page || 1));
       const pageSize = Math.min(100, Math.max(1, Number(q.pageSize || 20)));
       const where: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
       if (q.status) where.status = q.status;
-  if (q.providerCnpj) where.providerCnpj = q.providerCnpj;
-  if (q.nfseNumber) where.nfseNumber = q.nfseNumber;
+      if (q.providerCnpj) where.providerCnpj = q.providerCnpj;
+      if (q.nfseNumber) where.nfseNumber = q.nfseNumber;
+      if (q.verificationCode) where.verificationCode = q.verificationCode;
       if (q.customerDoc) where.customerDoc = q.customerDoc;
       if (q.from || q.to) {
         where.issueDate = {};
         if (q.from) (where.issueDate as any).gte = new Date(q.from); // eslint-disable-line @typescript-eslint/no-explicit-any
         if (q.to) (where.issueDate as any).lte = new Date(q.to); // eslint-disable-line @typescript-eslint/no-explicit-any
       }
+      if (q.minAmount || q.maxAmount) {
+        where.serviceAmount = {};
+        if (q.minAmount !== undefined) (where.serviceAmount as any).gte = q.minAmount; // eslint-disable-line @typescript-eslint/no-explicit-any
+        if (q.maxAmount !== undefined) (where.serviceAmount as any).lte = q.maxAmount; // eslint-disable-line @typescript-eslint/no-explicit-any
+      }
+      // Basic contains for serviceDescription (DB adapter may adapt accordingly)
+      if (q.q) {
+        where.serviceDescription = { contains: q.q } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+      }
+      const orderField = (q.sortBy || 'createdAt');
+      const orderDir = (q.sortDir || 'desc');
       const [total, items] = await Promise.all([
         prisma.invoice.count({ where }) as any,
         prisma.invoice.findMany({
           where,
-          orderBy: { createdAt: 'desc' },
+          orderBy: { [orderField]: orderDir },
           skip: (page - 1) * pageSize,
           take: pageSize,
           select: { id: true, status: true, nfseNumber: true, rpsNumber: true, rpsSeries: true, issueDate: true, providerCnpj: true, customerDoc: true, serviceAmount: true }
@@ -298,30 +304,36 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
       return reply.send({ page, pageSize, total, items: mapped });
     });
   } else {
-  app.get('/nfse', async (req: FastifyRequest<{ Querystring: { status?: string; providerCnpj?: string; nfseNumber?: string; customerDoc?: string; from?: string; to?: string; page?: number; pageSize?: number } }>, reply: FastifyReply) => {
-      try {
-        await (req as any).jwtVerify(); // eslint-disable-line @typescript-eslint/no-explicit-any
-      } catch {
-        throw new AuthError();
-      }
+  app.get('/nfse', { preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } } } as any, async (req: FastifyRequest<{ Querystring: { status?: string; providerCnpj?: string; nfseNumber?: string; verificationCode?: string; customerDoc?: string; from?: string; to?: string; minAmount?: number; maxAmount?: number; q?: string; sortBy?: 'createdAt'|'issueDate'|'nfseNumber'; sortDir?: 'asc'|'desc'; page?: number; pageSize?: number } }>, reply: FastifyReply) => {
       const q = req.query;
       const page = Math.max(1, Number(q.page || 1));
       const pageSize = Math.min(100, Math.max(1, Number(q.pageSize || 20)));
       const where: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
       if (q.status) where.status = q.status;
-  if (q.providerCnpj) where.providerCnpj = q.providerCnpj;
-  if (q.nfseNumber) where.nfseNumber = q.nfseNumber;
+      if (q.providerCnpj) where.providerCnpj = q.providerCnpj;
+      if (q.nfseNumber) where.nfseNumber = q.nfseNumber;
+      if (q.verificationCode) where.verificationCode = q.verificationCode;
       if (q.customerDoc) where.customerDoc = q.customerDoc;
       if (q.from || q.to) {
         where.issueDate = {};
         if (q.from) (where.issueDate as any).gte = new Date(q.from); // eslint-disable-line @typescript-eslint/no-explicit-any
         if (q.to) (where.issueDate as any).lte = new Date(q.to); // eslint-disable-line @typescript-eslint/no-explicit-any
       }
+      if (q.minAmount || q.maxAmount) {
+        where.serviceAmount = {};
+        if (q.minAmount !== undefined) (where.serviceAmount as any).gte = q.minAmount; // eslint-disable-line @typescript-eslint/no-explicit-any
+        if (q.maxAmount !== undefined) (where.serviceAmount as any).lte = q.maxAmount; // eslint-disable-line @typescript-eslint/no-explicit-any
+      }
+      if (q.q) {
+        where.serviceDescription = { contains: q.q } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+      }
+      const orderField = (q.sortBy || 'createdAt');
+      const orderDir = (q.sortDir || 'desc');
       const [total, items] = await Promise.all([
         prisma.invoice.count({ where }) as any,
         prisma.invoice.findMany({
           where,
-          orderBy: { createdAt: 'desc' },
+          orderBy: { [orderField]: orderDir },
           skip: (page - 1) * pageSize,
           take: pageSize,
           select: { id: true, status: true, nfseNumber: true, rpsNumber: true, rpsSeries: true, issueDate: true, providerCnpj: true, customerDoc: true, serviceAmount: true }
@@ -344,24 +356,27 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
         summary: 'Cancelar NFS-e',
         security: [{ bearerAuth: [] }],
         params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+        body: { type: 'object', properties: { reason: { type: 'string', description: 'Motivo do cancelamento', example: 'Duplicidade de emissão' } } },
         response: {
-          200: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string' } }, required: ['id','status'] },
+          200: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string' }, canceledAt: { type: 'string' } }, required: ['id','status'] },
+          409: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string', example: 'INVALID_STATE' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
           401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any,
           404: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
         }
-      } as any
-    } as any, async (req: IdRequest, reply: FastifyReply) => {
-      try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } // eslint-disable-line @typescript-eslint/no-explicit-any
+      } as any,
+      preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } }
+    } as any, async (req: FastifyRequest<{ Params: IdParam; Body: { reason?: string } }>, reply: FastifyReply) => {
       const id = req.params.id;
-      const result = await cancelInvoiceById(id);
+      const reason = req.body?.reason;
+      const result = await cancelInvoiceById(id, reason);
       if (!result) return reply.code(404).send({ error: { message: 'Not found' } });
       return reply.send(result);
     });
   } else {
-    app.post('/nfse/:id/cancel', async (req: IdRequest, reply: FastifyReply) => {
-      try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } // eslint-disable-line @typescript-eslint/no-explicit-any
+    app.post('/nfse/:id/cancel', { preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } } } as any, async (req: FastifyRequest<{ Params: IdParam; Body: { reason?: string } }>, reply: FastifyReply) => {
       const id = req.params.id;
-      const result = await cancelInvoiceById(id);
+      const reason = req.body?.reason;
+      const result = await cancelInvoiceById(id, reason);
       if (!result) return reply.code(404).send({ error: { message: 'Not found' } });
       return reply.send(result);
     });

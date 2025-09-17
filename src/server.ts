@@ -10,7 +10,11 @@ const start = async () => {
     // Mark liveness after the server is actually listening
     setAppLive(true);
   } catch (err) {
-    app.log.error(err, 'Error starting server');
+    if ((err as any)?.code === 'EADDRINUSE') {
+      app.log.error({ err }, `Porta ${port} ocupada (EADDRINUSE). Dica: execute 'npm run port:free' e tente novamente, ou use 'npm run dev:win:start' para iniciar com liberação automática.`);
+    } else {
+      app.log.error(err, 'Error starting server');
+    }
     process.exit(1);
   }
 

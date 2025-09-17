@@ -1,0 +1,11 @@
+{
+  "rpsSeries": "A",
+  "issueDate": "2025-09-16T10:00:00.000Z",
+  "serviceCode": "101",
+  "serviceDescription": "Serviço de informática",
+  "serviceAmount": 150.5,
+  "taxRate": 0.02,
+  "issRetained": false,
+  "provider": { "cnpj": "12345678000199" },
+  "customer": { "cnpj": "99887766000155", "name": "Cliente Exemplo" }
+}

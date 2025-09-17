@@ -1,6 +1,7 @@
 import { FastifyError, FastifyInstance, FastifyReply, FastifyRequest, RawServerDefault } from 'fastify';
 
 import { BaseAppError } from '../../core/errors';
+import { incCounter } from '../observability/metrics';
 
 function isBaseAppError(e: unknown): e is BaseAppError {
   return typeof e === 'object' && e !== null && 'code' in e && 'statusCode' in e;
@@ -21,5 +22,6 @@ export function errorHandler(this: FastifyInstance<RawServerDefault>, error: Fas
   if (!isBaseAppError(error)) {
     req.log.error({ err: error }, 'Unhandled error');
   }
+  try { incCounter('app_errors_total', 'Application errors by code', { code }); } catch { /* noop */ }
   reply.status(statusCode).send(payload);
 }
