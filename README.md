@@ -1,6 +1,7 @@
 ## NFSe SP Service
 
 [![CI](https://github.com/igordev99/emissao-de-nota-automatica/actions/workflows/ci.yml/badge.svg)](https://github.com/igordev99/emissao-de-nota-automatica/actions)
+[![Smoke (Windows)](https://github.com/igordev99/emissao-de-nota-automatica/actions/workflows/smoke-windows.yml/badge.svg?branch=main)](https://github.com/igordev99/emissao-de-nota-automatica/actions/workflows/smoke-windows.yml)
 [![Release](https://img.shields.io/github/v/release/igordev99/emissao-de-nota-automatica?display_name=tag&logo=github)](https://github.com/igordev99/emissao-de-nota-automatica/releases)
 [![GHCR](https://img.shields.io/badge/GHCR-emissao--de--nota--automatica-blue?logo=docker)](https://github.com/users/igordev99/packages)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)

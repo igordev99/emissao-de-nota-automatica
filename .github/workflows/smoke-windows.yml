@@ -34,5 +34,7 @@ jobs:
           name: smoke-report
           path: ${{ steps.smoke.outputs.reportPath }}
       - name: Print summary
-        run: npm run smoke:report:summary
         shell: pwsh
+        run: |
+          npm run smoke:report:summary | Tee-Object -Variable summary | Write-Host
+          if ($Env:GITHUB_STEP_SUMMARY) { $summary | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Append -Encoding utf8 }
