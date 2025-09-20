@@ -49,8 +49,6 @@ const supplierResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
   document: z.string(),
-  email: z.string().nullable(),
-  phone: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string()
 });
@@ -74,16 +72,7 @@ const successResponseSchema = z.object({
 
 export async function supplierRoutes(app: FastifyInstance) {
   // Criar fornecedor
-  app.post('/suppliers', {
-    schema: {
-      description: 'Criar um novo fornecedor',
-      tags: ['suppliers'],
-      body: createSupplierSchema,
-      response: {
-        201: supplierResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.post('/suppliers', async (request, reply) => {
     const supplierData = request.body as SupplierData;
 
     const supplier = await supplierService.createSupplier(supplierData);
@@ -92,16 +81,7 @@ export async function supplierRoutes(app: FastifyInstance) {
   });
 
   // Listar fornecedores
-  app.get('/suppliers', {
-    schema: {
-      description: 'Listar fornecedores com paginação e busca',
-      tags: ['suppliers'],
-      querystring: listSuppliersQuerySchema,
-      response: {
-        200: suppliersListResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/suppliers', async (request, reply) => {
     const { page = 1, pageSize = 20, search } = request.query as any;
 
     const result = await supplierService.listSuppliers(page, pageSize, search);
@@ -109,17 +89,7 @@ export async function supplierRoutes(app: FastifyInstance) {
   });
 
   // Obter fornecedor por ID
-  app.get('/suppliers/:id', {
-    schema: {
-      description: 'Obter fornecedor por ID',
-      tags: ['suppliers'],
-      params: supplierIdSchema,
-      response: {
-        200: supplierResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/suppliers/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof supplierIdSchema>;
 
     const supplier = await supplierService.getSupplier(id);
@@ -135,19 +105,7 @@ export async function supplierRoutes(app: FastifyInstance) {
   });
 
   // Obter fornecedor por CNPJ
-  app.get('/suppliers/document/:document', {
-    schema: {
-      description: 'Obter fornecedor por CNPJ',
-      tags: ['suppliers'],
-      params: z.object({
-        document: z.string()
-      }),
-      response: {
-        200: supplierResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/suppliers/document/:document', async (request, reply) => {
     const { document } = request.params as { document: string };
 
     const supplier = await supplierService.getSupplierByDocument(document);
@@ -163,18 +121,7 @@ export async function supplierRoutes(app: FastifyInstance) {
   });
 
   // Atualizar fornecedor
-  app.put('/suppliers/:id', {
-    schema: {
-      description: 'Atualizar fornecedor',
-      tags: ['suppliers'],
-      params: supplierIdSchema,
-      body: updateSupplierSchema,
-      response: {
-        200: supplierResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.put('/suppliers/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof supplierIdSchema>;
     const updateData = request.body as Partial<SupplierData>;
 
@@ -191,17 +138,7 @@ export async function supplierRoutes(app: FastifyInstance) {
   });
 
   // Remover fornecedor
-  app.delete('/suppliers/:id', {
-    schema: {
-      description: 'Remover fornecedor',
-      tags: ['suppliers'],
-      params: supplierIdSchema,
-      response: {
-        200: successResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.delete('/suppliers/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof supplierIdSchema>;
 
     const deleted = await supplierService.deleteSupplier(id);

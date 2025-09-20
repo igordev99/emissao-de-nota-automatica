@@ -49,10 +49,11 @@ const clientResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
   document: z.string(),
-  email: z.string().nullable(),
-  phone: z.string().nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string()
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  address: z.any().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date()
 });
 
 const clientsListResponseSchema = z.object({
@@ -77,11 +78,7 @@ export async function clientRoutes(app: FastifyInstance) {
   app.post('/clients', {
     schema: {
       description: 'Criar um novo cliente',
-      tags: ['clients'],
-      body: createClientSchema,
-      response: {
-        201: clientResponseSchema
-      }
+      tags: ['clients']
     }
   }, async (request, reply) => {
     const clientData = request.body as ClientData;
@@ -92,16 +89,7 @@ export async function clientRoutes(app: FastifyInstance) {
   });
 
   // Listar clientes
-  app.get('/clients', {
-    schema: {
-      description: 'Listar clientes com paginação e busca',
-      tags: ['clients'],
-      querystring: listClientsQuerySchema,
-      response: {
-        200: clientsListResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/clients', async (request, reply) => {
     const { page = 1, pageSize = 20, search } = request.query as any;
 
     const result = await clientService.listClients(page, pageSize, search);
@@ -109,17 +97,7 @@ export async function clientRoutes(app: FastifyInstance) {
   });
 
   // Obter cliente por ID
-  app.get('/clients/:id', {
-    schema: {
-      description: 'Obter cliente por ID',
-      tags: ['clients'],
-      params: clientIdSchema,
-      response: {
-        200: clientResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/clients/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof clientIdSchema>;
 
     const client = await clientService.getClient(id);
@@ -135,19 +113,7 @@ export async function clientRoutes(app: FastifyInstance) {
   });
 
   // Obter cliente por documento
-  app.get('/clients/document/:document', {
-    schema: {
-      description: 'Obter cliente por documento (CPF/CNPJ)',
-      tags: ['clients'],
-      params: z.object({
-        document: z.string()
-      }),
-      response: {
-        200: clientResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/clients/document/:document', async (request, reply) => {
     const { document } = request.params as { document: string };
 
     const client = await clientService.getClientByDocument(document);
@@ -163,18 +129,7 @@ export async function clientRoutes(app: FastifyInstance) {
   });
 
   // Atualizar cliente
-  app.put('/clients/:id', {
-    schema: {
-      description: 'Atualizar cliente',
-      tags: ['clients'],
-      params: clientIdSchema,
-      body: updateClientSchema,
-      response: {
-        200: clientResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.put('/clients/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof clientIdSchema>;
     const updateData = request.body as Partial<ClientData>;
 
@@ -191,17 +146,7 @@ export async function clientRoutes(app: FastifyInstance) {
   });
 
   // Remover cliente
-  app.delete('/clients/:id', {
-    schema: {
-      description: 'Remover cliente',
-      tags: ['clients'],
-      params: clientIdSchema,
-      response: {
-        200: successResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.delete('/clients/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof clientIdSchema>;
 
     const deleted = await clientService.deleteClient(id);

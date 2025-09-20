@@ -228,8 +228,8 @@ export async function buildApp() {
   } catch {/* noop */}
   if (env.METRICS_ENABLED !== '0') { registerMetricsHooks(app); } else { app.log.debug('Metrics disabled by METRICS_ENABLED=0'); }
   await registerNfseRoutes(app);
-  // await app.register(webhookRoutes, { prefix: '/api' }); // Temporarily disabled
-  // await app.register(retryRoutes, { prefix: '/api' }); // Temporarily disabled
+  await app.register(webhookRoutes, { prefix: '/api' });
+  await app.register(retryRoutes, { prefix: '/api' });
   await app.register(clientRoutes, { prefix: '/api' });
   await app.register(supplierRoutes, { prefix: '/api' });
   await app.register(accountRoutes, { prefix: '/api' });

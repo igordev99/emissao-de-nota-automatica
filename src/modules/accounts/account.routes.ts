@@ -38,8 +38,6 @@ const accountResponseSchema = z.object({
   code: z.string(),
   name: z.string(),
   type: z.string(),
-  parentId: z.string().nullable(),
-  description: z.string().nullable(),
   active: z.boolean(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -67,16 +65,7 @@ const successResponseSchema = z.object({
 
 export async function accountRoutes(app: FastifyInstance) {
   // Criar conta
-  app.post('/accounts', {
-    schema: {
-      description: 'Criar uma nova conta contábil',
-      tags: ['accounts'],
-      body: createAccountSchema,
-      response: {
-        201: accountResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.post('/accounts', async (request, reply) => {
     const accountData = request.body as AccountData;
 
     const account = await accountService.createAccount(accountData);
@@ -85,16 +74,7 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Listar contas
-  app.get('/accounts', {
-    schema: {
-      description: 'Listar contas contábeis com filtros e paginação',
-      tags: ['accounts'],
-      querystring: listAccountsQuerySchema,
-      response: {
-        200: accountsListResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/accounts', async (request, reply) => {
     const { type, parentId, activeOnly = true, page = 1, pageSize = 20 } = request.query as any;
 
     const result = await accountService.listAccounts(type, parentId, activeOnly, page, pageSize);
@@ -102,20 +82,7 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Obter conta por ID
-  app.get('/accounts/:id', {
-    schema: {
-      description: 'Obter conta contábil por ID',
-      tags: ['accounts'],
-      params: accountIdSchema,
-      querystring: z.object({
-        includeChildren: z.string().transform(val => val === 'true').default('false')
-      }),
-      response: {
-        200: accountResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/accounts/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof accountIdSchema>;
     const { includeChildren = false } = request.query as any;
 
@@ -132,22 +99,7 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Obter conta por código
-  app.get('/accounts/code/:code', {
-    schema: {
-      description: 'Obter conta contábil por código',
-      tags: ['accounts'],
-      params: z.object({
-        code: z.string()
-      }),
-      querystring: z.object({
-        includeChildren: z.string().transform(val => val === 'true').default('false')
-      }),
-      response: {
-        200: accountResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/accounts/code/:code', async (request, reply) => {
     const { code } = request.params as { code: string };
     const { includeChildren = false } = request.query as any;
 
@@ -164,32 +116,13 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Obter hierarquia completa de contas
-  app.get('/accounts/hierarchy', {
-    schema: {
-      description: 'Obter hierarquia completa de contas contábeis',
-      tags: ['accounts'],
-      response: {
-        200: accountsHierarchyResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/accounts/hierarchy', async (request, reply) => {
     const hierarchy = await accountService.getAccountHierarchy();
     return reply.send(hierarchy);
   });
 
   // Atualizar conta
-  app.put('/accounts/:id', {
-    schema: {
-      description: 'Atualizar conta contábil',
-      tags: ['accounts'],
-      params: accountIdSchema,
-      body: updateAccountSchema,
-      response: {
-        200: accountResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.put('/accounts/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof accountIdSchema>;
     const updateData = request.body as Partial<AccountData>;
 
@@ -206,21 +139,7 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Remover conta
-  app.delete('/accounts/:id', {
-    schema: {
-      description: 'Remover conta contábil',
-      tags: ['accounts'],
-      params: accountIdSchema,
-      response: {
-        200: successResponseSchema,
-        400: z.object({
-          error: z.string(),
-          message: z.string()
-        }),
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.delete('/accounts/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof accountIdSchema>;
 
     try {

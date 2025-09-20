@@ -9,6 +9,10 @@ class InMemoryPrisma {
   private invoices: AnyObj[] = [];
   private idempotency: Map<string, AnyObj> = new Map();
   private logs: AnyObj[] = [];
+  private webhookConfigs: AnyObj[] = [];
+  private clients: AnyObj[] = [];
+  private suppliers: AnyObj[] = [];
+  private accounts: AnyObj[] = [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public invoice: any;
@@ -16,6 +20,14 @@ class InMemoryPrisma {
   public idempotencyKey: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public logEntry: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public webhookConfig: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public client: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public supplier: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public account: any;
 
   constructor() {
     this.invoice = {
@@ -131,6 +143,269 @@ class InMemoryPrisma {
         const entry = { id: `log_${this.logs.length + 1}`, createdAt: now, ...data };
         this.logs.push(entry);
         return { ...entry };
+      }
+    };
+
+    // WebhookConfig store
+    this.webhookConfig = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      findMany: async (args: any) => {
+        const { where } = args || {};
+        let list = this.webhookConfigs.slice();
+        if (where?.active !== undefined) {
+          list = list.filter((it: AnyObj) => it.active === where.active);
+        }
+        return list;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      findUnique: async (args: any) => {
+        const id = args?.where?.id;
+        return this.webhookConfigs.find(w => w.id === id) || null;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      create: async (args: any) => {
+        const data = args?.data || {};
+        const now = new Date();
+        const webhook = { id: `webhook_${this.webhookConfigs.length + 1}`, createdAt: now, updatedAt: now, ...data };
+        this.webhookConfigs.push(webhook);
+        return { ...webhook };
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      update: async (args: any) => {
+        const { where, data } = args || {};
+        const id = where?.id;
+        const idx = this.webhookConfigs.findIndex(w => w.id === id);
+        if (idx < 0) throw new Error('WebhookConfig not found');
+        const merged = { ...this.webhookConfigs[idx], ...data, updatedAt: new Date() };
+        this.webhookConfigs[idx] = merged;
+        return { ...merged };
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete: async (args: any) => {
+        const id = args?.where?.id;
+        const idx = this.webhookConfigs.findIndex(w => w.id === id);
+        if (idx < 0) throw new Error('WebhookConfig not found');
+        const deleted = this.webhookConfigs.splice(idx, 1)[0];
+        return { ...deleted };
+      }
+    };
+
+    // Client store
+    this.client = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      findMany: async (args: any) => {
+        const { where, orderBy, skip = 0, take = 20, select } = args || {};
+        let list = this.clients.slice();
+        if (where?.document) {
+          list = list.filter((it: AnyObj) => it.document === where.document);
+        }
+        if (where?.name?.$contains) {
+          list = list.filter((it: AnyObj) => it.name.toLowerCase().includes(where.name.$contains.toLowerCase()));
+        }
+        if (orderBy?.createdAt === 'desc') {
+          list.sort((a: AnyObj, b: AnyObj) => (b.createdAt?.getTime?.() || 0) - (a.createdAt?.getTime?.() || 0));
+        }
+        const sliced = list.slice(skip, skip + take);
+        if (!select) return sliced.map((it: AnyObj) => ({ ...it }));
+        return sliced.map((it: AnyObj) => {
+          const res: AnyObj = {};
+          for (const key of Object.keys(select)) {
+            if ((select as AnyObj)[key]) res[key] = it[key];
+          }
+          return res;
+        });
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      findUnique: async (args: any) => {
+        const id = args?.where?.id;
+        const document = args?.where?.document;
+        if (id) return this.clients.find(c => c.id === id) || null;
+        if (document) return this.clients.find(c => c.document === document) || null;
+        return null;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      create: async (args: any) => {
+        const data = args?.data || {};
+        const now = new Date();
+        const client = { id: `client_${this.clients.length + 1}`, createdAt: now, updatedAt: now, ...data };
+        this.clients.push(client);
+        return { ...client };
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      update: async (args: any) => {
+        const { where, data } = args || {};
+        const id = where?.id;
+        const idx = this.clients.findIndex(c => c.id === id);
+        if (idx < 0) throw new Error('Client not found');
+        const merged = { ...this.clients[idx], ...data, updatedAt: new Date() };
+        this.clients[idx] = merged;
+        return { ...merged };
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete: async (args: any) => {
+        const id = args?.where?.id;
+        const idx = this.clients.findIndex(c => c.id === id);
+        if (idx < 0) throw new Error('Client not found');
+        const deleted = this.clients.splice(idx, 1)[0];
+        return { ...deleted };
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      count: async (args: any) => {
+        const { where } = args || {};
+        let list = this.clients.slice();
+        if (where?.name?.$contains) {
+          list = list.filter((it: AnyObj) => it.name.toLowerCase().includes(where.name.$contains.toLowerCase()));
+        }
+        return list.length;
+      }
+    };
+
+    // Supplier store
+    this.supplier = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      findMany: async (args: any) => {
+        const { where, orderBy, skip = 0, take = 20 } = args || {};
+        let list = this.suppliers.slice();
+        if (where?.document) {
+          list = list.filter((it: AnyObj) => it.document === where.document);
+        }
+        if (where?.name?.$contains) {
+          list = list.filter((it: AnyObj) => it.name.toLowerCase().includes(where.name.$contains.toLowerCase()));
+        }
+        if (orderBy?.createdAt === 'desc') {
+          list.sort((a: AnyObj, b: AnyObj) => (b.createdAt?.getTime?.() || 0) - (a.createdAt?.getTime?.() || 0));
+        }
+        return list.slice(skip, skip + take).map((it: AnyObj) => ({ ...it }));
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      findUnique: async (args: any) => {
+        const id = args?.where?.id;
+        const document = args?.where?.document;
+        if (id) return this.suppliers.find(s => s.id === id) || null;
+        if (document) return this.suppliers.find(s => s.document === document) || null;
+        return null;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      create: async (args: any) => {
+        const data = args?.data || {};
+        const now = new Date();
+        const supplier = { id: `supplier_${this.suppliers.length + 1}`, createdAt: now, updatedAt: now, ...data };
+        this.suppliers.push(supplier);
+        return { ...supplier };
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      update: async (args: any) => {
+        const { where, data } = args || {};
+        const id = where?.id;
+        const idx = this.suppliers.findIndex(s => s.id === id);
+        if (idx < 0) throw new Error('Supplier not found');
+        const merged = { ...this.suppliers[idx], ...data, updatedAt: new Date() };
+        this.suppliers[idx] = merged;
+        return { ...merged };
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete: async (args: any) => {
+        const id = args?.where?.id;
+        const idx = this.suppliers.findIndex(s => s.id === id);
+        if (idx < 0) throw new Error('Supplier not found');
+        const deleted = this.suppliers.splice(idx, 1)[0];
+        return { ...deleted };
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      count: async (args: any) => {
+        const { where } = args || {};
+        let list = this.suppliers.slice();
+        if (where?.name?.$contains) {
+          list = list.filter((it: AnyObj) => it.name.toLowerCase().includes(where.name.$contains.toLowerCase()));
+        }
+        return list.length;
+      }
+    };
+
+    // Account store
+    this.account = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      findMany: async (args: any) => {
+        const { where, orderBy, skip = 0, take = 20, include } = args || {};
+        let list = this.accounts.slice();
+        if (where?.type) {
+          list = list.filter((it: AnyObj) => it.type === where.type);
+        }
+        if (where?.active !== undefined) {
+          list = list.filter((it: AnyObj) => it.active === where.active);
+        }
+        if (where?.parentId) {
+          list = list.filter((it: AnyObj) => it.parentId === where.parentId);
+        }
+        if (orderBy?.code === 'asc') {
+          list.sort((a: AnyObj, b: AnyObj) => a.code.localeCompare(b.code));
+        }
+        const sliced = list.slice(skip, skip + take);
+        if (include?.children) {
+          return sliced.map((it: AnyObj) => ({
+            ...it,
+            children: this.accounts.filter((child: AnyObj) => child.parentId === it.id)
+          }));
+        }
+        return sliced.map((it: AnyObj) => ({ ...it }));
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      findUnique: async (args: any) => {
+        const { where, include } = args || {};
+        const id = where?.id;
+        const code = where?.code;
+        let account = null;
+        if (id) account = this.accounts.find(a => a.id === id) || null;
+        if (code) account = this.accounts.find(a => a.code === code) || null;
+        if (!account) return null;
+        const result = { ...account };
+        if (include?.children) {
+          result.children = this.accounts.filter((child: AnyObj) => child.parentId === account.id);
+        }
+        return result;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      create: async (args: any) => {
+        const { data, include } = args || {};
+        const now = new Date();
+        const account = { id: `account_${this.accounts.length + 1}`, createdAt: now, updatedAt: now, ...data };
+        this.accounts.push(account);
+        const result = { ...account };
+        if (include?.children) {
+          result.children = this.accounts.filter((child: AnyObj) => child.parentId === account.id);
+        }
+        return result;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      update: async (args: any) => {
+        const { where, data, include } = args || {};
+        const id = where?.id;
+        const idx = this.accounts.findIndex(a => a.id === id);
+        if (idx < 0) throw new Error('Account not found');
+        const merged = { ...this.accounts[idx], ...data, updatedAt: new Date() };
+        this.accounts[idx] = merged;
+        const result = { ...merged };
+        if (include?.children) {
+          result.children = this.accounts.filter((child: AnyObj) => child.parentId === merged.id);
+        }
+        return result;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete: async (args: any) => {
+        const id = args?.where?.id;
+        const idx = this.accounts.findIndex(a => a.id === id);
+        if (idx < 0) throw new Error('Account not found');
+        const deleted = this.accounts.splice(idx, 1)[0];
+        return { ...deleted };
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      count: async (args: any) => {
+        const { where } = args || {};
+        let list = this.accounts.slice();
+        if (where?.type) {
+          list = list.filter((it: AnyObj) => it.type === where.type);
+        }
+        return list.length;
       }
     };
   }

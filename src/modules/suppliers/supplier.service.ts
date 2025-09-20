@@ -45,7 +45,7 @@ export class SupplierService {
         document: data.document,
         email: data.email,
         phone: data.phone,
-        address: data.address ? JSON.parse(JSON.stringify(data.address)) : null
+        address: data.address ? JSON.stringify(data.address) : null
       }
     });
 
@@ -57,7 +57,7 @@ export class SupplierService {
       document: supplier.document,
       email: supplier.email || undefined,
       phone: supplier.phone || undefined,
-      address: supplier.address ? JSON.parse(supplier.address as string) : undefined,
+      address: supplier.address ? JSON.parse(supplier.address) : undefined,
       createdAt: supplier.createdAt,
       updatedAt: supplier.updatedAt
     };
@@ -76,7 +76,7 @@ export class SupplierService {
       document: supplier.document,
       email: supplier.email || undefined,
       phone: supplier.phone || undefined,
-      address: supplier.address ? JSON.parse(supplier.address as string) : undefined,
+      address: supplier.address ? JSON.parse(supplier.address) : undefined,
       createdAt: supplier.createdAt,
       updatedAt: supplier.updatedAt
     };
@@ -95,7 +95,7 @@ export class SupplierService {
       document: supplier.document,
       email: supplier.email || undefined,
       phone: supplier.phone || undefined,
-      address: supplier.address ? JSON.parse(supplier.address as string) : undefined,
+      address: supplier.address ? JSON.parse(supplier.address) : undefined,
       createdAt: supplier.createdAt,
       updatedAt: supplier.updatedAt
     };
@@ -134,7 +134,7 @@ export class SupplierService {
       document: supplier.document,
       email: supplier.email || undefined,
       phone: supplier.phone || undefined,
-      address: supplier.address ? JSON.parse(supplier.address as string) : undefined,
+      address: supplier.address ? JSON.parse(supplier.address) : undefined,
       createdAt: supplier.createdAt,
       updatedAt: supplier.updatedAt
     }));
@@ -186,7 +186,7 @@ export class SupplierService {
       document: supplier.document,
       email: supplier.email || undefined,
       phone: supplier.phone || undefined,
-      address: supplier.address ? JSON.parse(supplier.address as string) : undefined,
+      address: supplier.address ? JSON.parse(supplier.address) : undefined,
       createdAt: supplier.createdAt,
       updatedAt: supplier.updatedAt
     };

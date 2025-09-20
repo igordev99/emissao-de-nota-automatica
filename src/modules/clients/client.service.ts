@@ -45,7 +45,7 @@ export class ClientService {
         document: data.document,
         email: data.email,
         phone: data.phone,
-        address: data.address ? JSON.parse(JSON.stringify(data.address)) : null
+        address: data.address ? JSON.stringify(data.address) : null
       }
     });
 
@@ -57,7 +57,7 @@ export class ClientService {
       document: client.document,
       email: client.email || undefined,
       phone: client.phone || undefined,
-      address: client.address ? JSON.parse(client.address as string) : undefined,
+      address: client.address ? JSON.parse(client.address) : undefined,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt
     };
@@ -76,7 +76,7 @@ export class ClientService {
       document: client.document,
       email: client.email || undefined,
       phone: client.phone || undefined,
-      address: client.address ? JSON.parse(client.address as string) : undefined,
+      address: client.address ? JSON.parse(client.address) : undefined,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt
     };
@@ -95,7 +95,7 @@ export class ClientService {
       document: client.document,
       email: client.email || undefined,
       phone: client.phone || undefined,
-      address: client.address ? JSON.parse(client.address as string) : undefined,
+      address: client.address ? JSON.parse(client.address) : undefined,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt
     };
@@ -134,7 +134,7 @@ export class ClientService {
       document: client.document,
       email: client.email || undefined,
       phone: client.phone || undefined,
-      address: client.address ? JSON.parse(client.address as string) : undefined,
+      address: client.address ? JSON.parse(client.address) : undefined,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt
     }));
@@ -170,7 +170,7 @@ export class ClientService {
 
     const updateData: any = { ...data };
     if (data.address) {
-      updateData.address = JSON.parse(JSON.stringify(data.address));
+      updateData.address = JSON.stringify(data.address);
     }
 
     const client = await prisma.client.update({
@@ -186,7 +186,7 @@ export class ClientService {
       document: client.document,
       email: client.email || undefined,
       phone: client.phone || undefined,
-      address: client.address ? JSON.parse(client.address as string) : undefined,
+      address: client.address ? JSON.parse(client.address) : undefined,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt
     };

@@ -1,30 +1,10 @@
 import { FastifyInstance } from 'fastify';
-import { z } from 'zod';
 
 import { retryService } from './retry.service';
 
-const retryInvoiceSchema = z.object({
-  invoiceId: z.string().uuid()
-});
-
 export async function retryRoutes(app: FastifyInstance) {
   // Iniciar serviço de retry
-  app.post('/jobs/retry/start', {
-    schema: {
-      description: 'Iniciar o serviço de reprocessamento automático',
-      tags: ['jobs'],
-      response: {
-        200: z.object({
-          success: z.boolean(),
-          message: z.string()
-        }),
-        500: z.object({
-          success: z.boolean(),
-          message: z.string()
-        })
-      }
-    }
-  }, async (request, reply) => {
+  app.post('/jobs/retry/start', async (request, reply) => {
     try {
       await retryService.start();
       return reply.send({
@@ -40,18 +20,7 @@ export async function retryRoutes(app: FastifyInstance) {
   });
 
   // Parar serviço de retry
-  app.post('/jobs/retry/stop', {
-    schema: {
-      description: 'Parar o serviço de reprocessamento automático',
-      tags: ['jobs'],
-      response: {
-        200: z.object({
-          success: z.boolean(),
-          message: z.string()
-        })
-      }
-    }
-  }, async (request, reply) => {
+  app.post('/jobs/retry/stop', async (request, reply) => {
     try {
       await retryService.stop();
       return reply.send({
@@ -67,32 +36,8 @@ export async function retryRoutes(app: FastifyInstance) {
   });
 
   // Retry manual de uma invoice específica
-  app.post('/jobs/retry/invoice', {
-    schema: {
-      description: 'Reprocessar manualmente uma invoice pendente',
-      tags: ['jobs'],
-      body: retryInvoiceSchema,
-      response: {
-        200: z.object({
-          success: z.boolean(),
-          message: z.string()
-        }),
-        404: z.object({
-          success: z.boolean(),
-          message: z.string()
-        }),
-        400: z.object({
-          success: z.boolean(),
-          message: z.string()
-        }),
-        500: z.object({
-          success: z.boolean(),
-          message: z.string()
-        })
-      }
-    }
-  }, async (request, reply) => {
-    const { invoiceId } = request.body as z.infer<typeof retryInvoiceSchema>;
+  app.post('/jobs/retry/invoice', async (request, reply) => {
+    const { invoiceId } = request.body as { invoiceId: string };
 
     try {
       await retryService.retryInvoiceById(invoiceId);
@@ -121,19 +66,7 @@ export async function retryRoutes(app: FastifyInstance) {
   });
 
   // Estatísticas de retry
-  app.get('/jobs/retry/stats', {
-    schema: {
-      description: 'Obter estatísticas do serviço de reprocessamento',
-      tags: ['jobs'],
-      response: {
-        200: z.object({
-          pendingCount: z.number(),
-          retryableCount: z.number(),
-          maxRetriesExceeded: z.number()
-        })
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/jobs/retry/stats', async (request, reply) => {
     const stats = await retryService.getRetryStats();
     return reply.send(stats);
   });
