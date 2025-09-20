@@ -88,3 +88,67 @@ model IdempotencyKey {
 
   @@index([expiresAt])
 }
+
+model WebhookConfig {
+  id        String   @id @default(uuid())
+  url       String
+  secret    String?
+  events    String[]
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id          String   @id @default(uuid())
+  name        String
+  document    String   // CPF or CNPJ
+  email       String?
+  phone       String?
+  address     Json?    // Address object
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([document])
+  @@index([document])
+}
+
+model Supplier {
+  id          String   @id @default(uuid())
+  name        String
+  document    String   // CNPJ
+  email       String?
+  phone       String?
+  address     Json?    // Address object
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([document])
+  @@index([document])
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+model Account {
+  id          String      @id @default(uuid())
+  code        String      // Accounting code (e.g., "1.01.001")
+  name        String
+  type        AccountType
+  parentId    String?     // For hierarchical accounts
+  parent      Account?    @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children    Account[]   @relation("AccountHierarchy")
+  description String?
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([code])
+  @@index([type])
+  @@index([parentId])
+}

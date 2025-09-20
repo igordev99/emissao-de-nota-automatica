@@ -12,6 +12,11 @@ import { errorHandler } from './infra/http/error-handler';
 import { buildLogger } from './infra/logging/logger';
 import { getEventLoopLagSeconds, observeDbPingSeconds, registerMetricsHooks, setAppReadiness, setDbStatus } from './infra/observability/metrics';
 import { registerNfseRoutes } from './modules/nfse/nfse.routes';
+import { webhookRoutes } from './modules/webhooks';
+import { retryRoutes } from './modules/jobs';
+import { clientRoutes } from './modules/clients';
+import { supplierRoutes } from './modules/suppliers';
+import { accountRoutes } from './modules/accounts';
 import { setContext } from './infra/context/async-context';
 
 export async function buildApp() {
@@ -223,6 +228,11 @@ export async function buildApp() {
   } catch {/* noop */}
   if (env.METRICS_ENABLED !== '0') { registerMetricsHooks(app); } else { app.log.debug('Metrics disabled by METRICS_ENABLED=0'); }
   await registerNfseRoutes(app);
+  // await app.register(webhookRoutes, { prefix: '/api' }); // Temporarily disabled
+  // await app.register(retryRoutes, { prefix: '/api' }); // Temporarily disabled
+  await app.register(clientRoutes, { prefix: '/api' });
+  await app.register(supplierRoutes, { prefix: '/api' });
+  await app.register(accountRoutes, { prefix: '/api' });
 
   return app;
 }

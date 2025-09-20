@@ -4,7 +4,7 @@ import { AuthError } from '../../core/errors';
 import { prisma } from '../../infra/db/prisma';
 import { decryptToBase64 } from '../../infra/security/crypto';
 
-import { emitInvoice, getInvoice, cancelInvoiceById } from './nfse.service';
+import { emitInvoice, getInvoice, cancelInvoiceById, getEmissionStats } from './nfse.service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any, any>) {
@@ -379,6 +379,73 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
       const result = await cancelInvoiceById(id, reason);
       if (!result) return reply.code(404).send({ error: { message: 'Not found' } });
       return reply.send(result);
+    });
+  }
+
+  // Estatísticas de emissão
+  if (hasSwagger) {
+    app.get('/nfse/estatisticas', {
+      schema: {
+        tags: ['NFSe'],
+        summary: 'Obter estatísticas de emissão',
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: { type: 'object', properties: { total: { type: 'integer' }, success: { type: 'integer' }, pending: { type: 'integer' }, rejected: { type: 'integer' }, cancelled: { type: 'integer' } }, required: ['total','success','pending','rejected','cancelled'] },
+          401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' }, code: { type: 'string' }, details: {} }, required: ['message'] } }, required: ['error'] } as any
+        }
+      } as any,
+      preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } }
+    } as any, async (req: FastifyRequest, reply: FastifyReply) => {
+      const stats = await getEmissionStats();
+      return reply.send(stats);
+    });
+  } else {
+    app.get('/nfse/estatisticas', { preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } } } as any, async (req: FastifyRequest, reply: FastifyReply) => {
+      const stats = await getEmissionStats();
+      return reply.send(stats);
+    });
+  }
+
+  // Nova rota: Estatísticas de emissão
+  if (hasSwagger) {
+    app.get('/nfse/stats', {
+      schema: {
+        tags: ['NFSe'],
+        summary: 'Estatísticas de emissão',
+        security: [{ bearerAuth: [] }],
+        querystring: {
+          type: 'object',
+          properties: {
+            from: { type: 'string', description: 'Data inicial (ISO)' },
+            to: { type: 'string', description: 'Data final (ISO)' }
+          }
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              period: { type: 'object', properties: { from: { type: 'string' }, to: { type: 'string' } } },
+              counts: { type: 'object', properties: { total: { type: 'integer' }, success: { type: 'integer' }, pending: { type: 'integer' }, rejected: { type: 'integer' }, cancelled: { type: 'integer' } } },
+              totalAmount: { type: 'number' },
+              successRate: { type: 'string' }
+            }
+          }
+        }
+      } as any }, // eslint-disable-line @typescript-eslint/no-explicit-any
+      async (req: FastifyRequest<{ Querystring: { from?: string; to?: string } }>, reply: FastifyReply) => {
+        const { from, to } = req.query;
+        const fromDate = from ? new Date(from) : undefined;
+        const toDate = to ? new Date(to) : undefined;
+        const stats = await getEmissionStats(fromDate, toDate);
+        return reply.send(stats);
+      });
+  } else {
+    app.get('/nfse/stats', async (req: FastifyRequest<{ Querystring: { from?: string; to?: string } }>, reply: FastifyReply) => {
+      const { from, to } = req.query;
+      const fromDate = from ? new Date(from) : undefined;
+      const toDate = to ? new Date(to) : undefined;
+      const stats = await getEmissionStats(fromDate, toDate);
+      return reply.send(stats);
     });
   }
 }

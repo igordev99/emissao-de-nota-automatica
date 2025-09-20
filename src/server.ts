@@ -1,5 +1,6 @@
 import { buildApp } from './app';
 import { setAppLive, setAppReadiness } from './infra/observability/metrics';
+// import { retryService } from './modules/jobs'; // Temporarily disabled
 
 const start = async () => {
   const app = await buildApp();
@@ -9,6 +10,9 @@ const start = async () => {
     app.log.info(`NFSe service listening on ${port}`);
     // Mark liveness after the server is actually listening
     setAppLive(true);
+
+    // Start retry service
+    // await retryService.start(); // Temporarily disabled
   } catch (err) {
     if ((err as any)?.code === 'EADDRINUSE') {
       app.log.error({ err }, `Porta ${port} ocupada (EADDRINUSE). Dica: execute 'npm run port:free' e tente novamente, ou use 'npm run dev:win:start' para iniciar com liberação automática.`);
@@ -27,6 +31,10 @@ const start = async () => {
     // Flip readiness first to stop traffic from LB
     setAppReadiness(false);
     setAppLive(false);
+
+    // Stop retry service
+    // await retryService.stop(); // Temporarily disabled
+
     const timeoutMs = 10000; // 10s timeout to force exit
     try {
       await Promise.race([

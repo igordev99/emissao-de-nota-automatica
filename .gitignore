@@ -32,3 +32,4 @@ Thumbs.db
 
 # Local smoke report artifacts
 smoke_*.json
+package-lock.json

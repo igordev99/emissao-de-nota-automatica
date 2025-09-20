@@ -7,6 +7,7 @@ import { signXmlEnveloped } from '../../core/xml/signer';
 import { prisma } from '../../infra/db/prisma';
 import { audit } from '../../infra/logging/audit';
 import { encryptBase64, sha256 } from '../../infra/security/crypto';
+import { webhookService } from '../webhooks';
 
 export interface EmitResult {
   status: string;
@@ -164,6 +165,12 @@ export async function emitInvoice(raw: unknown, idempotencyKey?: string): Promis
       await prisma.idempotencyKey.update({ where: { key: idempotencyKey }, data: { statusSnapshot: updated.status } });
     }
     await audit('INFO', 'Invoice updated after agent', { invoiceId: updated.id, status: updated.status });
+
+    // Notificar mudança de status via webhook
+    if (updated.status !== 'PENDING') {
+      await webhookService.notifyStatusChange(updated.id, 'PENDING', updated.status);
+    }
+
     return { status: updated.status, id: updated.id, nfseNumber: updated.nfseNumber || undefined };
   } catch (err) {
     if (err instanceof RejectionError) {
@@ -172,6 +179,10 @@ export async function emitInvoice(raw: unknown, idempotencyKey?: string): Promis
       if (idempotencyKey) {
         await prisma.idempotencyKey.update({ where: { key: idempotencyKey }, data: { statusSnapshot: updated.status } });
       }
+
+      // Notificar mudança de status via webhook
+      await webhookService.notifyStatusChange(updated.id, 'PENDING', 'REJECTED');
+
       return { status: updated.status, id: updated.id };
     }
     await audit('ERROR', 'Invoice emission error', { invoiceId: invoice.id, error: (err as any).message }); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -199,6 +210,43 @@ export async function cancelInvoiceById(id: string, reason?: string) {
   }
   const updated = await (prisma as any).invoice.update({ where: { id }, data }); // eslint-disable-line @typescript-eslint/no-explicit-any
   await audit('INFO', 'Cancel request finished', { invoiceId: id, status: updated.status });
+
+  // Notificar mudança de status via webhook
+  if (updated.status !== invoice.status) {
+    await webhookService.notifyStatusChange(updated.id, invoice.status, updated.status);
+  }
+
   const canceledAt = updated.status === 'CANCELLED' ? (updated.canceledAt ? new Date(updated.canceledAt).toISOString() : new Date().toISOString()) : undefined;
   return { id: updated.id, status: updated.status, canceledAt };
+}
+
+export async function getEmissionStats(from?: Date, to?: Date) {
+  const where: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
+  if (from || to) {
+    where.createdAt = {};
+    if (from) where.createdAt.gte = from;
+    if (to) where.createdAt.lte = to;
+  }
+
+  const [total, success, pending, rejected, cancelled] = await Promise.all([
+    prisma.invoice.count({ where }),
+    prisma.invoice.count({ where: { ...where, status: 'SUCCESS' } }),
+    prisma.invoice.count({ where: { ...where, status: 'PENDING' } }),
+    prisma.invoice.count({ where: { ...where, status: 'REJECTED' } }),
+    prisma.invoice.count({ where: { ...where, status: 'CANCELLED' } }),
+  ]);
+
+  // Calcular total de forma simples
+  const successfulInvoices = await prisma.invoice.findMany({
+    where: { ...where, status: 'SUCCESS' },
+    select: { serviceAmount: true }
+  });
+  const totalAmount = successfulInvoices.reduce((sum: number, inv: any) => sum + Number(inv.serviceAmount), 0);
+
+  return {
+    period: { from, to },
+    counts: { total, success, pending, rejected, cancelled },
+    totalAmount,
+    successRate: total > 0 ? (success / total * 100).toFixed(2) + '%' : '0%'
+  };
 }
