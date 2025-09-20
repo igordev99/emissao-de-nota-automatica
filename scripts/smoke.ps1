@@ -84,10 +84,20 @@ if (-not (Wait-ForLive -Url "$BaseUrl/live" -TimeoutSec $LiveTimeoutSec)) {
     if (-not $env:JWT_SECRET) { $env:JWT_SECRET = 'change_this_development_secret_please' }
     $env:IN_MEMORY_DB = '1'
     $env:METRICS_ENABLED = '1'
-    $script = "[Console]::InputEncoding=[System.Text.Encoding]::UTF8; [Console]::OutputEncoding=[System.Text.Encoding]::UTF8; cmd /c chcp 65001 > $null 2>&1; npm run dev:mem"
     $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-    $null = Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-Command", $script -PassThru -WindowStyle Minimized -WorkingDirectory $repoRoot
-    if (-not (Wait-ForLive -Url "$BaseUrl/live" -TimeoutSec ($LiveTimeoutSec + 45))) {
+    # Start server in background using PowerShell job for better Windows compatibility
+    Write-Host "[smoke] Starting server in background..."
+    $job = Start-Job -ScriptBlock {
+      param($repoPath)
+      Set-Location $repoPath
+      $env:PORT = $using:env:PORT
+      $env:JWT_SECRET = $using:env:JWT_SECRET
+      $env:IN_MEMORY_DB = $using:env:IN_MEMORY_DB
+      $env:METRICS_ENABLED = $using:env:METRICS_ENABLED
+      & npm run dev:mem
+    } -ArgumentList $repoRoot
+    Write-Host "[smoke] Server job started with ID: $($job.Id)"
+    if (-not (Wait-ForLive -Url "$BaseUrl/live" -TimeoutSec ($LiveTimeoutSec + 60))) {
       Write-Error "Service not live at $BaseUrl/live after auto-start"
       exit 1
     }
@@ -305,6 +315,13 @@ if ($JsonOut) {
   } catch {
     Write-Warning ("Failed to write report to {0}: {1}" -f $JsonOut, $_.Exception.Message)
   }
+}
+
+# Clean up background job if it exists
+if ($job -and $job.State -eq 'Running') {
+  Write-Host "[smoke] Stopping background server job..."
+  Stop-Job -Job $job -ErrorAction SilentlyContinue
+  Remove-Job -Job $job -ErrorAction SilentlyContinue
 }
 
 Write-Host "[smoke] Done"
