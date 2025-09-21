@@ -121,24 +121,25 @@ Railway escala automaticamente, mas você pode ajustar manualmente em **"Setting
 
 ## Troubleshooting
 
-### ❌ Erro: "PrismaClientInitializationError" / "libssl.so.1.1"
+### ❌ Erro: "PrismaClientInitializationError" / "openssl1.1-compat"
 
 **Sintomas:** App crasha com erro sobre Prisma não conseguir carregar bibliotecas
 
-**Causa:** Alpine Linux usa OpenSSL 3.x, mas Prisma precisa OpenSSL 1.1.x
+**Causa:** Alpine Linux tem problemas de compatibilidade com OpenSSL e Prisma
 
-**Solução:** Já corrigido no Dockerfile com `openssl1.1-compat`. Se ainda der erro:
+**Solução:** Dockerfile atualizado para usar `node:20-slim` (Debian) em vez de Alpine:
 
-1. **Verifique se o Dockerfile foi atualizado:**
-   ```dockerfile
-   RUN apk add --no-cache curl openssl1.1-compat
-   ```
+```dockerfile
+FROM node:20-slim AS runner  # ← Mudou de node:20-alpine
+```
 
-2. **Forçar rebuild:**
-   - Vá para **"Deployments"**
-   - Clique **"Redeploy"** para forçar rebuild da imagem
+**Por que Debian slim:**
+- ✅ Melhor compatibilidade com Prisma
+- ✅ OpenSSL 1.1.x nativo
+- ✅ Não precisa de workarounds para bibliotecas
+- ✅ Mais estável para aplicações Node.js
 
-3. **Verificar logs:** Procure por "openssl1.1-compat" na instalação
+Se ainda der erro, forçar rebuild no Railway.
 
 ### Erro de Build
 - Verifique se o Dockerfile está correto
