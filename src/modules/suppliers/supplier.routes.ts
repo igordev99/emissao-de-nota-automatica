@@ -3,71 +3,8 @@ import { z } from 'zod';
 
 import { supplierService, SupplierData } from './supplier.service';
 
-const createSupplierSchema = z.object({
-  name: z.string().min(1),
-  document: z.string().length(14), // CNPJ only
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
-  address: z.object({
-    street: z.string(),
-    number: z.string(),
-    complement: z.string().optional(),
-    neighborhood: z.string(),
-    city: z.string(),
-    state: z.string().length(2),
-    zipCode: z.string()
-  }).optional()
-});
-
-const updateSupplierSchema = z.object({
-  name: z.string().min(1).optional(),
-  document: z.string().length(14).optional(), // CNPJ only
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
-  address: z.object({
-    street: z.string(),
-    number: z.string(),
-    complement: z.string().optional(),
-    neighborhood: z.string(),
-    city: z.string(),
-    state: z.string().length(2),
-    zipCode: z.string()
-  }).optional()
-});
-
 const supplierIdSchema = z.object({
   id: z.string().uuid()
-});
-
-const listSuppliersQuerySchema = z.object({
-  page: z.string().transform(val => parseInt(val)).refine(val => val > 0).optional(),
-  pageSize: z.string().transform(val => parseInt(val)).refine(val => val > 0 && val <= 100).optional(),
-  search: z.string().optional()
-});
-
-const supplierResponseSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  document: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string()
-});
-
-const suppliersListResponseSchema = z.object({
-  items: z.array(supplierResponseSchema),
-  page: z.number(),
-  pageSize: z.number(),
-  total: z.number()
-});
-
-const errorResponseSchema = z.object({
-  error: z.string(),
-  message: z.string()
-});
-
-const successResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string()
 });
 
 export async function supplierRoutes(app: FastifyInstance) {

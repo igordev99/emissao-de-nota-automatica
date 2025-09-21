@@ -5,6 +5,10 @@ import Fastify from 'fastify';
 import { buildLogger } from '../src/infra/logging/logger';
 import { registerNfseRoutes } from '../src/modules/nfse/nfse.routes';
 
+// Mock axios para evitar chamadas HTTP reais nos testes
+jest.mock('axios');
+const axios = require('axios');
+
 // Mock Prisma com armazenamento em memória e idempotência
 jest.mock('../src/infra/db/prisma', () => {
   const invoices: any[] = [];
@@ -60,6 +64,13 @@ jest.mock('../src/infra/db/prisma', () => {
         }),
         create: jest.fn(async ({ data }: any) => { idempotency[data.key] = data; const invoice = invoices.find(i => i.id === data.invoiceId) || null; return { ...data, invoice }; }),
         update: jest.fn(async ({ where, data }: any) => { idempotency[where.key] = { ...idempotency[where.key], ...data }; const rec = idempotency[where.key]; const invoice = invoices.find(i => i.id === rec.invoiceId) || null; return { ...rec, invoice }; })
+      },
+      webhookConfig: {
+        findMany: jest.fn(async () => []),
+        findUnique: jest.fn(async () => null),
+        create: jest.fn(async () => ({})),
+        update: jest.fn(async () => ({})),
+        delete: jest.fn(async () => ({}))
       },
       logEntry: { create: jest.fn(async () => undefined) }
     }

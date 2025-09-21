@@ -3,64 +3,8 @@ import { z } from 'zod';
 
 import { accountService, AccountData } from './account.service';
 
-const createAccountSchema = z.object({
-  code: z.string().min(1),
-  name: z.string().min(1),
-  type: z.enum(['ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE']),
-  parentId: z.string().uuid().optional(),
-  description: z.string().optional(),
-  active: z.boolean().default(true)
-});
-
-const updateAccountSchema = z.object({
-  code: z.string().min(1).optional(),
-  name: z.string().min(1).optional(),
-  type: z.enum(['ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE']).optional(),
-  parentId: z.string().uuid().optional(),
-  description: z.string().optional(),
-  active: z.boolean().optional()
-});
-
 const accountIdSchema = z.object({
   id: z.string().uuid()
-});
-
-const listAccountsQuerySchema = z.object({
-  type: z.enum(['ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE']).optional(),
-  parentId: z.string().uuid().optional(),
-  activeOnly: z.string().transform(val => val === 'true').default('true'),
-  page: z.string().transform(val => parseInt(val)).refine(val => val > 0).optional(),
-  pageSize: z.string().transform(val => parseInt(val)).refine(val => val > 0 && val <= 100).optional()
-});
-
-const accountResponseSchema = z.object({
-  id: z.string(),
-  code: z.string(),
-  name: z.string(),
-  type: z.string(),
-  active: z.boolean(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  children: z.array(z.any()).optional()
-});
-
-const accountsListResponseSchema = z.object({
-  items: z.array(accountResponseSchema),
-  page: z.number(),
-  pageSize: z.number(),
-  total: z.number()
-});
-
-const accountsHierarchyResponseSchema = z.array(accountResponseSchema);
-
-const errorResponseSchema = z.object({
-  error: z.string(),
-  message: z.string()
-});
-
-const successResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string()
 });
 
 export async function accountRoutes(app: FastifyInstance) {

@@ -58,11 +58,8 @@ export default function NfseEmit() {
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
-    watch
+    setValue
   } = useForm<NfseEmitFormData>();
-
-  const issRetained = watch('issRetained');
 
   // Carregar clientes e fornecedores
   useEffect(() => {

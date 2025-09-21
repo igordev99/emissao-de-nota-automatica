@@ -31,7 +31,7 @@ export default function NfseList() {
         page,
         pageSize: 10,
         ...Object.fromEntries(
-          Object.entries(filters).filter(([_, value]) => value !== '')
+          Object.entries(filters).filter(([, value]) => value !== '')
         )
       };
       const data = await nfseService.getNfseList(params);

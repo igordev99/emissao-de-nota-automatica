@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { emitInvoice } from '../src/modules/nfse/nfse.service';
 
+// Mock axios para evitar chamadas HTTP reais nos testes
+jest.mock('axios');
+
 // Mock prisma
 jest.mock('../src/infra/db/prisma', () => {
   const invoiceStore: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -27,6 +30,13 @@ jest.mock('../src/infra/db/prisma', () => {
         findUnique: jest.fn(async () => null),
         create: jest.fn(async () => null),
         update: jest.fn(async () => null)
+      },
+      webhookConfig: {
+        findMany: jest.fn(async () => []),
+        findUnique: jest.fn(async () => null),
+        create: jest.fn(async () => ({})),
+        update: jest.fn(async () => ({})),
+        delete: jest.fn(async () => ({}))
       }
     }
   };

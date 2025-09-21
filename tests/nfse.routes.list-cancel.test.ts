@@ -5,6 +5,9 @@ import Fastify from 'fastify';
 import { buildLogger } from '../src/infra/logging/logger';
 import { registerNfseRoutes } from '../src/modules/nfse/nfse.routes';
 
+// Mock axios para evitar chamadas HTTP reais nos testes
+jest.mock('axios');
+
 // Mock prisma for listing
 jest.mock('../src/infra/db/prisma', () => {
   const items: any[] = [
@@ -41,6 +44,13 @@ jest.mock('../src/infra/db/prisma', () => {
           if (idx >= 0) items[idx] = { ...items[idx], ...data };
           return items[idx];
         })
+      },
+      webhookConfig: {
+        findMany: jest.fn(async () => []),
+        findUnique: jest.fn(async () => null),
+        create: jest.fn(async () => ({})),
+        update: jest.fn(async () => ({})),
+        delete: jest.fn(async () => ({}))
       }
     }
   };

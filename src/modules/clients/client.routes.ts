@@ -3,74 +3,8 @@ import { z } from 'zod';
 
 import { clientService, ClientData } from './client.service';
 
-const createClientSchema = z.object({
-  name: z.string().min(1),
-  document: z.string().min(11).max(14),
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
-  address: z.object({
-    street: z.string(),
-    number: z.string(),
-    complement: z.string().optional(),
-    neighborhood: z.string(),
-    city: z.string(),
-    state: z.string().length(2),
-    zipCode: z.string()
-  }).optional()
-});
-
-const updateClientSchema = z.object({
-  name: z.string().min(1).optional(),
-  document: z.string().min(11).max(14).optional(),
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
-  address: z.object({
-    street: z.string(),
-    number: z.string(),
-    complement: z.string().optional(),
-    neighborhood: z.string(),
-    city: z.string(),
-    state: z.string().length(2),
-    zipCode: z.string()
-  }).optional()
-});
-
 const clientIdSchema = z.object({
   id: z.string().uuid()
-});
-
-const listClientsQuerySchema = z.object({
-  page: z.string().transform(val => parseInt(val)).refine(val => val > 0).optional(),
-  pageSize: z.string().transform(val => parseInt(val)).refine(val => val > 0 && val <= 100).optional(),
-  search: z.string().optional()
-});
-
-const clientResponseSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  document: z.string(),
-  email: z.string().optional(),
-  phone: z.string().optional(),
-  address: z.any().optional(),
-  createdAt: z.date(),
-  updatedAt: z.date()
-});
-
-const clientsListResponseSchema = z.object({
-  items: z.array(clientResponseSchema),
-  page: z.number(),
-  pageSize: z.number(),
-  total: z.number()
-});
-
-const errorResponseSchema = z.object({
-  error: z.string(),
-  message: z.string()
-});
-
-const successResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string()
 });
 
 export async function clientRoutes(app: FastifyInstance) {
