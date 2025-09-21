@@ -32,6 +32,8 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
+      - name: Install UI dependencies
+        run: cd ui && npm ci
       - run: npx prisma generate
       - name: Reset database
         run: npx prisma migrate reset --force --skip-generate
@@ -49,6 +51,8 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+      - name: Install UI dependencies
+        run: cd ui && npm ci
       - run: npm run build
       - name: Docker metadata
         id: meta
