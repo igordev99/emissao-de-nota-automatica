@@ -21,12 +21,23 @@ Railway irá:
 
 **Tempo estimado:** 5-10 minutos para o primeiro deploy
 
-### Passo 3: Configurar Variáveis de Ambiente
+### Passo 3: Verificar PostgreSQL
 
-Após o deploy inicial, configure as variáveis:
+Após o deploy inicial:
 
-1. No painel do Railway, vá para **"Variables"** (aba do seu serviço)
-2. Clique em **"Add Variable"** e adicione:
+1. **Verifique se o PostgreSQL foi criado:**
+   - Vá para **"Services"** no painel lateral
+   - Deve haver um serviço **"PostgreSQL"** listado
+   - Se não houver, clique em **"+"** e adicione **"PostgreSQL"**
+
+2. **Verifique a DATABASE_URL:**
+   - No serviço da aplicação, vá para **"Variables"**
+   - Procure por **"DATABASE_URL"** (deve ser criada automaticamente)
+   - Se não existir, copie do serviço PostgreSQL
+
+### Passo 4: Configurar Variáveis de Ambiente
+
+No painel do Railway, vá para **"Variables"** do seu serviço da aplicação e adicione:
 
 ```bash
 JWT_SECRET=ruWyk96giZUzm89WTO8NmfTcjCiPSj0qkfdvIVxcs9M=
@@ -34,10 +45,10 @@ NODE_ENV=production
 METRICS_ENABLED=1
 ```
 
-**⚠️ Importante:** Use este JWT_SECRET ou gere um novo com:
-```bash
-openssl rand -base64 32
-```
+**⚠️ Importante:** A `DATABASE_URL` deve aparecer automaticamente. Se não aparecer:
+1. Vá no serviço PostgreSQL
+2. Copie a `DATABASE_URL` de lá
+3. Cole no serviço da aplicação
 
 ### Passo 4: Redeploy com Variáveis
 
@@ -97,6 +108,27 @@ Railway escala automaticamente, mas você pode ajustar manualmente em **"Setting
 3. Configure os registros DNS conforme instruído
 
 ## Troubleshooting
+
+### ❌ Erro: "DATABASE_URL is required in production"
+
+**Sintomas:** App crasha com erro sobre DATABASE_URL faltando
+
+**Causa:** Railway não criou automaticamente o PostgreSQL ou não configurou a DATABASE_URL
+
+**Solução:**
+1. **Verifique se PostgreSQL existe:**
+   - Vá para **"Services"** no painel lateral
+   - Procure por serviço **"PostgreSQL"**
+   - Se não existir: clique **"+"** > **"PostgreSQL"** > **"Add"**
+
+2. **Verifique DATABASE_URL:**
+   - No serviço da aplicação, aba **"Variables"**
+   - Procure por **"DATABASE_URL"**
+   - Se não existir: copie do serviço PostgreSQL e adicione manualmente
+
+3. **Forçar redeploy:**
+   - Vá para **"Deployments"**
+   - Clique **"Redeploy"** no último deployment
 
 ### Erro de Build
 - Verifique se o Dockerfile está correto
