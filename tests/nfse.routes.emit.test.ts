@@ -7,7 +7,6 @@ import { registerNfseRoutes } from '../src/modules/nfse/nfse.routes';
 
 // Mock axios para evitar chamadas HTTP reais nos testes
 jest.mock('axios');
-const axios = require('axios');
 
 // Mock Prisma com armazenamento em memória e idempotência
 jest.mock('../src/infra/db/prisma', () => {
