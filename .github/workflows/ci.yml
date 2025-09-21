@@ -33,6 +33,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx prisma generate
+      - name: Reset database
+        run: npx prisma migrate reset --force --skip-generate
       - run: npx prisma migrate deploy
       - run: npm run lint
       - run: npm test -- --ci --runInBand

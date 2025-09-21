@@ -1,11 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { nfseService } from '../services/nfse';
-import { clientsService } from '../services/clients';
-import { suppliersService } from '../services/suppliers';
+import { clientService } from '../services/clients';
+import { supplierService } from '../services/suppliers';
 import type { NfseEmitRequest, Client, Supplier } from '../types';
 
 interface NfseEmitFormData extends NfseEmitRequest {}
+
+interface AlertProps {
+  type: 'success' | 'error';
+  title: string;
+  message: string;
+}
+
+const Alert = ({ type, title, message }: AlertProps) => {
+  const isSuccess = type === 'success';
+  const bgColor = isSuccess ? 'bg-green-50' : 'bg-red-50';
+  const borderColor = isSuccess ? 'border-green-200' : 'border-red-200';
+  const iconColor = isSuccess ? 'text-green-400' : 'text-red-400';
+  const titleColor = isSuccess ? 'text-green-800' : 'text-red-800';
+  const messageColor = isSuccess ? 'text-green-700' : 'text-red-700';
+  const iconPath = isSuccess
+    ? "M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+    : "M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z";
+
+  return (
+    <div className={`mb-6 ${bgColor} border ${borderColor} rounded-md p-4`}>
+      <div className="flex">
+        <div className="flex-shrink-0">
+          <svg className={`h-5 w-5 ${iconColor}`} viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d={iconPath} clipRule="evenodd" />
+          </svg>
+        </div>
+        <div className="ml-3">
+          <h3 className={`text-sm font-medium ${titleColor}`}>
+            {title}
+          </h3>
+          <div className={`mt-2 text-sm ${messageColor}`}>
+            <p>{message}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function NfseEmit() {
   const [loading, setLoading] = useState(false);
@@ -13,8 +51,6 @@ export default function NfseEmit() {
   const [error, setError] = useState<string | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
   const {
     register,
@@ -28,12 +64,12 @@ export default function NfseEmit() {
   const issRetained = watch('issRetained');
 
   // Carregar clientes e fornecedores
-  useState(() => {
+  useEffect(() => {
     const loadData = async () => {
       try {
         const [clientsData, suppliersData] = await Promise.all([
-          clientsService.getClients(),
-          suppliersService.getSuppliers()
+          clientService.getClients(),
+          supplierService.getSuppliers()
         ]);
         setClients(clientsData.items);
         setSuppliers(suppliersData.items);
@@ -42,7 +78,7 @@ export default function NfseEmit() {
       }
     };
     loadData();
-  });
+  }, []);
 
   const onSubmit = async (data: NfseEmitFormData) => {
     setLoading(true);
@@ -53,8 +89,6 @@ export default function NfseEmit() {
       await nfseService.emitNfse(data);
       setSuccess(true);
       reset();
-      setSelectedClient(null);
-      setSelectedSupplier(null);
     } catch (error: any) {
       setError(error.response?.data?.message || 'Erro ao emitir NFS-e');
     } finally {
@@ -65,7 +99,6 @@ export default function NfseEmit() {
   const handleClientSelect = (clientId: string) => {
     const client = clients.find(c => c.id === clientId);
     if (client) {
-      setSelectedClient(client);
       setValue('customer.name', client.name);
       setValue('customer.email', client.email || '');
       if (client.document.length === 11) {
@@ -81,7 +114,6 @@ export default function NfseEmit() {
   const handleSupplierSelect = (supplierId: string) => {
     const supplier = suppliers.find(s => s.id === supplierId);
     if (supplier) {
-      setSelectedSupplier(supplier);
       setValue('provider.cnpj', supplier.cnpj);
     }
   };
@@ -96,43 +128,19 @@ export default function NfseEmit() {
       </div>
 
       {success && (
-        <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">
-                NFS-e emitida com sucesso!
-              </h3>
-              <div className="mt-2 text-sm text-green-700">
-                <p>A nota fiscal foi enviada para processamento.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Alert
+          type="success"
+          title="NFS-e emitida com sucesso!"
+          message="A nota fiscal foi enviada para processamento."
+        />
       )}
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
-                Erro ao emitir NFS-e
-              </h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{error}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Alert
+          type="error"
+          title="Erro ao emitir NFS-e"
+          message={error}
+        />
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
