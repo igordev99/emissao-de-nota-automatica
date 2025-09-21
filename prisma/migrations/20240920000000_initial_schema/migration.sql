@@ -1,3 +1,12 @@
+-- CreateEnum
+CREATE TYPE "InvoiceStatus" AS ENUM('PENDING', 'SUCCESS', 'REJECTED', 'CANCELLED');
+
+-- CreateEnum
+CREATE TYPE "LogLevel" AS ENUM('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR');
+
+-- CreateEnum
+CREATE TYPE "AccountType" AS ENUM('ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE');
+
 -- CreateTable
 CREATE TABLE "Invoice" (
     "id" TEXT NOT NULL,
@@ -114,15 +123,6 @@ CREATE TABLE "Account" (
 
     CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
 );
-
--- CreateEnum
-CREATE TYPE "InvoiceStatus" AS ENUM('PENDING', 'SUCCESS', 'REJECTED', 'CANCELLED');
-
--- CreateEnum
-CREATE TYPE "LogLevel" AS ENUM('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR');
-
--- CreateEnum
-CREATE TYPE "AccountType" AS ENUM('ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE');
 
 -- AddForeignKey
 ALTER TABLE "LogEntry" ADD CONSTRAINT "LogEntry_invoiceId_fkey" FOREIGN KEY ("invoiceId") REFERENCES "Invoice"("id") ON DELETE SET NULL ON UPDATE CASCADE;
