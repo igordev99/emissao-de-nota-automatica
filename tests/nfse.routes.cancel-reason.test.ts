@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Fastify from 'fastify';
 import jwt from '@fastify/jwt';
-import { registerNfseRoutes } from '../src/modules/nfse/nfse.routes';
+
 import { buildLogger } from '../src/infra/logging/logger';
+import { registerNfseRoutes } from '../src/modules/nfse/nfse.routes';
 
 // Mock Prisma with in-memory store
 jest.mock('../src/infra/db/prisma', () => {
@@ -61,7 +62,7 @@ jest.mock('../src/infra/db/prisma', () => {
 jest.mock('../src/core/agent/agent-client', () => ({
   agentClient: {
     emitInvoice: jest.fn(async () => ({ status: 'SUCCESS', nfseNumber: 'X1' })),
-    cancelInvoice: jest.fn(async (_id: string, _reason?: string) => ({ status: 'CANCELLED' }))
+    cancelInvoice: jest.fn(async () => ({ status: 'CANCELLED' }))
   }
 }));
 
