@@ -7,16 +7,18 @@
 - [ ] **Passo 1:** Acessar [Railway Dashboard](https://railway.app/dashboard)
 - [ ] **Passo 2:** Clicar "New Project" > "Deploy from GitHub repo"
 - [ ] **Passo 3:** Autorizar GitHub e selecionar repositório `emissao-de-nota-automatica`
-- [ ] **Passo 4:** Aguardar Railway detectar Dockerfile e criar PostgreSQL
-- [ ] **Passo 5:** **CRUCIAL** - Verificar se PostgreSQL foi criado:
-  - Vá em "Services" no painel lateral
-  - Deve haver serviço "PostgreSQL"
-  - Se não houver, adicione manualmente
-- [ ] **Passo 6:** **CRUCIAL** - Verificar DATABASE_URL:
-  - No serviço da app, aba "Variables"
-  - Deve haver "DATABASE_URL" (copiada do PostgreSQL)
-  - Se não houver, copie manualmente do serviço PostgreSQL
-- [ ] **Passo 7:** Adicionar variáveis de ambiente:
+- [ ] **Passo 4:** Aguardar deploy inicial (vai falhar - isso é normal!)
+- [ ] **Passo 5:** **CRÍTICO** - Adicionar PostgreSQL MANUALMENTE:
+  - Clicar "+" no painel lateral
+  - Selecionar "PostgreSQL"
+  - Clicar "Add"
+  - Aguardar criação
+- [ ] **Passo 6:** **CRÍTICO** - Conectar DATABASE_URL:
+  - Ir no serviço PostgreSQL > aba "Variables"
+  - Copiar valor de DATABASE_URL
+  - Ir no serviço da app > aba "Variables"
+  - Adicionar DATABASE_URL com o valor copiado
+- [ ] **Passo 7:** Adicionar outras variáveis:
   ```
   JWT_SECRET=ruWyk96giZUzm89WTO8NmfTcjCiPSj0qkfdvIVxcs9M=
   NODE_ENV=production

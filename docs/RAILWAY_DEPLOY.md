@@ -2,6 +2,12 @@
 
 ## ✅ Conta Criada - Próximos Passos
 
+### ⚠️ Importante: Docker + PostgreSQL
+
+**Quando você usa Dockerfile customizado, o Railway NÃO cria automaticamente o PostgreSQL!**
+
+Você precisa adicionar o PostgreSQL MANUALMENTE após conectar o repositório.
+
 ### Passo 1: Conectar Repositório GitHub
 
 1. Acesse [Railway Dashboard](https://railway.app/dashboard)
@@ -11,15 +17,21 @@
 5. **Procure e selecione** o repositório `emissao-de-nota-automatica`
 6. Clique em **"Deploy"**
 
-### Passo 2: Aguardar Detecção Automática
+### Passo 2: Aguardar Deploy Inicial (Sem Banco)
 
 Railway irá:
 - ✅ Detectar automaticamente o **Dockerfile**
-- ✅ Criar serviço **PostgreSQL** automaticamente
-- ✅ Configurar **DATABASE_URL** automaticamente
-- ✅ Iniciar o build e deploy
+- ❌ **NÃO CRIARÁ** o PostgreSQL automaticamente (por causa do Docker customizado)
+- ✅ Fará deploy da aplicação (mas vai falhar por falta de DATABASE_URL)
 
-**Tempo estimado:** 5-10 minutos para o primeiro deploy
+### Passo 3: CRIAR PostgreSQL MANUALMENTE
+
+**Após o deploy inicial (que vai falhar):**
+
+1. No painel lateral, clique em **"+"** (Add Service)
+2. Selecione **"PostgreSQL"**
+3. Clique em **"Add"**
+4. Aguarde o PostgreSQL ser criado
 
 ### Passo 3: Verificar PostgreSQL
 
