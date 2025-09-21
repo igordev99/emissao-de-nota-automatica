@@ -121,26 +121,24 @@ Railway escala automaticamente, mas você pode ajustar manualmente em **"Setting
 
 ## Troubleshooting
 
-### ❌ Erro: "DATABASE_URL is required in production"
+### ❌ Erro: "PrismaClientInitializationError" / "libssl.so.1.1"
 
-**Sintomas:** App crasha com erro sobre DATABASE_URL faltando
+**Sintomas:** App crasha com erro sobre Prisma não conseguir carregar bibliotecas
 
-**Causa:** Railway não criou automaticamente o PostgreSQL ou não configurou a DATABASE_URL
+**Causa:** Alpine Linux usa OpenSSL 3.x, mas Prisma precisa OpenSSL 1.1.x
 
-**Solução:**
-1. **Verifique se PostgreSQL existe:**
-   - Vá para **"Services"** no painel lateral
-   - Procure por serviço **"PostgreSQL"**
-   - Se não existir: clique **"+"** > **"PostgreSQL"** > **"Add"**
+**Solução:** Já corrigido no Dockerfile com `openssl1.1-compat`. Se ainda der erro:
 
-2. **Verifique DATABASE_URL:**
-   - No serviço da aplicação, aba **"Variables"**
-   - Procure por **"DATABASE_URL"**
-   - Se não existir: copie do serviço PostgreSQL e adicione manualmente
+1. **Verifique se o Dockerfile foi atualizado:**
+   ```dockerfile
+   RUN apk add --no-cache curl openssl1.1-compat
+   ```
 
-3. **Forçar redeploy:**
+2. **Forçar rebuild:**
    - Vá para **"Deployments"**
-   - Clique **"Redeploy"** no último deployment
+   - Clique **"Redeploy"** para forçar rebuild da imagem
+
+3. **Verificar logs:** Procure por "openssl1.1-compat" na instalação
 
 ### Erro de Build
 - Verifique se o Dockerfile está correto

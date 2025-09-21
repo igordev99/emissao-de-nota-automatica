@@ -27,6 +27,7 @@ COPY --from=generate /app/node_modules/.prisma ./node_modules/.prisma
 # Remove devDeps, preservando client gerado em node_modules/.prisma
 RUN npm prune --omit=dev
 EXPOSE 3000
-RUN apk add --no-cache curl
+# Instalar OpenSSL 1.1.x compatível com Prisma no Alpine
+RUN apk add --no-cache curl openssl1.1-compat
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 CMD curl -fsS http://localhost:3000/live || exit 1
 CMD ["node", "dist/server.js"]
