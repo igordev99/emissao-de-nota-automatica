@@ -224,6 +224,56 @@ npm test          # Testes
 npm run coverage  # Cobertura
 ```
 
+### Gerenciamento de Dependências
+
+Este projeto versiona os arquivos `package-lock.json` (raiz e `ui/`) para garantir builds reprodutíveis e consistentes entre desenvolvimento, CI e produção.
+
+#### Por que versionar package-lock.json?
+- **Reprodutibilidade**: Garante que todos os ambientes usem exatamente as mesmas versões de dependências
+- **Segurança**: Evita surpresas com atualizações automáticas que podem quebrar funcionalidades
+- **Performance**: Builds mais rápidos e previsíveis no CI/CD
+- **Consistência**: Desenvolvimento local, CI e produção usam as mesmas versões
+
+#### Estrutura de Dependências
+```
+package.json          # Dependências do backend (Node.js/Prisma/Fastify)
+package-lock.json     # Lockfile do backend
+ui/package.json       # Dependências do frontend (React/Vite/Tailwind)
+ui/package-lock.json  # Lockfile do frontend
+```
+
+#### Comandos para Dependências
+```bash
+# Instalar dependências (usa lockfiles existentes)
+npm ci                    # Backend
+cd ui && npm ci          # Frontend
+
+# Atualizar dependências (desenvolvimento)
+npm update               # Backend
+cd ui && npm update      # Frontend
+
+# Adicionar nova dependência
+npm install <pacote>     # Backend
+cd ui && npm install <pacote>  # Frontend
+
+# Após mudanças, commite os package-lock.json atualizados
+git add package-lock.json ui/package-lock.json
+```
+
+#### CI/CD e Dependências
+- O GitHub Actions usa `npm ci` para instalar dependências de forma determinística
+- Os lockfiles são validados em cada build
+- Mudanças nos lockfiles devem ser commitadas junto com mudanças no `package.json`
+
+#### Melhores Práticas
+- ✅ Sempre use `npm ci` em produção/CI (mais rápido e confiável que `npm install`)
+- ✅ Versione os `package-lock.json` no Git
+- ✅ Não edite manualmente os lockfiles
+- ✅ Execute `npm audit` regularmente para verificar vulnerabilidades
+- ✅ Use `npm update` com cuidado e teste thoroughly após atualizações
+- ❌ Não delete `package-lock.json` sem necessidade
+- ❌ Não use `npm install` em produção/CI
+
 ### Quickstart local (resumo)
 1) Dependências e Prisma Client:
 ```powershell

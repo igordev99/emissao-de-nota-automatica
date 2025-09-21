@@ -34,6 +34,10 @@ jobs:
       - run: npm ci
       - name: Install UI dependencies
         run: cd ui && npm ci
+      - name: Validate lockfiles are up to date
+        run: |
+          npm ci --dry-run 2>&1 | grep -q "npm ci can only install" && echo "Root package-lock.json is outdated" && exit 1 || echo "Root lockfile OK"
+          cd ui && npm ci --dry-run 2>&1 | grep -q "npm ci can only install" && echo "UI package-lock.json is outdated" && exit 1 || echo "UI lockfile OK"
       - run: npx prisma generate
       - name: Reset database
         run: npx prisma migrate reset --force --skip-generate
@@ -53,6 +57,10 @@ jobs:
       - run: npm ci
       - name: Install UI dependencies
         run: cd ui && npm ci
+      - name: Validate lockfiles are up to date
+        run: |
+          npm ci --dry-run 2>&1 | grep -q "npm ci can only install" && echo "Root package-lock.json is outdated" && exit 1 || echo "Root lockfile OK"
+          cd ui && npm ci --dry-run 2>&1 | grep -q "npm ci can only install" && echo "UI package-lock.json is outdated" && exit 1 || echo "UI lockfile OK"
       - run: npm run build
       - name: Docker metadata
         id: meta

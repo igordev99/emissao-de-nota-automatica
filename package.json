@@ -45,7 +45,8 @@
     "client:demo": "tsx scripts/client-demo.ts",
     "test": "jest --passWithNoTests",
     "coverage": "jest --coverage --passWithNoTests",
-    "smoke": "powershell -ExecutionPolicy Bypass -File ./scripts/smoke.ps1"
+    "smoke": "powershell -ExecutionPolicy Bypass -File ./scripts/smoke.ps1",
+    "deps:check": "npm ci --dry-run 2>&1 | grep -q \"npm ci can only install\" && (echo \"❌ Root package-lock.json is outdated\" && exit 1) || echo \"✅ Root lockfile OK\" && cd ui && npm ci --dry-run 2>&1 | grep -q \"npm ci can only install\" && (echo \"❌ UI package-lock.json is outdated\" && exit 1) || echo \"✅ UI lockfile OK\""
   },
   "dependencies": {
     "@fastify/cors": "^10.0.0",
