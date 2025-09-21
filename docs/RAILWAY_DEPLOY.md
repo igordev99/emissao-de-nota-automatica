@@ -146,6 +146,27 @@ FROM node:20-slim AS runner  # ← Mudou de node:20-alpine
 2. **Ou aguarde:** Railway pode detectar mudanças automaticamente em alguns minutos
 3. **Ou faça um commit dummy:** Adicione um comentário no código e commite para forçar trigger
 
+### ❌ Erro: "Can't resolve engine path" / Prisma Engine Resolution
+
+**Sintomas:** Erro durante inicialização do Prisma Client com mensagens sobre engine path
+
+**Causa:** Prisma tentando usar binary engine que não está disponível no container
+
+**Solução:** Configurado Prisma para usar `engineType = "library"` no `schema.prisma`:
+
+```prisma
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+```
+
+**Por que library engine:**
+- ✅ Não requer binaries externos
+- ✅ Melhor compatibilidade com containers
+- ✅ Menor tamanho da imagem
+- ✅ Mais rápido para inicialização
+
 ### Erro de Build
 - Verifique se o Dockerfile está correto
 - Certifique-se de que todas as dependências estão no package.json
