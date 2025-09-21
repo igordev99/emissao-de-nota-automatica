@@ -134,7 +134,7 @@ export async function buildApp() {
     const lag = getEventLoopLagSeconds();
     const lagMs = lag ? lag.mean * 1000 : 0;
     const issues: string[] = [];
-    if (lagMs > limits.lagMs) issues.push(`eventloop_lag_ms>${limits.lagMs}`);
+    if (lag && lagMs > limits.lagMs) issues.push(`eventloop_lag_ms>${limits.lagMs}`);
     if (mem.heapUsed > limits.heapBytes) issues.push(`heap>${limits.heapBytes}`);
     if (mem.rss > limits.rssBytes) issues.push(`rss>${limits.rssBytes}`);
     try {

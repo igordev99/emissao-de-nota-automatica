@@ -33,37 +33,6 @@ const listAccountsQuerySchema = z.object({
   pageSize: z.string().transform(val => parseInt(val)).optional()
 });
 
-const accountsListResponseSchema = z.object({
-  accounts: z.array(z.object({
-    id: z.string().uuid(),
-    code: z.string(),
-    name: z.string(),
-    type: z.string(),
-    parentId: z.string().uuid().nullable(),
-    description: z.string().nullable(),
-    active: z.boolean(),
-    createdAt: z.string(),
-    updatedAt: z.string()
-  })),
-  pagination: z.object({
-    page: z.number(),
-    pageSize: z.number(),
-    total: z.number(),
-    totalPages: z.number()
-  })
-});
-
-const accountsHierarchyResponseSchema = z.array(z.object({
-  id: z.string().uuid(),
-  code: z.string(),
-  name: z.string(),
-  type: z.string(),
-  parentId: z.string().uuid().nullable(),
-  description: z.string().nullable(),
-  active: z.boolean(),
-  children: z.array(z.any()) // Recursive structure
-}));
-
 const successResponseSchema = z.object({
   success: z.boolean(),
   message: z.string()
@@ -76,14 +45,18 @@ const errorResponseSchema = z.object({
 
 export async function accountRoutes(app: FastifyInstance) {
   // Criar conta
-  app.post('/accounts', {
-    schema: {
-      description: 'Criar uma nova conta',
-      tags: ['accounts'],
-      body: createAccountSchema
-    }
-  }, async (request, reply) => {
+  app.post('/accounts', async (request, reply) => {
     const accountData = request.body as AccountData;
+
+    // Validar entrada
+    const validation = createAccountSchema.safeParse(accountData);
+    if (!validation.success) {
+      return reply.status(400).send({
+        error: 'VALIDATION_ERROR',
+        message: 'Dados inválidos',
+        details: validation.error.issues
+      });
+    }
 
     const account = await accountService.createAccount(accountData);
 
@@ -91,16 +64,7 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Listar contas
-  app.get('/accounts', {
-    schema: {
-      description: 'Listar contas',
-      tags: ['accounts'],
-      querystring: listAccountsQuerySchema,
-      response: {
-        200: accountsListResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/accounts', async (request, reply) => {
     const { type, parentId, activeOnly = true, page = 1, pageSize = 20 } = request.query as z.infer<typeof listAccountsQuerySchema>;
 
     const result = await accountService.listAccounts(type, parentId, activeOnly, page, pageSize);
@@ -108,16 +72,7 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Obter conta por ID
-  app.get('/accounts/:id', {
-    schema: {
-      description: 'Obter conta por ID',
-      tags: ['accounts'],
-      params: accountIdSchema,
-      querystring: z.object({
-        includeChildren: z.string().transform(val => val === 'true').optional()
-      })
-    }
-  }, async (request, reply) => {
+  app.get('/accounts/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof accountIdSchema>;
     const { includeChildren = false } = request.query as { includeChildren?: boolean };
 
@@ -134,18 +89,7 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Obter conta por código
-  app.get('/accounts/code/:code', {
-    schema: {
-      description: 'Obter conta por código',
-      tags: ['accounts'],
-      params: z.object({
-        code: z.string().min(1)
-      }),
-      querystring: z.object({
-        includeChildren: z.string().transform(val => val === 'true').optional()
-      })
-    }
-  }, async (request, reply) => {
+  app.get('/accounts/code/:code', async (request, reply) => {
     const { code } = request.params as { code: string };
     const { includeChildren = false } = request.query as { includeChildren?: boolean };
 
@@ -162,30 +106,25 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Obter hierarquia completa de contas
-  app.get('/accounts/hierarchy', {
-    schema: {
-      description: 'Obter hierarquia completa de contas',
-      tags: ['accounts'],
-      response: {
-        200: accountsHierarchyResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.get('/accounts/hierarchy', async (request, reply) => {
     const hierarchy = await accountService.getAccountHierarchy();
     return reply.send(hierarchy);
   });
 
   // Atualizar conta
-  app.put('/accounts/:id', {
-    schema: {
-      description: 'Atualizar conta',
-      tags: ['accounts'],
-      params: accountIdSchema,
-      body: updateAccountSchema
-    }
-  }, async (request, reply) => {
+  app.put('/accounts/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof accountIdSchema>;
     const updateData = request.body as Partial<AccountData>;
+
+    // Validar entrada
+    const validation = updateAccountSchema.safeParse(updateData);
+    if (!validation.success) {
+      return reply.status(400).send({
+        error: 'VALIDATION_ERROR',
+        message: 'Dados inválidos',
+        details: validation.error.issues
+      });
+    }
 
     const account = await accountService.updateAccount(id, updateData);
 
@@ -200,18 +139,7 @@ export async function accountRoutes(app: FastifyInstance) {
   });
 
   // Remover conta
-  app.delete('/accounts/:id', {
-    schema: {
-      description: 'Remover conta',
-      tags: ['accounts'],
-      params: accountIdSchema,
-      response: {
-        200: successResponseSchema,
-        400: errorResponseSchema,
-        404: errorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
+  app.delete('/accounts/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof accountIdSchema>;
 
     try {

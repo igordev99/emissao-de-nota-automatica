@@ -47,14 +47,18 @@ const listClientsQuerySchema = z.object({
 
 export async function clientRoutes(app: FastifyInstance) {
   // Criar cliente
-  app.post('/clients', {
-    schema: {
-      description: 'Criar um novo cliente',
-      tags: ['clients'],
-      body: createClientSchema
-    }
-  }, async (request, reply) => {
+  app.post('/clients', async (request, reply) => {
     const clientData = request.body as ClientData;
+
+    // Validar entrada
+    const validation = createClientSchema.safeParse(clientData);
+    if (!validation.success) {
+      return reply.status(400).send({
+        error: 'VALIDATION_ERROR',
+        message: 'Dados inválidos',
+        details: validation.error.issues
+      });
+    }
 
     const client = await clientService.createClient(clientData);
 
@@ -62,13 +66,7 @@ export async function clientRoutes(app: FastifyInstance) {
   });
 
   // Listar clientes
-  app.get('/clients', {
-    schema: {
-      description: 'Listar clientes',
-      tags: ['clients'],
-      querystring: listClientsQuerySchema
-    }
-  }, async (request, reply) => {
+  app.get('/clients', async (request, reply) => {
     const { page = 1, pageSize = 20, search } = request.query as z.infer<typeof listClientsQuerySchema>;
 
     const result = await clientService.listClients(page, pageSize, search);
@@ -108,16 +106,19 @@ export async function clientRoutes(app: FastifyInstance) {
   });
 
   // Atualizar cliente
-  app.put('/clients/:id', {
-    schema: {
-      description: 'Atualizar cliente',
-      tags: ['clients'],
-      params: clientIdSchema,
-      body: updateClientSchema
-    }
-  }, async (request, reply) => {
+  app.put('/clients/:id', async (request, reply) => {
     const { id } = request.params as z.infer<typeof clientIdSchema>;
     const updateData = request.body as Partial<ClientData>;
+
+    // Validar entrada
+    const validation = updateClientSchema.safeParse(updateData);
+    if (!validation.success) {
+      return reply.status(400).send({
+        error: 'VALIDATION_ERROR',
+        message: 'Dados inválidos',
+        details: validation.error.issues
+      });
+    }
 
     const client = await clientService.updateClient(id, updateData);
 
