@@ -139,7 +139,12 @@ FROM node:20-slim AS runner  # ← Mudou de node:20-alpine
 - ✅ Não precisa de workarounds para bibliotecas
 - ✅ Mais estável para aplicações Node.js
 
-Se ainda der erro, forçar rebuild no Railway.
+**Se ainda der erro:**
+1. **Forçar rebuild no Railway:**
+   - Vá para aba "Deployments"
+   - Clique em "Deploy" ou "Redeploy"
+2. **Ou aguarde:** Railway pode detectar mudanças automaticamente em alguns minutos
+3. **Ou faça um commit dummy:** Adicione um comentário no código e commite para forçar trigger
 
 ### Erro de Build
 - Verifique se o Dockerfile está correto
