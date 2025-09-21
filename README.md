@@ -5,11 +5,29 @@
 [![Release](https://img.shields.io/github/v/release/igordev99/emissao-de-nota-automatica?display_name=tag&logo=github)](https://github.com/igordev99/emissao-de-nota-automatica/releases)
 [![GHCR](https://img.shields.io/badge/GHCR-emissao--de--nota--automatica-blue?logo=docker)](https://github.com/users/igordev99/packages)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Serviço em Node.js / TypeScript para emissão de NFS-e (modelo São Paulo) com:
 - Normalização e validação (Zod)
 - Idempotência e persistência (Prisma)
 - Assinatura e verificação XML (xml-crypto v6.1.2)
 - Testes (Jest)
+
+## 🚀 Deploy
+
+Este projeto pode ser facilmente implantado em plataformas cloud. Recomendamos:
+
+- **[Railway](docs/RAILWAY_DEPLOY.md)** - Deploy mais simples, PostgreSQL incluído
+- **[Render](https://render.com)** - Alternativa com free tier generoso
+- **[Fly.io](https://fly.io)** - Para máxima performance global
+
+Para mais opções, consulte o [Guia Completo de Deploy](docs/DEPLOY_GUIDE.md).
+
+### Deploy Rápido no Railway
+
+1. Conecte seu repositório GitHub no [Railway](https://railway.app)
+2. Railway detectará automaticamente o Docker e PostgreSQL
+3. Configure as variáveis de ambiente
+4. Deploy automático!
 
 ### Principais Componentes
 | Camada | Descrição |
