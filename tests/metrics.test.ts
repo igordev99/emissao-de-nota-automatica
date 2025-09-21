@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+
 import { buildLogger } from '../src/infra/logging/logger';
 import { registerMetricsHooks, resetMetrics } from '../src/infra/observability/metrics';
 

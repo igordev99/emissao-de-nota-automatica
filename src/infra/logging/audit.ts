@@ -1,6 +1,6 @@
 import { maskDocument } from '../../core/errors';
-import { prisma } from '../db/prisma';
 import { getCorrelationId } from '../context/async-context';
+import { prisma } from '../db/prisma';
 
 type AuditContext = Record<string, unknown>;
 type Json = string | number | boolean | null | { [key: string]: Json } | Json[];

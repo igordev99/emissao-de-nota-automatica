@@ -1,6 +1,3 @@
-import { useState, useEffect } from 'react';
-import { nfseService } from '../services/nfse';
-import type { NfseInvoice, PaginatedResponse } from '../types';
 import {
   EyeIcon,
   DocumentArrowDownIcon,
@@ -8,6 +5,10 @@ import {
   FunnelIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+
+import { nfseService } from '../services/nfse';
+import type { NfseInvoice, PaginatedResponse } from '../types';
 
 export default function NfseList() {
   const [nfse, setNfse] = useState<PaginatedResponse<NfseInvoice> | null>(null);

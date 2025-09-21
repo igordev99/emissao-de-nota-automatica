@@ -6,8 +6,9 @@
      # From base64 (writes result only)
      npm run -s verify:xml -- --b64 (Get-Content xml.b64 -Raw)
 */
-import { verifyXmlSignature } from '../src/core/xml/signer';
 import fs from 'fs';
+
+import { verifyXmlSignature } from '../src/core/xml/signer';
 
 function parseArgs(argv: string[]) {
   const a: Record<string, string | boolean> = {};

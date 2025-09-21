@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { clientService } from '../services/clients';
-import type { Client, PaginatedResponse } from '../types';
 import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+import { clientService } from '../services/clients';
+import type { Client, PaginatedResponse } from '../types';
 
 export default function Clients() {
   const [clients, setClients] = useState<PaginatedResponse<Client> | null>(null);

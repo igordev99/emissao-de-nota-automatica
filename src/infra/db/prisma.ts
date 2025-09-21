@@ -84,7 +84,7 @@ class InMemoryPrisma {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       findMany: async (args: any) => {
         const { where, orderBy, skip = 0, take = 100, select } = args || {};
-        let list = this.filterInvoices(where);
+        const list = this.filterInvoices(where);
         if (orderBy?.createdAt === 'desc') {
           list.sort((a: AnyObj, b: AnyObj) => (b.createdAt?.getTime?.() || 0) - (a.createdAt?.getTime?.() || 0));
         } else if (orderBy?.createdAt === 'asc') {

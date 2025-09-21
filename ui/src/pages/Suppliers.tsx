@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { supplierService } from '../services/suppliers';
-import type { Supplier, PaginatedResponse } from '../types';
 import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+import { supplierService } from '../services/suppliers';
+import type { Supplier, PaginatedResponse } from '../types';
 
 export default function Suppliers() {
   const [suppliers, setSuppliers] = useState<PaginatedResponse<Supplier> | null>(null);

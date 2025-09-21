@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Fastify from 'fastify';
 import jwt from '@fastify/jwt';
-import { registerNfseRoutes } from '../src/modules/nfse/nfse.routes';
+import Fastify from 'fastify';
+
 import { buildLogger } from '../src/infra/logging/logger';
+import { registerNfseRoutes } from '../src/modules/nfse/nfse.routes';
 
 // Mock Prisma com armazenamento em memória e idempotência
 jest.mock('../src/infra/db/prisma', () => {

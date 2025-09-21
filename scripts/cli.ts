@@ -24,8 +24,9 @@
    --gen-token          Generate a local dev token using JWT_SECRET (sub=dev)
 */
 
-import jwt from 'jsonwebtoken';
 import { readFileSync, writeFileSync } from 'fs';
+
+import jwt from 'jsonwebtoken';
 
 type Dict = Record<string, string | number | boolean | null | undefined>;
 

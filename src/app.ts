@@ -6,18 +6,18 @@ import Fastify from 'fastify';
 
 import { env } from './config/env';
 import { loadPfxMaterial } from './core/xml/signer';
+import { setContext } from './infra/context/async-context';
 import { prisma } from './infra/db/prisma';
 import { registerAuth } from './infra/http/auth';
 import { errorHandler } from './infra/http/error-handler';
 import { buildLogger } from './infra/logging/logger';
 import { getEventLoopLagSeconds, observeDbPingSeconds, registerMetricsHooks, setAppReadiness, setDbStatus } from './infra/observability/metrics';
-import { registerNfseRoutes } from './modules/nfse/nfse.routes';
-import { webhookRoutes } from './modules/webhooks';
-import { retryRoutes } from './modules/jobs';
-import { clientRoutes } from './modules/clients';
-import { supplierRoutes } from './modules/suppliers';
 import { accountRoutes } from './modules/accounts';
-import { setContext } from './infra/context/async-context';
+import { clientRoutes } from './modules/clients';
+import { retryRoutes } from './modules/jobs';
+import { registerNfseRoutes } from './modules/nfse/nfse.routes';
+import { supplierRoutes } from './modules/suppliers';
+import { webhookRoutes } from './modules/webhooks';
 
 export async function buildApp() {
   const app = Fastify({

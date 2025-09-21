@@ -1,17 +1,18 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+
 import Layout from './components/Layout';
-import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
+import ClientForm from './pages/ClientForm';
+import Clients from './pages/Clients';
 import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
 import NfseEmit from './pages/NfseEmit';
 import NfseList from './pages/NfseList';
-import Clients from './pages/Clients';
-import ClientForm from './pages/ClientForm';
-import Suppliers from './pages/Suppliers';
 import SupplierForm from './pages/SupplierForm';
-import Webhooks from './pages/Webhooks';
+import Suppliers from './pages/Suppliers';
 import WebhookForm from './pages/WebhookForm';
+import Webhooks from './pages/Webhooks';
 
 function App() {
   return (

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { nfseService } from '../services/nfse';
+
 import { clientService } from '../services/clients';
+import { nfseService } from '../services/nfse';
 import { supplierService } from '../services/suppliers';
 import type { NfseEmitRequest, Client, Supplier } from '../types';
 

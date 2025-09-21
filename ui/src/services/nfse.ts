@@ -1,5 +1,6 @@
-import api from './api';
 import type { NfseInvoice, NfseEmitRequest, NfseStats, PaginatedResponse } from '../types';
+
+import api from './api';
 
 export const nfseService = {
   // Emitir NFS-e

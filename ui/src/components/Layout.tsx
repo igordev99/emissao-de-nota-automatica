@@ -1,5 +1,3 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import {
   HomeIcon,
   DocumentTextIcon,
@@ -12,6 +10,9 @@ import {
   ArrowRightOnRectangleIcon,
   GlobeAltIcon
 } from '@heroicons/react/24/outline';
+import { Link, Outlet, useLocation } from 'react-router-dom';
+
+import { useAuth } from '../contexts/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },

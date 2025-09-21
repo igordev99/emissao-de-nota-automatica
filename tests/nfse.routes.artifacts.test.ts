@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Fastify from 'fastify';
 import jwt from '@fastify/jwt';
-import { registerNfseRoutes } from '../src/modules/nfse/nfse.routes';
+import Fastify from 'fastify';
+
 import { buildLogger } from '../src/infra/logging/logger';
 import { encryptBase64 } from '../src/infra/security/crypto';
+import { registerNfseRoutes } from '../src/modules/nfse/nfse.routes';
 
 // Mock prisma para retornar invoices com artefatos
 jest.mock('../src/infra/db/prisma', () => {

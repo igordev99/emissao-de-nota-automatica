@@ -1,5 +1,6 @@
-import api from './api';
 import type { Supplier, PaginatedResponse } from '../types';
+
+import api from './api';
 
 export interface CreateSupplierData {
   name: string;

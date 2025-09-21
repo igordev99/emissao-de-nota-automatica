@@ -1,7 +1,3 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { webhooksService } from '../services/webhooks';
-import type { WebhookConfig } from '../services/webhooks';
 import {
   PlusIcon,
   PencilIcon,
@@ -10,6 +6,11 @@ import {
   KeyIcon,
   BoltIcon
 } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+import { webhooksService } from '../services/webhooks';
+import type { WebhookConfig } from '../services/webhooks';
 
 export default function Webhooks() {
   const [webhooks, setWebhooks] = useState<WebhookConfig[]>([]);
