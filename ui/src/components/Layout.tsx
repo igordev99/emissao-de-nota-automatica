@@ -1,18 +1,25 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import {
   HomeIcon,
   DocumentTextIcon,
   UsersIcon,
   TruckIcon,
   ChartBarIcon,
-  CogIcon
+  CogIcon,
+  MagnifyingGlassIcon,
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },
-  { name: 'NFS-e', href: '/nfse', icon: DocumentTextIcon },
+  { name: 'Emitir NFS-e', href: '/nfse', icon: DocumentTextIcon },
+  { name: 'Consultar NFS-e', href: '/nfse-list', icon: MagnifyingGlassIcon },
   { name: 'Clientes', href: '/clients', icon: UsersIcon },
   { name: 'Fornecedores', href: '/suppliers', icon: TruckIcon },
+  { name: 'Webhooks', href: '/webhooks', icon: GlobeAltIcon },
   { name: 'Relatórios', href: '/reports', icon: ChartBarIcon },
   { name: 'Configurações', href: '/settings', icon: CogIcon },
 ];
@@ -23,6 +30,13 @@ function classNames(...classes: string[]) {
 
 export default function Layout() {
   const location = useLocation();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    if (confirm('Tem certeza que deseja sair?')) {
+      logout();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -63,6 +77,27 @@ export default function Layout() {
 
       {/* Main content */}
       <div className="pl-64">
+        {/* Top bar */}
+        <div className="bg-white shadow-sm border-b border-gray-200">
+          <div className="flex justify-end items-center h-16 px-4">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <UserCircleIcon className="h-8 w-8 text-gray-400" />
+                <span className="text-sm font-medium text-gray-700">
+                  {user?.sub || 'Usuário'}
+                </span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                Sair
+              </button>
+            </div>
+          </div>
+        </div>
+
         <main className="py-6">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Outlet />
