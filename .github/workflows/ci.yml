@@ -25,6 +25,10 @@ jobs:
     env:
       DATABASE_URL: postgresql://nfse:nfse@localhost:5432/nfse?schema=public
       JWT_SECRET: test_secret_change_me
+      IN_MEMORY_DB: 0
+      NODE_ENV: test
+      LOG_LEVEL: error
+      METRICS_ENABLED: 0
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
