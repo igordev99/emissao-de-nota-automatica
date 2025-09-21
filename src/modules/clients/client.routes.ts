@@ -7,12 +7,51 @@ const clientIdSchema = z.object({
   id: z.string().uuid()
 });
 
+const createClientSchema = z.object({
+  name: z.string().min(1),
+  document: z.string().min(1),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  address: z.object({
+    street: z.string().min(1),
+    number: z.string().min(1),
+    complement: z.string().optional(),
+    neighborhood: z.string().min(1),
+    city: z.string().min(1),
+    state: z.string().length(2),
+    zipCode: z.string().min(8)
+  }).optional()
+});
+
+const updateClientSchema = z.object({
+  name: z.string().min(1).optional(),
+  document: z.string().min(1).optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  address: z.object({
+    street: z.string().min(1),
+    number: z.string().min(1),
+    complement: z.string().optional(),
+    neighborhood: z.string().min(1),
+    city: z.string().min(1),
+    state: z.string().length(2),
+    zipCode: z.string().min(8)
+  }).optional()
+});
+
+const listClientsQuerySchema = z.object({
+  page: z.string().transform(val => parseInt(val)).optional(),
+  pageSize: z.string().transform(val => parseInt(val)).optional(),
+  search: z.string().optional()
+});
+
 export async function clientRoutes(app: FastifyInstance) {
   // Criar cliente
   app.post('/clients', {
     schema: {
       description: 'Criar um novo cliente',
-      tags: ['clients']
+      tags: ['clients'],
+      body: createClientSchema
     }
   }, async (request, reply) => {
     const clientData = request.body as ClientData;
@@ -23,8 +62,14 @@ export async function clientRoutes(app: FastifyInstance) {
   });
 
   // Listar clientes
-  app.get('/clients', async (request, reply) => {
-    const { page = 1, pageSize = 20, search } = request.query as any;
+  app.get('/clients', {
+    schema: {
+      description: 'Listar clientes',
+      tags: ['clients'],
+      querystring: listClientsQuerySchema
+    }
+  }, async (request, reply) => {
+    const { page = 1, pageSize = 20, search } = request.query as z.infer<typeof listClientsQuerySchema>;
 
     const result = await clientService.listClients(page, pageSize, search);
     return reply.send(result);
@@ -63,7 +108,14 @@ export async function clientRoutes(app: FastifyInstance) {
   });
 
   // Atualizar cliente
-  app.put('/clients/:id', async (request, reply) => {
+  app.put('/clients/:id', {
+    schema: {
+      description: 'Atualizar cliente',
+      tags: ['clients'],
+      params: clientIdSchema,
+      body: updateClientSchema
+    }
+  }, async (request, reply) => {
     const { id } = request.params as z.infer<typeof clientIdSchema>;
     const updateData = request.body as Partial<ClientData>;
 

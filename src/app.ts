@@ -97,7 +97,7 @@ export async function buildApp() {
     req.log.setBindings({ traceId: corr });
     setContext({ correlationId: corr, traceId: corr });
   });
-  app.addHook('onSend', async (req: any, reply: any, payload: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+  app.addHook('onSend', async (req: any, reply: any, payload: unknown) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     const corr = (req as any).correlationId || req.id;
     if (typeof reply.header === 'function') {
       reply.header('x-trace-id', corr);
