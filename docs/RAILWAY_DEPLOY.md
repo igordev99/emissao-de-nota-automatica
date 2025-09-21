@@ -1,36 +1,81 @@
 # Deploy no Railway
 
-## Pré-requisitos
+## ✅ Conta Criada - Próximos Passos
 
-1. Conta no [Railway](https://railway.app)
-2. Projeto conectado ao GitHub
-
-## Passo 1: Conectar Repositório
+### Passo 1: Conectar Repositório GitHub
 
 1. Acesse [Railway Dashboard](https://railway.app/dashboard)
-2. Clique em "New Project"
-3. Selecione "Deploy from GitHub repo"
-4. Conecte sua conta GitHub e selecione o repositório `emissao-de-nota-automatica`
+2. Clique em **"New Project"**
+3. Selecione **"Deploy from GitHub repo"**
+4. **Permita acesso** ao Railway na sua conta GitHub
+5. **Procure e selecione** o repositório `emissao-de-nota-automatica`
+6. Clique em **"Deploy"**
 
-## Passo 2: Configurar PostgreSQL
+### Passo 2: Aguardar Detecção Automática
 
-Railway detectará automaticamente que você precisa de um banco PostgreSQL.
+Railway irá:
+- ✅ Detectar automaticamente o **Dockerfile**
+- ✅ Criar serviço **PostgreSQL** automaticamente
+- ✅ Configurar **DATABASE_URL** automaticamente
+- ✅ Iniciar o build e deploy
 
-1. Railway criará automaticamente um serviço PostgreSQL
-2. O `DATABASE_URL` será configurado automaticamente
+**Tempo estimado:** 5-10 minutos para o primeiro deploy
 
-## Passo 3: Configurar Variáveis de Ambiente
+### Passo 3: Configurar Variáveis de Ambiente
 
-No painel do Railway, vá para a aba "Variables" do seu serviço e adicione:
+Após o deploy inicial, configure as variáveis:
+
+1. No painel do Railway, vá para **"Variables"** (aba do seu serviço)
+2. Clique em **"Add Variable"** e adicione:
 
 ```bash
-JWT_SECRET=your_secure_jwt_secret_here
+JWT_SECRET=ruWyk96giZUzm89WTO8NmfTcjCiPSj0qkfdvIVxcs9M=
 NODE_ENV=production
 METRICS_ENABLED=1
-# AGENT_BASE_URL=https://your-agent-url.com (opcional)
 ```
 
-**Importante:** Use um JWT_SECRET forte e único para produção!
+**⚠️ Importante:** Use este JWT_SECRET ou gere um novo com:
+```bash
+openssl rand -base64 32
+```
+
+### Passo 4: Redeploy com Variáveis
+
+Após adicionar as variáveis:
+1. Railway fará **redeploy automático**
+2. Monitore em **"Deployments"**
+3. Aguarde conclusão
+
+### Passo 5: Verificar Deploy
+
+Quando deploy terminar:
+1. **Clique na URL** gerada pelo Railway (ex: `https://emissao-de-nota-automatica.up.railway.app`)
+2. **Teste os endpoints:**
+   - `GET /live` - Deve retornar `{"status":"ok"}`
+   - `GET /ready` - Deve retornar `{"status":"ok"}`
+
+### 🎉 Deploy Concluído!
+
+Seu app estará rodando em produção com:
+- ✅ Backend Node.js + Fastify
+- ✅ PostgreSQL gerenciado
+- ✅ Migrações Prisma aplicadas
+- ✅ Health checks funcionando
+
+## Próximos Passos Opcionais
+
+### Domínio Customizado
+1. Vá para **"Settings" > "Domains"**
+2. Adicione seu domínio
+3. Configure DNS conforme instruído
+
+### Monitoramento
+- **Logs:** Aba "Logs" no Railway
+- **Métricas:** Aba "Metrics"
+- **Alertas:** Configure em "Settings > Alerts"
+
+### Escalabilidade
+Railway escala automaticamente, mas você pode ajustar manualmente em **"Settings > Scaling"**
 
 ## Passo 4: Deploy
 
