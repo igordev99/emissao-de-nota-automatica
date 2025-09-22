@@ -1,6 +1,8 @@
-const { RetryService } = require('../../dist/modules/jobs/retry.service.cjs');
+import { createRequire } from 'module';
+const requireModule = createRequire(import.meta.url);
+const { RetryService } = requireModule('../../dist/modules/jobs/retry.service.cjs');
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   try {
     // Verificar se é um cron job do Vercel (tem header específico)
     const isVercelCron = req.headers['user-agent']?.includes('vercel-cron') || 
@@ -25,4 +27,4 @@ module.exports = async (req, res) => {
       message: error.message 
     });
   }
-};
+}

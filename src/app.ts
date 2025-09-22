@@ -160,8 +160,8 @@ export async function buildApp() {
     app.get('/version', { schema: { tags: ['Health'], summary: 'Version info', response: { 200: { type: 'object', properties: { version: { type: 'string' } }, required: ['version'] } } } as any }, async () => ({ version: process.env.npm_package_version || '0.0.0' }));
     app.get('/health/cert', { schema: { tags: ['Health'], summary: 'Certificate health info', response: { 200: { type: 'object', properties: { loaded: { type: 'boolean' }, error: { type: 'string' }, thumbprint: { type: 'string' }, hasPrivateKey: { type: 'boolean' }, notBefore: { type: 'string' }, notAfter: { type: 'string' }, daysToExpire: { type: 'number' } }, required: ['loaded'] } } } as any }, async () => {
       try {
-        if (!env.CERT_PFX_PATH) throw new Error('CERT_PFX_PATH not set');
-        const material = loadPfxMaterial(env.CERT_PFX_PATH!, env.CERT_PFX_PASSWORD);
+        if (!env.CERT_PFX_PATH && !env.CERT_PFX_BASE64) throw new Error('CERT_PFX_PATH or CERT_PFX_BASE64 not set');
+        const material = loadPfxMaterial(env.CERT_PFX_PATH, env.CERT_PFX_PASSWORD, env.CERT_PFX_BASE64);
         const now = new Date();
         const daysToExpire = Math.round((material.notAfter.getTime() - now.getTime()) / 86400000);
         return { thumbprint: material.thumbprint, hasPrivateKey: !!material.privateKeyPem, notBefore: material.notBefore.toISOString(), notAfter: material.notAfter.toISOString(), daysToExpire, loaded: true };
@@ -174,8 +174,8 @@ export async function buildApp() {
       const result: { db: { ok: boolean; error?: string }, cert: { ok: boolean; error?: string; thumbprint?: string; notBefore?: string; notAfter?: string; daysToExpire?: number }, status?: string; timestamp?: string } = { db: { ok: false }, cert: { ok: false } };
       try { await prisma.$queryRaw`SELECT 1`; result.db.ok = true; } catch (e: unknown) { result.db.ok = false; result.db.error = e instanceof Error ? e.message : String(e); }
       try {
-        if (!env.CERT_PFX_PATH) throw new Error('CERT_PFX_PATH not set');
-        const material = loadPfxMaterial(env.CERT_PFX_PATH!, env.CERT_PFX_PASSWORD);
+        if (!env.CERT_PFX_PATH && !env.CERT_PFX_BASE64) throw new Error('CERT_PFX_PATH or CERT_PFX_BASE64 not set');
+        const material = loadPfxMaterial(env.CERT_PFX_PATH, env.CERT_PFX_PASSWORD, env.CERT_PFX_BASE64);
         const now = new Date();
         const daysToExpire = Math.round((material.notAfter.getTime() - now.getTime()) / 86400000);
         result.cert = { ok: true, thumbprint: material.thumbprint, notBefore: material.notBefore.toISOString(), notAfter: material.notAfter.toISOString(), daysToExpire };
@@ -188,8 +188,8 @@ export async function buildApp() {
     app.get('/version', async () => ({ version: process.env.npm_package_version || '0.0.0' }));
     app.get('/health/cert', async () => {
       try {
-        if (!env.CERT_PFX_PATH) throw new Error('CERT_PFX_PATH not set');
-        const material = loadPfxMaterial(env.CERT_PFX_PATH!, env.CERT_PFX_PASSWORD);
+        if (!env.CERT_PFX_PATH && !env.CERT_PFX_BASE64) throw new Error('CERT_PFX_PATH or CERT_PFX_BASE64 not set');
+        const material = loadPfxMaterial(env.CERT_PFX_PATH, env.CERT_PFX_PASSWORD, env.CERT_PFX_BASE64);
         const now = new Date();
         const daysToExpire = Math.round((material.notAfter.getTime() - now.getTime()) / 86400000);
         return { thumbprint: material.thumbprint, hasPrivateKey: !!material.privateKeyPem, notBefore: material.notBefore.toISOString(), notAfter: material.notAfter.toISOString(), daysToExpire, loaded: true };
@@ -202,8 +202,8 @@ export async function buildApp() {
       const result: { db: { ok: boolean; error?: string }, cert: { ok: boolean; error?: string; thumbprint?: string; notBefore?: string; notAfter?: string; daysToExpire?: number }, status?: string; timestamp?: string } = { db: { ok: false }, cert: { ok: false } };
       try { await prisma.$queryRaw`SELECT 1`; result.db.ok = true; } catch (e: unknown) { result.db.ok = false; result.db.error = e instanceof Error ? e.message : String(e); }
       try {
-        if (!env.CERT_PFX_PATH) throw new Error('CERT_PFX_PATH not set');
-        const material = loadPfxMaterial(env.CERT_PFX_PATH!, env.CERT_PFX_PASSWORD);
+        if (!env.CERT_PFX_PATH && !env.CERT_PFX_BASE64) throw new Error('CERT_PFX_PATH or CERT_PFX_BASE64 not set');
+        const material = loadPfxMaterial(env.CERT_PFX_PATH, env.CERT_PFX_PASSWORD, env.CERT_PFX_BASE64);
         const now = new Date();
         const daysToExpire = Math.round((material.notAfter.getTime() - now.getTime()) / 86400000);
         result.cert = { ok: true, thumbprint: material.thumbprint, notBefore: material.notBefore.toISOString(), notAfter: material.notAfter.toISOString(), daysToExpire };

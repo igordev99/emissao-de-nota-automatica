@@ -2,23 +2,23 @@
   "version": 2,
   "buildCommand": "npm run vercel-build",
   "functions": {
-    "api/index.js": {
+    "api/index.mjs": {
       "maxDuration": 30
     },
-    "api/retry.js": {
+    "api/retry.mjs": {
       "maxDuration": 60
     }
   },
   "crons": [
     {
-      "path": "/api/retry",
+      "path": "/api/retry.mjs",
       "schedule": "0 12 * * *"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/api/index.js"
+      "dest": "/api/index.mjs"
     }
   ]
 }

@@ -1,8 +1,13 @@
-const { buildApp } = require('../dist/app.cjs');
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+import { createRequire } from 'module';
+const requireModule = createRequire(import.meta.url);
+
+const { buildApp } = requireModule('../dist/app.cjs');
 
 let cachedApp = null;
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (!cachedApp) {
     try {
       cachedApp = await buildApp();
@@ -37,4 +42,4 @@ module.exports = async (req, res) => {
     console.error('Error handling request:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-};
+}
