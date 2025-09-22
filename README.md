@@ -16,18 +16,26 @@ Serviço em Node.js / TypeScript para emissão de NFS-e (modelo São Paulo) com:
 
 Este projeto pode ser facilmente implantado em plataformas cloud. Recomendamos:
 
+- **[Supabase + Vercel](docs/DEPLOY_GUIDE.md)** - Deploy completo e moderno (recomendado)
 - **[Railway](docs/RAILWAY_DEPLOY.md)** - Deploy mais simples, PostgreSQL incluído
 - **[Render](https://render.com)** - Alternativa com free tier generoso
 - **[Fly.io](https://fly.io)** - Para máxima performance global
 
 Para mais opções, consulte o [Guia Completo de Deploy](docs/DEPLOY_GUIDE.md).
 
-### Deploy Rápido no Railway
+### Deploy Rápido no Supabase + Vercel
 
-1. Conecte seu repositório GitHub no [Railway](https://railway.app)
-2. Railway detectará automaticamente o Docker e PostgreSQL
-3. Configure as variáveis de ambiente
-4. Deploy automático!
+1. **Supabase**: Crie projeto em https://supabase.com
+2. **Vercel**: Conecte repositório em https://vercel.com
+3. Execute migrações: `npx prisma migrate deploy`
+4. Configure variáveis de ambiente
+5. Deploy automático!
+
+**Vantagens:**
+- ✅ PostgreSQL gerenciado gratuito (500MB)
+- ✅ Deploy automático do frontend
+- ✅ Preview deployments
+- ✅ Integração perfeita
 
 ### Principais Componentes
 | Camada | Descrição |

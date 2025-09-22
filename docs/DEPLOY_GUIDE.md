@@ -9,7 +9,32 @@
 
 ## Opções de Deploy Recomendadas
 
-### 1. 🚂 Railway (Recomendado para Iniciantes)
+### 1. � Supabase + Vercel (Recomendado)
+
+**Prós:**
+- ✅ PostgreSQL gerenciado pelo Supabase
+- ✅ Deploy frontend no Vercel (ótimo para React)
+- ✅ Integração perfeita entre serviços
+- ✅ Preview deployments automáticos
+- ✅ Escalabilidade automática
+- ✅ Planos gratuitos generosos
+
+**Contras:**
+- ❌ Dois serviços para gerenciar (mas integração é seamless)
+
+**Custo Estimado:**
+- Gratuito: 100GB bandwidth (Vercel) + 500MB DB (Supabase)
+- Pago: $20/mês (Vercel Pro) + $25/mês (Supabase Pro)
+
+**Setup:**
+1. Criar projeto no Supabase
+2. Conectar repositório ao Vercel
+3. Configurar variáveis de ambiente
+4. Deploy automático
+
+---
+
+### 2. 🚂 Railway
 
 **Prós:**
 - ✅ Deploy direto do GitHub
@@ -114,36 +139,59 @@
 - Gratuito: 100GB bandwidth + 500MB DB
 - Pago: $20/mês (Vercel) + $25/mês (Supabase)
 
-## Recomendação: Railway 🚂
+## Recomendação: Supabase + Vercel �
 
-Para este projeto, **Railway** é a melhor opção porque:
+Para este projeto, **Supabase + Vercel** é a melhor opção porque:
 
-1. **Simplicidade**: Deploy direto do GitHub, sem configuração complexa
-2. **PostgreSQL**: Banco gerenciado incluído
-3. **Docker**: Suporte nativo ao seu Dockerfile existente
-4. **Escalabilidade**: Cresce conforme necessário
-5. **Custo**: Plano gratuito suficiente para desenvolvimento/teste
+1. **PostgreSQL Gerenciado**: Supabase oferece PostgreSQL completo e gerenciado
+2. **Vercel Integration**: Deploy perfeito para aplicações full-stack
+3. **Prisma Ready**: Compatibilidade total com seu schema existente
+4. **Escalabilidade**: Ambos escalam automaticamente conforme necessário
+5. **Custo**: Planos gratuitos generosos para desenvolvimento/teste
+6. **Developer Experience**: Ferramentas modernas e integração perfeita
 
 ## Próximos Passos
 
-1. Criar conta no Railway
-2. Conectar repositório GitHub
-3. Railway detectará automaticamente o projeto
-4. Adicionar variáveis de ambiente necessárias
-5. Deploy!
+1. Criar projeto no Supabase (https://supabase.com)
+2. Conectar repositório ao Vercel (https://vercel.com)
+3. Executar migrações do Prisma no Supabase
+4. Configurar variáveis de ambiente
+5. Deploy automático!
+
+## Configuração do Supabase
+
+### 1. Criar Projeto
+- Acesse https://supabase.com
+- "New Project"
+- Escolha região (recomendo São Paulo ou US East)
+- Aguarde criação do banco
+
+### 2. Configurar Banco
+- Vá para "Settings" → "Database"
+- Copie a `DATABASE_URL` (PostgreSQL connection string)
+- Execute as migrações: `npx prisma migrate deploy`
+
+### 3. Configurar Vercel
+- Acesse https://vercel.com
+- "Import Project" → Conecte seu repositório GitHub
+- Configure build settings:
+  - **Framework**: Other
+  - **Root Directory**: `./` (raiz)
+  - **Build Command**: `npm run build`
+  - **Output Directory**: `dist`
 
 ## Variáveis de Ambiente Necessárias
 
 ```bash
-DATABASE_URL=postgresql://... # Fornecido pelo Railway
+DATABASE_URL=postgresql://... # Do Supabase
 JWT_SECRET=your_secret_here
 NODE_ENV=production
 METRICS_ENABLED=1
 ```
 
-## Alternativas se Railway não atender
+## Alternativas se Supabase + Vercel não atender
 
+- **Para monólito simples**: Railway (uma única plataforma)
 - **Para performance máxima**: Fly.io
 - **Para serverless moderno**: Cloudflare Workers + D1
 - **Para simplicidade máxima**: Render
-- **Para frontend + backend separados**: Vercel + Supabase
