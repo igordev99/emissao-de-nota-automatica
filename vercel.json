@@ -2,36 +2,23 @@
   "version": 2,
   "builds": [
     {
-      "src": "dist/server.js",
+      "src": "package.json",
       "use": "@vercel/node",
       "config": {
-        "maxLambdaSize": "50mb"
-      }
-    },
-    {
-      "src": "ui/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "ui/dist"
+        "includeFiles": ["dist/**"]
       }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/dist/server.js"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/ui/$1"
+      "dest": "/dist/server.js"
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  },
   "functions": {
     "dist/server.js": {
       "maxDuration": 30
     }
-  }
+  },
+  "buildCommand": "npm run vercel-build"
 }
