@@ -25,6 +25,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:local": "cross-env DATABASE_URL=postgresql://nfse:nfse@localhost:5432/nfse?schema=public prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:generate:local": "cross-env DATABASE_URL=postgresql://nfse:nfse@localhost:5432/nfse?schema=public prisma generate",
     "token": "tsx scripts/gen-token.ts",
     "openapi:dump": "tsx scripts/openapi-dump.ts",
