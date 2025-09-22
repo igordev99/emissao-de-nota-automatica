@@ -1,24 +1,24 @@
 {
   "version": 2,
-  "builds": [
+  "buildCommand": "npm run vercel-build",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30
+    },
+    "api/retry.js": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
     {
-      "src": "package.json",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["dist/**"]
-      }
+      "path": "/api/retry",
+      "schedule": "0 12 * * *"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/dist/server.js"
+      "dest": "/api/index.js"
     }
-  ],
-  "functions": {
-    "dist/server.js": {
-      "maxDuration": 30
-    }
-  },
-  "buildCommand": "npm run vercel-build"
+  ]
 }

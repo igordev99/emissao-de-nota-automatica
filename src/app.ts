@@ -93,12 +93,12 @@ export async function buildApp() {
   app.addHook('onRequest', async (req: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     const hdrs = (req.headers || {}) as Record<string, string>;
     const corr = hdrs['x-correlation-id'] || hdrs['x-request-id'] || req.id;
-    (req as any).correlationId = corr;
+    (req as any).correlationId = corr; // eslint-disable-line @typescript-eslint/no-explicit-any
     req.log.setBindings({ traceId: corr });
     setContext({ correlationId: corr, traceId: corr });
   });
   app.addHook('onSend', async (req: any, reply: any, payload: unknown) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-    const corr = (req as any).correlationId || req.id;
+    const corr = (req as any).correlationId || req.id; // eslint-disable-line @typescript-eslint/no-explicit-any
     if (typeof reply.header === 'function') {
       reply.header('x-trace-id', corr);
       reply.header('x-correlation-id', corr);
