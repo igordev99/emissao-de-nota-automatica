@@ -17,7 +17,12 @@ export default function Login() {
       await login(sub);
       navigate('/');
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Erro ao fazer login');
+      console.error('Login error details:', error);
+      const errorMessage = error.response?.data?.error?.message || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          'Erro ao fazer login';
+      setError(`Erro no login: ${errorMessage}`);
     }
   };
 
@@ -31,10 +36,10 @@ export default function Login() {
             </svg>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            NFS-e SP
+            Sistema NFe Emissão
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Sistema de Emissão de Nota Fiscal de Serviços
+            Sistema de Emissão de Notas Fiscais Eletrônicas
           </p>
         </div>
 
