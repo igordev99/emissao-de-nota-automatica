@@ -121,7 +121,7 @@ export default function Clients() {
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : clients?.items.length === 0 ? (
+        ) : !clients?.items || clients.items.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-500">
               <p className="text-lg">Nenhum cliente encontrado</p>
@@ -133,7 +133,7 @@ export default function Clients() {
         ) : (
           <>
             <ul className="divide-y divide-gray-200">
-              {clients?.items.map((client) => (
+              {clients.items.map((client) => (
                 <li key={client.id}>
                   <div className="px-4 py-4 sm:px-6">
                     <div className="flex items-center justify-between">
