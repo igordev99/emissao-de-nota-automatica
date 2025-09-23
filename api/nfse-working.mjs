@@ -8,6 +8,15 @@ import { jobsService } from './jobs-service.mjs';
 let cachedApp;
 let cachedPrisma;
 
+// Arrays para simular dados persistentes em memória
+let mockClients = [
+  { id: '1', name: 'Cliente Exemplo', document: '12345678901', email: 'cliente@exemplo.com', phone: '11999999999', createdAt: new Date() }
+];
+
+let mockSuppliers = [
+  { id: '1', name: 'Fornecedor Exemplo', cnpj: '12345678000123', email: 'fornecedor@exemplo.com', phone: '11888888888', createdAt: new Date() }
+];
+
 async function getPrisma() {
   if (!cachedPrisma) {
     cachedPrisma = new PrismaClient();
@@ -578,19 +587,22 @@ async function createNfseApp() {
 
       const prisma = await getPrisma();
       
-      // Simular tabela client se não existir
-      const mockClients = [
-        { id: '1', name: 'Cliente Exemplo', document: '12345678901', email: 'cliente@exemplo.com', phone: '11999999999', createdAt: new Date() }
-      ];
+      // Filtrar clientes se há busca
+      let filteredClients = mockClients;
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredClients = mockClients.filter(client => 
+          client.name.toLowerCase().includes(searchLower) ||
+          client.document.includes(search) ||
+          (client.email && client.email.toLowerCase().includes(searchLower))
+        );
+      }
 
       return {
-        data: mockClients.slice(offset, offset + pageSize),
-        pagination: {
-          page: parseInt(page),
-          pageSize: parseInt(pageSize),
-          total: mockClients.length,
-          totalPages: Math.ceil(mockClients.length / pageSize)
-        }
+        items: filteredClients.slice(offset, offset + pageSize),
+        total: filteredClients.length,
+        page: parseInt(page),
+        pageSize: parseInt(pageSize)
       };
     } catch (error) {
       console.error('Error fetching clients:', error);
@@ -633,7 +645,9 @@ async function createNfseApp() {
         updatedAt: new Date()
       };
       
-      // Mock successful creation
+      // Adicionar ao array global
+      mockClients.push(newClient);
+      
       return reply.code(201).send(newClient);
     } catch (error) {
       return reply.code(500).send({ error: { message: 'Internal server error' } });
@@ -658,7 +672,19 @@ async function createNfseApp() {
   });
 
   app.delete('/api/clients/:id', async (request, reply) => {
-    return reply.code(204).send();
+    try {
+      const { id } = request.params;
+      const clientIndex = mockClients.findIndex(c => c.id === id);
+      
+      if (clientIndex === -1) {
+        return reply.code(404).send({ error: { message: 'Client not found' } });
+      }
+      
+      mockClients.splice(clientIndex, 1);
+      return reply.code(204).send();
+    } catch (error) {
+      return reply.code(500).send({ error: { message: 'Internal server error' } });
+    }
   });
 
   // Endpoints de Fornecedores  
@@ -667,18 +693,22 @@ async function createNfseApp() {
       const { page = 1, pageSize = 10, search } = request.query;
       const offset = (page - 1) * pageSize;
       
-      const mockSuppliers = [
-        { id: '1', name: 'Fornecedor Exemplo', cnpj: '12345678000123', email: 'fornecedor@exemplo.com', phone: '11888888888', createdAt: new Date() }
-      ];
+      // Filtrar fornecedores se há busca
+      let filteredSuppliers = mockSuppliers;
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredSuppliers = mockSuppliers.filter(supplier => 
+          supplier.name.toLowerCase().includes(searchLower) ||
+          (supplier.cnpj && supplier.cnpj.includes(search)) ||
+          (supplier.email && supplier.email.toLowerCase().includes(searchLower))
+        );
+      }
 
       return {
-        data: mockSuppliers.slice(offset, offset + pageSize),
-        pagination: {
-          page: parseInt(page),
-          pageSize: parseInt(pageSize),
-          total: mockSuppliers.length,
-          totalPages: Math.ceil(mockSuppliers.length / pageSize)
-        }
+        items: filteredSuppliers.slice(offset, offset + pageSize),
+        total: filteredSuppliers.length,
+        page: parseInt(page),
+        pageSize: parseInt(pageSize)
       };
     } catch (error) {
       console.error('Error fetching suppliers:', error);
@@ -720,6 +750,9 @@ async function createNfseApp() {
         createdAt: new Date(),
         updatedAt: new Date()
       };
+      
+      // Adicionar ao array global
+      mockSuppliers.push(newSupplier);
       
       return reply.code(201).send(newSupplier);
     } catch (error) {
