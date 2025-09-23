@@ -1,24 +1,12 @@
 {
   "version": 2,
-  "buildCommand": "npm run vercel-build",
+  "buildCommand": "npm run build-minimal",
   "functions": {
-    "api/index.mjs": {
+    "api/nfse-working.mjs": {
       "maxDuration": 30
-    },
-    "api/retry.mjs": {
-      "maxDuration": 60
     }
   },
-  "crons": [
-    {
-      "path": "/api/retry.mjs",
-      "schedule": "0 12 * * *"
-    }
-  ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.mjs"
-    }
+    { "src": "/(.*)", "dest": "/api/nfse-working.mjs" }
   ]
 }
