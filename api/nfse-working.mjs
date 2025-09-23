@@ -1,7 +1,8 @@
-// API NFSe com autenticação JWT funcionando
+// API NFSe no Vercel Serverless
 import jwt from '@fastify/jwt';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
+import { getCertificateInfo } from './certificate.mjs';
 
 let cachedApp;
 let cachedPrisma;
@@ -15,8 +16,19 @@ async function getPrisma() {
 
 async function createNfseApp() {
   const app = Fastify({ 
-    logger: false, // Reduzir logs
+    logger: false,
     trustProxy: true
+  });
+
+  // Registrar CORS para permitir frontend
+  await app.register(import('@fastify/cors'), {
+    origin: [
+      'https://ui-ten-xi.vercel.app',
+      'http://localhost:5173', // Vite dev server
+      /.*\.vercel\.app$/ // Qualquer domínio vercel
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
   });
   
   // Registrar plugin JWT
@@ -54,6 +66,115 @@ async function createNfseApp() {
     hasJWT: !!app.jwt,
     timestamp: new Date().toISOString()
   }));
+
+  // Endpoint de certificado digital (verificação completa)
+  app.get('/health/cert', async () => {
+    try {
+      const certInfo = getCertificateInfo();
+      
+      if (!certInfo) {
+        return {
+          loaded: false,
+          status: 'not_configured',
+          error: 'Certificate not configured - missing CERT_PFX_BASE64',
+          timestamp: new Date().toISOString()
+        };
+      }
+      
+      // Determinar status baseado na validade
+      let status = 'valid';
+      if (!certInfo.isValid) {
+        status = certInfo.daysToExpire < 0 ? 'expired' : 'not_yet_valid';
+      } else if (certInfo.daysToExpire < 30) {
+        status = 'expiring_soon';
+      }
+      
+      return {
+        loaded: true,
+        status,
+        thumbprint: certInfo.thumbprint,
+        hasPrivateKey: !!certInfo.privateKeyPem,
+        notBefore: certInfo.notBefore.toISOString(),
+        notAfter: certInfo.notAfter.toISOString(),
+        daysToExpire: certInfo.daysToExpire,
+        isValid: certInfo.isValid,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      return {
+        loaded: false,
+        status: 'error',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      };
+    }
+  });
+
+  // Endpoint completo de dependências
+  app.get('/health/deps', async () => {
+    const result = {
+      status: 'unknown',
+      components: {},
+      timestamp: new Date().toISOString()
+    };
+
+    // Test Database
+    try {
+      const prisma = await getPrisma();
+      await prisma.$queryRaw`SELECT 1`;
+      result.components.database = {
+        status: 'healthy',
+        message: 'Connected to database'
+      };
+    } catch (error) {
+      result.components.database = {
+        status: 'unhealthy', 
+        error: error.message
+      };
+    }
+
+    // Test Certificate
+    try {
+      const certInfo = getCertificateInfo();
+      if (!certInfo) {
+        result.components.certificate = {
+          status: 'not_configured',
+          message: 'Certificate not configured'
+        };
+      } else {
+        let certStatus = 'healthy';
+        if (!certInfo.isValid) {
+          certStatus = 'unhealthy';
+        } else if (certInfo.daysToExpire < 30) {
+          certStatus = 'warning';
+        }
+        
+        result.components.certificate = {
+          status: certStatus,
+          thumbprint: certInfo.thumbprint,
+          daysToExpire: certInfo.daysToExpire,
+          message: `Certificate valid, expires in ${certInfo.daysToExpire} days`
+        };
+      }
+    } catch (error) {
+      result.components.certificate = {
+        status: 'unhealthy',
+        error: error.message
+      };
+    }
+
+    // Overall status
+    const statuses = Object.values(result.components).map(c => c.status);
+    if (statuses.every(s => s === 'healthy')) {
+      result.status = 'healthy';
+    } else if (statuses.some(s => s === 'unhealthy')) {
+      result.status = 'unhealthy';
+    } else {
+      result.status = 'degraded';
+    }
+
+    return result;
+  });
 
   // Auth endpoints
   app.post('/auth/token', async (request) => {

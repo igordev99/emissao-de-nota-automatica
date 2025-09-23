@@ -11,6 +11,7 @@
     "build": "tsup src/server.ts src/app.ts --format esm,cjs --dts --splitting --clean",
     "vercel-build": "prisma generate && tsup src/app.ts src/modules/jobs/retry.service.ts --format cjs --dts --clean",
     "build-minimal": "prisma generate",
+    "build-all": "prisma generate && cd ui && npm install && npm run build",
     "start": "node dist/server.js",
     "start:mem": "cross-env NODE_ENV=development PORT=3000 JWT_SECRET=change_this_development_secret_please IN_MEMORY_DB=1 METRICS_ENABLED=1 node dist/server.js",
     "db:up": "docker compose up -d db",
