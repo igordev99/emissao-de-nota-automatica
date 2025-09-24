@@ -4,9 +4,8 @@ import { Upload, FileText, Users, Download, AlertCircle, CheckCircle } from 'luc
 interface ClienteImport {
   nome: string;
   email: string;
-  telefone: string;
-  documento: string;
-  endereco: string;
+  documento: string; // CPF/CNPJ
+  inscricaoMunicipal: string;
 }
 
 interface ImportResult {
@@ -21,21 +20,19 @@ const ImportClients: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [importType, setImportType] = useState<'json' | 'csv' | 'manual'>('manual');
 
-  // Exemplo de dados para facilitar o teste
+  // Exemplo de dados para facilitar o teste (padrão Uphold)
   const sampleData = [
     {
       nome: "João Silva",
       email: "joao@email.com",
-      telefone: "(11) 99999-1111",
       documento: "123.456.789-00",
-      endereco: "Rua A, 123 - São Paulo/SP"
+      inscricaoMunicipal: "12345678"
     },
     {
       nome: "Maria Santos",
       email: "maria@email.com", 
-      telefone: "(11) 99999-2222",
       documento: "987.654.321-00",
-      endereco: "Rua B, 456 - São Paulo/SP"
+      inscricaoMunicipal: "87654321"
     }
   ];
 
@@ -52,9 +49,8 @@ const ImportClients: React.FC = () => {
         clients.push({
           nome: values[0] || '',
           email: values[1] || '',
-          telefone: values[2] || '',
-          documento: values[3] || '',
-          endereco: values[4] || ''
+          documento: values[2] || '',
+          inscricaoMunicipal: values[3] || ''
         });
       }
     }
@@ -93,9 +89,8 @@ const ImportClients: React.FC = () => {
         clients = lines.map((line) => ({
           nome: line.trim(),
           email: '',
-          telefone: '',
           documento: '',
-          endereco: ''
+          inscricaoMunicipal: ''
         }));
       }
 
@@ -146,6 +141,87 @@ const ImportClients: React.FC = () => {
     }
   };
 
+  const handleAutomaticImport = async () => {
+    setLoading(true);
+    const errors: string[] = [];
+
+    try {
+      // Chamar o endpoint de extração automática do Uphold
+      const response = await fetch('/api/extract-uphold-clients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: 'teste.alfa@teste.com',
+          password: 'Teste@teste@teste123'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro na extração: ${response.statusText}`);
+      }
+
+      const extractionResult = await response.json();
+      
+      if (!extractionResult.success || !extractionResult.clients || extractionResult.clients.length === 0) {
+        throw new Error('Nenhum cliente foi extraído do sistema Uphold');
+      }
+
+      // Importar os clientes extraídos
+      let success = 0;
+      const clients = extractionResult.clients;
+
+      for (const client of clients) {
+        try {
+          const importResponse = await fetch('/api/clients', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              nome: client.nome,
+              email: client.email,
+              documento: client.documento,
+              inscricaoMunicipal: client.inscricaoMunicipal
+            })
+          });
+
+          if (importResponse.ok) {
+            success++;
+          } else {
+            const errorText = await importResponse.text();
+            errors.push(`${client.nome}: ${errorText}`);
+          }
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+          errors.push(`${client.nome}: Erro de importação - ${errorMessage}`);
+        }
+      }
+
+      setImportResult({
+        success,
+        errors,
+        clients
+      });
+
+      // Mostrar os dados extraídos na área de texto para referência
+      setImportData(JSON.stringify(clients, null, 2));
+      setImportType('json');
+
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      errors.push(`Erro na extração automática: ${errorMessage}`);
+      setImportResult({
+        success: 0,
+        errors,
+        clients: []
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadSampleData = () => {
     setImportData(JSON.stringify(sampleData, null, 2));
     setImportType('json');
@@ -156,15 +232,14 @@ const ImportClients: React.FC = () => {
     let filename = '';
     
     if (type === 'csv') {
-      content = 'Nome,Email,Telefone,Documento,Endereco\n"João Silva","joao@email.com","(11) 99999-1111","123.456.789-00","Rua A, 123"';
+      content = 'Nome,E-mail,CPF/CNPJ,Inscr.Municipal\n"João Silva","joao@email.com","123.456.789-00","12345678"';
       filename = 'template-clientes.csv';
     } else {
       content = JSON.stringify([{
         nome: "João Silva",
         email: "joao@email.com",
-        telefone: "(11) 99999-1111",
         documento: "123.456.789-00",
-        endereco: "Rua A, 123 - São Paulo/SP"
+        inscricaoMunicipal: "12345678"
       }], null, 2);
       filename = 'template-clientes.json';
     }
@@ -262,6 +337,29 @@ const ImportClients: React.FC = () => {
             </div>
           </div>
 
+          {/* Importação Automática do Uphold */}
+          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2 text-orange-800">
+              <Upload className="h-5 w-5" />
+              Importação Automática do Uphold
+            </h3>
+            <p className="text-sm text-orange-700 mb-3">
+              Extrair clientes automaticamente do sistema Uphold usando suas credenciais.
+            </p>
+            <button
+              onClick={handleAutomaticImport}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              {loading ? 'Extraindo...' : 'Importar do Uphold'}
+            </button>
+          </div>
+
           {/* Área de Dados */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -272,9 +370,9 @@ const ImportClients: React.FC = () => {
               onChange={(e) => setImportData(e.target.value)}
               placeholder={
                 importType === 'json' 
-                  ? '[\n  {\n    "nome": "João Silva",\n    "email": "joao@email.com",\n    ...\n  }\n]'
+                  ? '[\n  {\n    "nome": "João Silva",\n    "email": "joao@email.com",\n    "documento": "123.456.789-00",\n    "inscricaoMunicipal": "12345678"\n  }\n]'
                   : importType === 'csv'
-                  ? 'Nome,Email,Telefone,Documento,Endereco\n"João Silva","joao@email.com",...'
+                  ? 'Nome,E-mail,CPF/CNPJ,Inscr.Municipal\n"João Silva","joao@email.com","123.456.789-00","12345678"'
                   : 'João Silva\nMaria Santos\nPedro Costa'
               }
               className="w-full h-64 p-3 border border-gray-300 rounded-md font-mono text-sm"

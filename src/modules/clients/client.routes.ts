@@ -1,5 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+import path from 'path';
+import fs from 'fs/promises';
 
 import { clientService, ClientData } from './client.service';
 
@@ -39,11 +43,18 @@ const updateClientSchema = z.object({
   }).optional()
 });
 
+const extractUpholdSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1)
+});
+
 const listClientsQuerySchema = z.object({
   page: z.string().transform(val => parseInt(val)).optional(),
   pageSize: z.string().transform(val => parseInt(val)).optional(),
   search: z.string().optional()
 });
+
+const execFileAsync = promisify(execFile);
 
 export async function clientRoutes(app: FastifyInstance) {
   // Criar cliente
