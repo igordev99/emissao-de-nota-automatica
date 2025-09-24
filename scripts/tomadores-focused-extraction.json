@@ -1,0 +1,1002 @@
+[
+  {
+    "name": "067 HERMANN JR",
+    "document": "32.838.405/0001-90",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:30:47.449Z",
+    "inscricaoMunicipal": "62247298",
+    "source": "admin_tomadores_table",
+    "rowIndex": 0
+  },
+  {
+    "name": "2N ARTEFATOS DE PAPEL LTDA - ME",
+    "document": "12.849.685/0001-24",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:30:56.701Z",
+    "inscricaoMunicipal": "41810708",
+    "source": "admin_tomadores_table",
+    "rowIndex": 1
+  },
+  {
+    "name": "2RA CORRETORA DE SEGUROS E CONSULTORIA FINANCEIRA LTDA",
+    "document": "41.166.335/0001-61",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2021-11-29T18:29:01.018Z",
+    "inscricaoMunicipal": "110000",
+    "source": "admin_tomadores_table",
+    "rowIndex": 2
+  },
+  {
+    "name": "2S INOVACOES TECNOLOGICAS S.A.",
+    "document": "08.390.006/0001-24",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:31:19.645Z",
+    "inscricaoMunicipal": "41441346",
+    "source": "admin_tomadores_table",
+    "rowIndex": 3
+  },
+  {
+    "name": "360 INSURANCE CORRETORA DE SEGUROS LTDA",
+    "document": "12.693.769/0001-11",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-05-26T18:43:36.639Z",
+    "inscricaoMunicipal": "4165645",
+    "source": "admin_tomadores_table",
+    "rowIndex": 4
+  },
+  {
+    "name": "3E CORRETORA DE SEGUROS - EIRELI - ME",
+    "document": "24.940.960/0001-08",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:31:17.285Z",
+    "inscricaoMunicipal": "54846862",
+    "source": "admin_tomadores_table",
+    "rowIndex": 5
+  },
+  {
+    "name": "3Z  URBANISMO I EMPREENDIMENTOS IMOBILIARIOS LTDA",
+    "document": "19.521.203/0001-51",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:30:06.228Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 6
+  },
+  {
+    "name": "48.944.459 VALDEREZ AFONSO DA SILVA",
+    "document": "48.944.459/0001-70",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2023-03-17T11:47:49.591Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 7
+  },
+  {
+    "name": "4Linux Software e Comércio de Programas Ltda",
+    "document": "04.491.152/0001-26",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2021-06-10T16:39:50.106Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 8
+  },
+  {
+    "name": "4Linux Software e Comércio de Programas Ltda",
+    "document": "04.491.152/0001-95",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2021-06-10T20:09:12.133Z",
+    "inscricaoMunicipal": "132321",
+    "source": "admin_tomadores_table",
+    "rowIndex": 9
+  },
+  {
+    "name": "5G Capital Eireli",
+    "document": "37.917.182/0001-70",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-11-24T21:25:44.507Z",
+    "inscricaoMunicipal": "163",
+    "source": "admin_tomadores_table",
+    "rowIndex": 10
+  },
+  {
+    "name": "AA - BASE ENGENHARIA LTDA -ME",
+    "document": "18.240.943/0001-57",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:28:05.136Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 11
+  },
+  {
+    "name": "ABC BRAVA EMPREENDIMENTO IMOBILIARIO SPE LTDA",
+    "document": "37.414.785/0001-59",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2022-08-17T20:11:26.419Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 12
+  },
+  {
+    "name": "ABC GESTAO E INTERMEDIACOES DE NEGOCIOS LTDA",
+    "document": "24.901.766/0001-05",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2023-04-05T14:12:20.661Z",
+    "inscricaoMunicipal": "4576123",
+    "source": "admin_tomadores_table",
+    "rowIndex": 13
+  },
+  {
+    "name": "ABDALLA YOUSSEF SKAF",
+    "document": "00.041.688/0231-00",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:19:41.179Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 14
+  },
+  {
+    "name": "ABECAM",
+    "document": "51.595.882/0001-16",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2023-05-23T13:26:30.962Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 15
+  },
+  {
+    "name": "ABELARDO BENIGNO & COSTA EMPREENDIMENTOS LTDA",
+    "document": "13.248.384/0001-08",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2022-07-15T19:36:27.677Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 16
+  },
+  {
+    "name": "ABET ADMINISTRADORA E CORRETORA DE SEGUROS.",
+    "document": "58.531.849/0001-71",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2021-03-01T13:38:58.439Z",
+    "inscricaoMunicipal": "94838631",
+    "source": "admin_tomadores_table",
+    "rowIndex": 17
+  },
+  {
+    "name": "ABI CONSULTORIA E CORRETAGEM DE SEGUROS",
+    "document": "24.101.913/0001-62",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-09-30T18:55:14.105Z",
+    "inscricaoMunicipal": "54383013",
+    "source": "admin_tomadores_table",
+    "rowIndex": 18
+  },
+  {
+    "name": "ACADEMIA DE PLANEJAMENTO FINANCEIRO GFAI LTDA",
+    "document": "26.174.263/0001-00",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:23:52.010Z",
+    "inscricaoMunicipal": "55688896",
+    "source": "admin_tomadores_table",
+    "rowIndex": 19
+  },
+  {
+    "name": "A.C. AGRO MERCANTIL LTDA",
+    "document": "60.704.863/0001-71",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:18:05.230Z",
+    "inscricaoMunicipal": "10190694",
+    "source": "admin_tomadores_table",
+    "rowIndex": 20
+  },
+  {
+    "name": "AÇÃO SOCIAL SÃO MATEUS",
+    "document": "45.880.499/0011-89",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:23:08.320Z",
+    "inscricaoMunicipal": "48888052",
+    "source": "admin_tomadores_table",
+    "rowIndex": 21
+  },
+  {
+    "name": "ACCIPIENS CONSULTORIA E PARTICIPACOES LTDA.",
+    "document": "10.769.935/0001-90",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2023-07-03T19:49:50.052Z",
+    "inscricaoMunicipal": "39071952",
+    "source": "admin_tomadores_table",
+    "rowIndex": 22
+  },
+  {
+    "name": "ACCURACY PROMO SERV TEMP E DE MKT PROMOCIONAL LTDA",
+    "document": "13.144.147/0001-05",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2022-11-10T18:18:33.485Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 23
+  },
+  {
+    "name": "ACELERACAO DIGITAL LTDA.",
+    "document": "41.147.994/0001-50",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2021-12-02T19:05:08.206Z",
+    "inscricaoMunicipal": "68756941",
+    "source": "admin_tomadores_table",
+    "rowIndex": 24
+  },
+  {
+    "name": "ACESSO DIGITAL TECNOLOGIA DA INFORMACAO S.A.",
+    "document": "05.563.165/0001-95",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:28:19.213Z",
+    "inscricaoMunicipal": "37638874",
+    "source": "admin_tomadores_table",
+    "rowIndex": 25
+  },
+  {
+    "name": "ACH ENGENHARIA E CONSTRUTORA LTDA",
+    "document": "52.518.693/0001-02",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2025-08-27T20:17:57.396Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 26
+  },
+  {
+    "name": "AÇOUGUE E ROTISSERIA BELEM LTDA",
+    "document": "65.420.325/0001-79",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:23:46.965Z",
+    "inscricaoMunicipal": "98342711",
+    "source": "admin_tomadores_table",
+    "rowIndex": 27
+  },
+  {
+    "name": "AC PROTEINA AGROPECUARIA S/A",
+    "document": "17.504.078/0001-46",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:18:05.570Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 28
+  },
+  {
+    "name": "ACPTE2 TOSI",
+    "document": "00.045.288/7628-05",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:22:57.350Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 29
+  },
+  {
+    "name": "ACTA CORRETORA DE SEGUROS LTDA",
+    "document": "05.832.412/0001-01",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:31:18.307Z",
+    "inscricaoMunicipal": "32470070",
+    "source": "admin_tomadores_table",
+    "rowIndex": 30
+  },
+  {
+    "name": "ACTIONSYS SYSTEMAS SERVIÇOS EM INFORMÁTICA LTDA",
+    "document": "09.340.979/0001-11",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2022-02-25T19:10:46.971Z",
+    "inscricaoMunicipal": "37626655",
+    "source": "admin_tomadores_table",
+    "rowIndex": 31
+  },
+  {
+    "name": "ACTUS CORRETORA DE SEGUROS LTDA",
+    "document": "13.751.701/0001-04",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:32:04.732Z",
+    "inscricaoMunicipal": "43007139",
+    "source": "admin_tomadores_table",
+    "rowIndex": 32
+  },
+  {
+    "name": "ADAPTA CORRETORA DE SEGUROS LTDA EPP",
+    "document": "04.795.428/0001-29",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:32:46.418Z",
+    "inscricaoMunicipal": "30788579",
+    "source": "admin_tomadores_table",
+    "rowIndex": 33
+  },
+  {
+    "name": "ADD VILA MARIANA",
+    "document": "26.016.070/0001-21",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:25:27.209Z",
+    "inscricaoMunicipal": "55531768",
+    "source": "admin_tomadores_table",
+    "rowIndex": 34
+  },
+  {
+    "name": "ADEWYLLSON DA SILVA CAMPOS",
+    "document": "00.060.563/6645-68",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:32:38.024Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 35
+  },
+  {
+    "name": "Adilio Martins De Moura Filho",
+    "document": "00.004.997/8798-60",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:32:38.356Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 36
+  },
+  {
+    "name": "ADILSON BIANCO",
+    "document": "00.050.961/9509-00",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:18:58.997Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 37
+  },
+  {
+    "name": "ADISTEC BRASIL INFORMATICA LTDA",
+    "document": "15.457.043/0001-78",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:35:45.962Z",
+    "inscricaoMunicipal": "45179298",
+    "source": "admin_tomadores_table",
+    "rowIndex": 38
+  },
+  {
+    "name": "ADMINISTRACAO GERAL DO ESTADO",
+    "document": "46.379.400/0001-50",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:33:54.808Z",
+    "inscricaoMunicipal": "35466596",
+    "source": "admin_tomadores_table",
+    "rowIndex": 39
+  },
+  {
+    "name": "ADMINISTRADORA DE CONSORCIO BORBA GATO LTDA",
+    "document": "61.555.512/0001-09",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:30:28.306Z",
+    "inscricaoMunicipal": "11095539",
+    "source": "admin_tomadores_table",
+    "rowIndex": 40
+  },
+  {
+    "name": "ADMINISTRADORA JOYCE LTDA",
+    "document": "61.142.303/0001-33",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2022-03-21T15:33:34.158Z",
+    "inscricaoMunicipal": "10741992",
+    "source": "admin_tomadores_table",
+    "rowIndex": 41
+  },
+  {
+    "name": "ADMINSTRADORA DE CONSORCIO NACIONAL GAZIN LTDA",
+    "document": "06.044.551/0001-33",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2024-12-03T11:27:07.260Z",
+    "inscricaoMunicipal": "5615447",
+    "source": "admin_tomadores_table",
+    "rowIndex": 42
+  },
+  {
+    "name": "ADOLPHO KAUFFMANN",
+    "document": "00.000.192/9888-91",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:34:42.290Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 43
+  },
+  {
+    "name": "ADRIANA ALVES DA SILVA GARDIN",
+    "document": "00.019.650/9128-86",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:27:34.203Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 44
+  },
+  {
+    "name": "ADRIANA BANDEIRA PRAIA TREINAMENTO",
+    "document": "13.053.826/0001-60",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2021-12-21T17:18:50.542Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 45
+  },
+  {
+    "name": "ADRIANA DUARTE DA SILVA",
+    "document": "00.000.694/8687-52",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:19:44.624Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 46
+  },
+  {
+    "name": "ADRIANA RIBEIRO DE ALMEIDA",
+    "document": "00.008.732/9948-50",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:33:10.329Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 47
+  },
+  {
+    "name": "ADRIANA RIBEIRO DO PRADO",
+    "document": "00.023.363/7543-53",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:18:50.443Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 48
+  },
+  {
+    "name": "ADRIANA RIO COSTA GODINHO",
+    "document": "00.001.826/3997-55",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:23:02.051Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 49
+  },
+  {
+    "name": "ADRIANA SILVA DE SOUSA",
+    "document": "00.008.439/2957-07",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:28:42.320Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 50
+  },
+  {
+    "name": "ADRIANA SOARES",
+    "document": "00.082.283/3549-00",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:29:01.625Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 51
+  },
+  {
+    "name": "ADRIANA TABOADA OTERO",
+    "document": "00.025.989/5688-51",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:25:17.641Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 52
+  },
+  {
+    "name": "Adriane Hadlich",
+    "document": "00.043.591/9149-91",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:19:54.238Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 53
+  },
+  {
+    "name": "ADRIANO NOVAES",
+    "document": "00.052.485/7496-04",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:19:26.395Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 54
+  },
+  {
+    "name": "ADRIANO OKUNO",
+    "document": "00.087.929/9459-87",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:19:43.938Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 55
+  },
+  {
+    "name": "AD SERRANO ENGENHARIA EIRELI -EPP",
+    "document": "11.614.509/0001-40",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:32:04.397Z",
+    "inscricaoMunicipal": "40243869",
+    "source": "admin_tomadores_table",
+    "rowIndex": 56
+  },
+  {
+    "name": "ADVANCED CORRETORA DE CAMBIO LTDA",
+    "document": "92.856.905/0001-86",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:34:17.308Z",
+    "inscricaoMunicipal": "29009847",
+    "source": "admin_tomadores_table",
+    "rowIndex": 57
+  },
+  {
+    "name": "ADVOCACIA JOSÉ SILVA",
+    "document": "06.190.032/0001-83",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:31:30.806Z",
+    "inscricaoMunicipal": "33178925",
+    "source": "admin_tomadores_table",
+    "rowIndex": 58
+  },
+  {
+    "name": "AEROLINEAS ARGENTINAS S/A",
+    "document": "33.605.239/0001-44",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:30:09.950Z",
+    "inscricaoMunicipal": "28253485",
+    "source": "admin_tomadores_table",
+    "rowIndex": 59
+  },
+  {
+    "name": "A. F. DE OLIVEIRA COMÉRCIO DE ARTIGOS ESPORTIVOS - EPP",
+    "document": "16.832.947/0001-07",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:34:23.491Z",
+    "inscricaoMunicipal": "46006710",
+    "source": "admin_tomadores_table",
+    "rowIndex": 60
+  },
+  {
+    "name": "AF Franchising Ltda.",
+    "document": "35.503.744/0001-03",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2024-01-11T15:18:39.700Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 61
+  },
+  {
+    "name": "AFONSO FRANCA CONSTRUÇÕES E COMERCIO LTDA",
+    "document": "68.119.866/0001-50",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:23:46.291Z",
+    "inscricaoMunicipal": "20822928",
+    "source": "admin_tomadores_table",
+    "rowIndex": 62
+  },
+  {
+    "name": "AFONSO ZAGO",
+    "document": "00.058.203/0019-04",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:19:19.916Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 63
+  },
+  {
+    "name": "AGATA",
+    "document": "31.496.063/0001-04",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-09-15T15:22:59.098Z",
+    "inscricaoMunicipal": "61084964",
+    "source": "admin_tomadores_table",
+    "rowIndex": 64
+  },
+  {
+    "name": "AG CONSULTSEG CORRETORA DE SEGUROS LTDA.",
+    "document": "28.062.098/0001-20",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:30:08.588Z",
+    "inscricaoMunicipal": "57394733",
+    "source": "admin_tomadores_table",
+    "rowIndex": 65
+  },
+  {
+    "name": "AGENCIA DE TURISMO SAKURA LTDA",
+    "document": "46.570.909/0001-86",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2023-07-19T18:48:46.096Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 66
+  },
+  {
+    "name": "AGENCIA MEMO",
+    "document": "08.965.174/0001-09",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2021-01-13T21:32:05.642Z",
+    "inscricaoMunicipal": "189",
+    "source": "admin_tomadores_table",
+    "rowIndex": 67
+  },
+  {
+    "name": "AgênciaNoz - Agência de Publicidade e Consultoria de Marketing Ltda.",
+    "document": "04.820.153/0001-36",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2024-02-21T20:39:58.500Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 68
+  },
+  {
+    "name": "AGENCIA OM MARKETING LTDA",
+    "document": "46.299.218/0001-90",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2024-04-30T18:44:47.679Z",
+    "inscricaoMunicipal": "73065439",
+    "source": "admin_tomadores_table",
+    "rowIndex": 69
+  },
+  {
+    "name": "AGENCOR AGENCIA E CORRETORA DE SEGUROS LTDA. - ME",
+    "document": "23.686.526/0001-72",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:31:17.620Z",
+    "inscricaoMunicipal": "53662300",
+    "source": "admin_tomadores_table",
+    "rowIndex": 70
+  },
+  {
+    "name": "AGFE CORRETORA DE SEGUROS LTDA.",
+    "document": "29.783.063/0001-43",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:33:01.323Z",
+    "inscricaoMunicipal": "59067985",
+    "source": "admin_tomadores_table",
+    "rowIndex": 71
+  },
+  {
+    "name": "AGINAN INCORPORACAO E PLANEJAMENTO DE IMOVEIS LTDA",
+    "document": "11.457.401/0001-91",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:34:16.611Z",
+    "inscricaoMunicipal": "40090329",
+    "source": "admin_tomadores_table",
+    "rowIndex": 72
+  },
+  {
+    "name": "AGNALDO DRCELINO",
+    "document": "00.026.131/1128-35",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:23:27.555Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 73
+  },
+  {
+    "name": "AGUA LAVE LAVANDERIA E TINTURARIA LTDA  ME",
+    "document": "08.537.302/0001-05",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:34:36.704Z",
+    "inscricaoMunicipal": "35924390",
+    "source": "admin_tomadores_table",
+    "rowIndex": 74
+  },
+  {
+    "name": "AIÊ TOMBOLATO DE FARIA RIBEIRO ARQUITETURA DE INTERIORES - M",
+    "document": "23.457.935/0001-05",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:34:35.360Z",
+    "inscricaoMunicipal": "54162440",
+    "source": "admin_tomadores_table",
+    "rowIndex": 75
+  },
+  {
+    "name": "AIG SEGUROS BRASIL S/A",
+    "document": "33.040.981/0001-50",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-03T19:26:00.000Z",
+    "inscricaoMunicipal": "28606248",
+    "source": "admin_tomadores_table",
+    "rowIndex": 76
+  },
+  {
+    "name": "Aime Sylvana Mari Barrientos",
+    "document": "00.011.054/8768-78",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-11-10T14:50:46.866Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 77
+  },
+  {
+    "name": "AIO CORRETORA DE SEGUROS E BENEFICIOS LTDA",
+    "document": "24.173.640/0001-61",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:31:08.216Z",
+    "inscricaoMunicipal": "54326664",
+    "source": "admin_tomadores_table",
+    "rowIndex": 78
+  },
+  {
+    "name": "AIR CANADA",
+    "document": "05.385.049/0001-23",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:28:35.608Z",
+    "inscricaoMunicipal": "32804393",
+    "source": "admin_tomadores_table",
+    "rowIndex": 79
+  },
+  {
+    "name": "AIRTON EIDI FURUKAWA",
+    "document": "00.007.638/3838-18",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:19:06.218Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 80
+  },
+  {
+    "name": "AKAD SEGUROS S.A.",
+    "document": "14.868.712/0001-31",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-03T19:26:00.000Z",
+    "inscricaoMunicipal": "46013288",
+    "source": "admin_tomadores_table",
+    "rowIndex": 81
+  },
+  {
+    "name": "AKIUM ASSESSORIA E CORRETAGEM DE SEGUROS LTDA",
+    "document": "04.170.566/0001-12",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:33:00.984Z",
+    "inscricaoMunicipal": "29725143",
+    "source": "admin_tomadores_table",
+    "rowIndex": 82
+  },
+  {
+    "name": "AKMX ARQUITETURA E ENGENHARIA LTDA",
+    "document": "26.301.562/0001-69",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2024-01-12T12:13:48.005Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 83
+  },
+  {
+    "name": "AKMX Store Comercio LTDA",
+    "document": "39.557.828/0001-80",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2023-07-17T18:30:40.343Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 84
+  },
+  {
+    "name": "ALAN KARDEC RODRIGUES ADVOGADOS ASSOCIADOS EPP",
+    "document": "01.887.899/0001-79",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:28:10.559Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 85
+  },
+  {
+    "name": "ALAN SEGALA",
+    "document": "00.058.343/8650-49",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:31:39.541Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 86
+  },
+  {
+    "name": "ALBA SEGURADORA",
+    "document": "15.144.017/0001-90",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2025-03-03T12:32:46.364Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 87
+  },
+  {
+    "name": "ALBATROZ MGA S.A",
+    "document": "41.096.742/0001-40",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2021-04-29T20:52:07.314Z",
+    "inscricaoMunicipal": "14587",
+    "source": "admin_tomadores_table",
+    "rowIndex": 88
+  },
+  {
+    "name": "ALBEROPAR FRANQUIAS E PARTICIPAÇÕES LTDA.",
+    "document": "21.749.789/0001-58",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:31:47.565Z",
+    "inscricaoMunicipal": "51987040",
+    "source": "admin_tomadores_table",
+    "rowIndex": 89
+  },
+  {
+    "name": "ALBERTO SIQUEIRA DA IGREJA",
+    "document": "00.015.773/1912-53",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:31:31.471Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 90
+  },
+  {
+    "name": "ALBIERI E ASSOCIADOS CONSULTORIA EMPRESARIAL LTDA",
+    "document": "16.936.252/0001-67",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:23:41.563Z",
+    "inscricaoMunicipal": "52906612",
+    "source": "admin_tomadores_table",
+    "rowIndex": 91
+  },
+  {
+    "name": "A L DE OLIVEIRA ARTIGOS ESPORTIVOS EPP",
+    "document": "15.513.215/0001-83",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:34:21.778Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 92
+  },
+  {
+    "name": "ALDO COMPONENTES ELETRONICOS LTDA",
+    "document": "81.106.957/0001-19",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2024-03-13T13:24:17.499Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 93
+  },
+  {
+    "name": "ALDO LUIZ MEES",
+    "document": "00.029.286/7519-15",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:32:31.672Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 94
+  },
+  {
+    "name": "ALECIO MIGUEL  KAMINSKI",
+    "document": "00.058.059/2020-49",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:22:52.893Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 95
+  },
+  {
+    "name": "alessandra goncalves",
+    "document": "00.015.789/7248-50",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:20:11.108Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 96
+  },
+  {
+    "name": "ALESSANDRA MIATOV CARDENAS",
+    "document": "00.016.164/8398-90",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:29:06.675Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 97
+  },
+  {
+    "name": "ALESSANDRA TAKAHASHI FUZIY LORENSINI",
+    "document": "00.058.229/9491-15",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:20:00.751Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 98
+  },
+  {
+    "name": "ALESSANDRO ANDRADE",
+    "document": "00.000.084/5767-07",
+    "email": "",
+    "phone": "",
+    "dataCadastro": "2020-03-16T19:29:49.599Z",
+    "inscricaoMunicipal": "",
+    "source": "admin_tomadores_table",
+    "rowIndex": 99
+  }
+]

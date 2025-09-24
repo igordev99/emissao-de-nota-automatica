@@ -20,6 +20,7 @@ const navigation = [
   { name: 'Consultar NFS-e', href: '/nfse-list', icon: MagnifyingGlassIcon },
   { name: 'Clientes', href: '/clients', icon: UsersIcon },
   { name: 'Fornecedores', href: '/suppliers', icon: TruckIcon },
+  { name: 'Config Uphold', href: '/uphold-config', icon: CogIcon },
   { name: 'Webhooks', href: '/webhooks', icon: GlobeAltIcon },
   { name: 'Relatórios', href: '/reports', icon: ChartBarIcon },
   { name: 'Configurações', href: '/settings', icon: CogIcon },

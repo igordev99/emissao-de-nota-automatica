@@ -13,6 +13,7 @@ import NfseEmit from './pages/NfseEmit';
 import NfseList from './pages/NfseList';
 import SupplierForm from './pages/SupplierForm';
 import Suppliers from './pages/Suppliers';
+import UpholdConfig from './pages/UpholdConfig';
 import WebhookForm from './pages/WebhookForm';
 import Webhooks from './pages/Webhooks';
 
@@ -38,6 +39,7 @@ function App() {
               <Route path="suppliers" element={<Suppliers />} />
               <Route path="suppliers/new" element={<SupplierForm />} />
               <Route path="suppliers/:id/edit" element={<SupplierForm />} />
+              <Route path="uphold-config" element={<UpholdConfig />} />
               <Route path="webhooks" element={<Webhooks />} />
               <Route path="webhooks/new" element={<WebhookForm />} />
               <Route path="webhooks/:id/edit" element={<WebhookForm />} />

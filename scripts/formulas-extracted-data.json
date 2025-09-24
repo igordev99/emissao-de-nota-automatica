@@ -1,0 +1,815 @@
+{
+  "title": "Fórmulas e Parâmetros(Administrador)",
+  "url": "http://www.upholdapp.com.br:3000/admin/config/formulas",
+  "tables": [
+    {
+      "index": 0,
+      "headers": [
+        "",
+        "valMin",
+        "valMax",
+        "indice",
+        "fatorRedutor",
+        "issRetidoDAS"
+      ],
+      "rows": [
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      "totalRows": 6
+    },
+    {
+      "index": 1,
+      "headers": [],
+      "rows": [
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      "totalRows": 6
+    }
+  ],
+  "forms": [],
+  "inputs": [
+    {
+      "index": 0,
+      "type": "hidden",
+      "name": "cnpjPrestador",
+      "id": "",
+      "value": "21466182000160",
+      "placeholder": ""
+    },
+    {
+      "index": 1,
+      "type": "select-one",
+      "name": "",
+      "id": "",
+      "value": "0",
+      "placeholder": ""
+    },
+    {
+      "index": 2,
+      "type": "hidden",
+      "name": "idAnexo",
+      "id": "",
+      "value": "1",
+      "placeholder": ""
+    },
+    {
+      "index": 3,
+      "type": "text",
+      "name": "nome",
+      "id": "",
+      "value": "Anexo III",
+      "placeholder": "Preencha com o nome da fórmula..."
+    },
+    {
+      "index": 4,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "on",
+      "placeholder": ""
+    },
+    {
+      "index": 5,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "2",
+      "placeholder": ""
+    },
+    {
+      "index": 6,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": "0,00",
+      "placeholder": ""
+    },
+    {
+      "index": 7,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": "180.000,00",
+      "placeholder": ""
+    },
+    {
+      "index": 8,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": "6,00",
+      "placeholder": ""
+    },
+    {
+      "index": 9,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": "0,00",
+      "placeholder": ""
+    },
+    {
+      "index": 10,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": "33,50",
+      "placeholder": ""
+    },
+    {
+      "index": 11,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "3",
+      "placeholder": ""
+    },
+    {
+      "index": 12,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": "180.000,01",
+      "placeholder": ""
+    },
+    {
+      "index": 13,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": "360.000,00",
+      "placeholder": ""
+    },
+    {
+      "index": 14,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": "11,20",
+      "placeholder": ""
+    },
+    {
+      "index": 15,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": "9.360,00",
+      "placeholder": ""
+    },
+    {
+      "index": 16,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": "32,00",
+      "placeholder": ""
+    },
+    {
+      "index": 17,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "4",
+      "placeholder": ""
+    },
+    {
+      "index": 18,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": "360.000,01",
+      "placeholder": ""
+    },
+    {
+      "index": 19,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": "720.000,00",
+      "placeholder": ""
+    },
+    {
+      "index": 20,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": "13,50",
+      "placeholder": ""
+    },
+    {
+      "index": 21,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": "17.640,00",
+      "placeholder": ""
+    },
+    {
+      "index": 22,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": "32,50",
+      "placeholder": ""
+    },
+    {
+      "index": 23,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "5",
+      "placeholder": ""
+    },
+    {
+      "index": 24,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": "720.000,01",
+      "placeholder": ""
+    },
+    {
+      "index": 25,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": "1.800.000,00",
+      "placeholder": ""
+    },
+    {
+      "index": 26,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": "16,00",
+      "placeholder": ""
+    },
+    {
+      "index": 27,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": "35.640,00",
+      "placeholder": ""
+    },
+    {
+      "index": 28,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": "32,50",
+      "placeholder": ""
+    },
+    {
+      "index": 29,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "6",
+      "placeholder": ""
+    },
+    {
+      "index": 30,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": "1.800.000,01",
+      "placeholder": ""
+    },
+    {
+      "index": 31,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": "3.600.000,00",
+      "placeholder": ""
+    },
+    {
+      "index": 32,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": "21,00",
+      "placeholder": ""
+    },
+    {
+      "index": 33,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": "125.640,00",
+      "placeholder": ""
+    },
+    {
+      "index": 34,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": "33,50",
+      "placeholder": ""
+    },
+    {
+      "index": 35,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "7",
+      "placeholder": ""
+    },
+    {
+      "index": 36,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": "3.600.000,01",
+      "placeholder": ""
+    },
+    {
+      "index": 37,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": "999.999.999.999,99",
+      "placeholder": ""
+    },
+    {
+      "index": 38,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": "33,00",
+      "placeholder": ""
+    },
+    {
+      "index": 39,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": "648.000,00",
+      "placeholder": ""
+    },
+    {
+      "index": 40,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": "0,00",
+      "placeholder": ""
+    },
+    {
+      "index": 41,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "0",
+      "placeholder": ""
+    },
+    {
+      "index": 42,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 43,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 44,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 45,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 46,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 47,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "0",
+      "placeholder": ""
+    },
+    {
+      "index": 48,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 49,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 50,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 51,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 52,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 53,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "0",
+      "placeholder": ""
+    },
+    {
+      "index": 54,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 55,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 56,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 57,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 58,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 59,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "0",
+      "placeholder": ""
+    },
+    {
+      "index": 60,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 61,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 62,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 63,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 64,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 65,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "0",
+      "placeholder": ""
+    },
+    {
+      "index": 66,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 67,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 68,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 69,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 70,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 71,
+      "type": "checkbox",
+      "name": "",
+      "id": "",
+      "value": "0",
+      "placeholder": ""
+    },
+    {
+      "index": 72,
+      "type": "text",
+      "name": "valMin",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 73,
+      "type": "text",
+      "name": "valMax",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 74,
+      "type": "text",
+      "name": "indice",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 75,
+      "type": "text",
+      "name": "fatorRedutor",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 76,
+      "type": "text",
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": ",00",
+      "placeholder": ""
+    },
+    {
+      "index": 77,
+      "type": "button",
+      "name": "",
+      "id": "salvar",
+      "value": "Salvar",
+      "placeholder": ""
+    },
+    {
+      "index": 78,
+      "type": "button",
+      "name": "",
+      "id": "cancelar",
+      "value": "Cancelar",
+      "placeholder": ""
+    }
+  ],
+  "fieldValues": {
+    "valmin_valMin": {
+      "name": "valMin",
+      "id": "",
+      "value": ",00",
+      "type": "text"
+    },
+    "cell_valmin_0.253700520738558": {
+      "text": "valMin",
+      "tag": "TH",
+      "context": "valmin"
+    },
+    "valmax_valMax": {
+      "name": "valMax",
+      "id": "",
+      "value": ",00",
+      "type": "text"
+    },
+    "cell_valmax_0.8172583627817424": {
+      "text": "valMax",
+      "tag": "TH",
+      "context": "valmax"
+    },
+    "indice_indice": {
+      "name": "indice",
+      "id": "",
+      "value": ",00",
+      "type": "text"
+    },
+    "cell_indice_0.7130195085435878": {
+      "text": "indice",
+      "tag": "TH",
+      "context": "indice"
+    },
+    "fator_fatorRedutor": {
+      "name": "fatorRedutor",
+      "id": "",
+      "value": ",00",
+      "type": "text"
+    },
+    "cell_fator_0.10621660787475173": {
+      "text": "fatorRedutor",
+      "tag": "TH",
+      "context": "fator"
+    },
+    "iss_issRetidoDAS": {
+      "name": "issRetidoDAS",
+      "id": "",
+      "value": ",00",
+      "type": "text"
+    },
+    "cell_iss_0.8390102961280277": {
+      "text": "issRetidoDAS",
+      "tag": "TH",
+      "context": "iss"
+    }
+  }
+}

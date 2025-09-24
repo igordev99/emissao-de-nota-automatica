@@ -233,6 +233,10 @@ export async function buildApp() {
   await app.register(clientRoutes, { prefix: '/api' });
   await app.register(supplierRoutes, { prefix: '/api' });
   await app.register(accountRoutes, { prefix: '/api' });
+  
+  // Importar e registrar rotas de configuração do Uphold
+  const { upholdConfigRoutes } = await import('./modules/uphold-config/uphold-config.routes');
+  await app.register(upholdConfigRoutes, { prefix: '/api' });
 
   return app;
 }
