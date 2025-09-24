@@ -6,7 +6,6 @@ import {
   Database, 
   Users,
   Calculator,
-  FileText,
   TrendingUp,
   AlertCircle,
   CheckCircle,

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, FileText, Building2, Download, AlertCircle, CheckCircle } from 'lucide-react';
+import { supplierService } from '../services/suppliers';
+import api from '../services/api';
 
 interface SupplierImport {
   name: string;
@@ -98,27 +100,23 @@ const ImportSuppliers: React.FC = () => {
         throw new Error('Nenhum fornecedor válido encontrado nos dados');
       }
 
-      // Importar para a API
+      // Importar para a API usando o service
       let success = 0;
       for (const supplier of suppliers) {
         try {
-          const response = await fetch('/api/suppliers', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(supplier)
-          });
+          // Converter document para cnpj para usar o supplierService
+          const supplierData = {
+            name: supplier.name,
+            cnpj: supplier.document, // Converter document -> cnpj
+            email: supplier.email,
+            phone: supplier.phone
+          };
 
-          if (response.ok) {
-            success++;
-          } else {
-            const errorText = await response.text();
-            errors.push(`${supplier.name}: ${errorText}`);
-          }
-        } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-          errors.push(`${supplier.name}: Erro de rede - ${errorMessage}`);
+          await supplierService.createSupplier(supplierData);
+          success++;
+        } catch (error: any) {
+          const errorMessage = error.response?.data?.message || error.message || 'Erro desconhecido';
+          errors.push(`${supplier.name}: ${errorMessage}`);
         }
       }
 
@@ -146,57 +144,42 @@ const ImportSuppliers: React.FC = () => {
     const errors: string[] = [];
 
     try {
-      // Chamar o endpoint de extração automática de fornecedores do Uphold
-      const response = await fetch('/api/extract-uphold-suppliers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: 'teste.alfa@teste.com',
-          password: 'Teste@teste@teste123'
-        })
+      // Chamar o endpoint de extração automática de fornecedores do Uphold usando api service
+      const response = await api.post('/api/extract-uphold-suppliers', {
+        email: 'teste.alfa@teste.com',
+        password: 'Teste@teste@teste123'
       });
 
-      if (!response.ok) {
+      if (response.status < 200 || response.status >= 300) {
         throw new Error(`Erro na extração: ${response.statusText}`);
       }
 
-      const extractionResult = await response.json();
+      const extractionResult = response.data;
       
       if (!extractionResult.success || !extractionResult.suppliers || extractionResult.suppliers.length === 0) {
         throw new Error('Nenhum fornecedor foi extraído do sistema Uphold');
       }
 
-      // Importar os fornecedores extraídos
+      // Importar os fornecedores extraídos usando o service
       let success = 0;
       const suppliers = extractionResult.suppliers;
 
       for (const supplier of suppliers) {
         try {
-          const importResponse = await fetch('/api/suppliers', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              name: supplier.name,
-              document: supplier.document,
-              email: supplier.email,
-              phone: supplier.phone,
-              address: supplier.address
-            })
-          });
+          // Converter document para cnpj para usar o supplierService
+          const supplierData = {
+            name: supplier.name,
+            cnpj: supplier.document, // Converter document -> cnpj
+            email: supplier.email,
+            phone: supplier.phone,
+            address: supplier.address
+          };
 
-          if (importResponse.ok) {
-            success++;
-          } else {
-            const errorText = await importResponse.text();
-            errors.push(`${supplier.name}: ${errorText}`);
-          }
-        } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-          errors.push(`${supplier.name}: Erro de importação - ${errorMessage}`);
+          await supplierService.createSupplier(supplierData);
+          success++;
+        } catch (error: any) {
+          const errorMessage = error.response?.data?.message || error.message || 'Erro desconhecido';
+          errors.push(`${supplier.name}: ${errorMessage}`);
         }
       }
 

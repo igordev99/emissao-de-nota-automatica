@@ -13,6 +13,9 @@ import NfseEmit from './pages/NfseEmit';
 import NfseList from './pages/NfseList';
 import SupplierForm from './pages/SupplierForm';
 import Suppliers from './pages/Suppliers';
+import ImportSuppliers from './pages/ImportSuppliers';
+import SystemConfig from './pages/SystemConfig';
+import SystemStatus from './pages/SystemStatus';
 import UpholdConfig from './pages/UpholdConfig';
 import WebhookForm from './pages/WebhookForm';
 import Webhooks from './pages/Webhooks';
@@ -39,7 +42,10 @@ function App() {
               <Route path="suppliers" element={<Suppliers />} />
               <Route path="suppliers/new" element={<SupplierForm />} />
               <Route path="suppliers/:id/edit" element={<SupplierForm />} />
+              <Route path="suppliers/import" element={<ImportSuppliers />} />
               <Route path="uphold-config" element={<UpholdConfig />} />
+              <Route path="system-config" element={<SystemConfig />} />
+              <Route path="system-status" element={<SystemStatus />} />
               <Route path="webhooks" element={<Webhooks />} />
               <Route path="webhooks/new" element={<WebhookForm />} />
               <Route path="webhooks/:id/edit" element={<WebhookForm />} />

@@ -1,12 +1,14 @@
 {
   "version": 2,
-  "buildCommand": "npm run build-minimal",
+  "buildCommand": "npm run build-all",
+  "installCommand": "npm install",
   "functions": {
     "api/nfse-working.mjs": {
       "maxDuration": 30
     }
   },
-  "routes": [
-    { "src": "/(.*)", "dest": "/api/nfse-working.mjs" }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/nfse-working.mjs" },
+    { "source": "/(.*)", "destination": "/ui/dist/index.html" }
   ]
 }
