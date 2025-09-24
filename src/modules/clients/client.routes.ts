@@ -161,4 +161,95 @@ export async function clientRoutes(app: FastifyInstance) {
       message: 'Cliente removido com sucesso'
     });
   });
+
+  // Extração automática do Uphold
+  app.post('/extract-uphold-clients', async (request, reply) => {
+    try {
+      const { email, password } = request.body as z.infer<typeof extractUpholdSchema>;
+
+      // Validar entrada
+      const validation = extractUpholdSchema.safeParse({ email, password });
+      if (!validation.success) {
+        return reply.status(400).send({
+          error: 'VALIDATION_ERROR',
+          message: 'Email e senha são obrigatórios',
+          details: validation.error.issues
+        });
+      }
+
+      // Caminho para o script de extração
+      const scriptPath = path.resolve(process.cwd(), 'scripts', 'extract-clientes-focused.js');
+      
+      // Verificar se o script existe
+      try {
+        await fs.access(scriptPath);
+      } catch {
+        return reply.status(500).send({
+          error: 'SCRIPT_NOT_FOUND',
+          message: 'Script de extração não encontrado'
+        });
+      }
+
+      // Executar o script Puppeteer
+      const { stdout, stderr } = await execFileAsync('node', [scriptPath], {
+        env: {
+          ...process.env,
+          UPHOLD_EMAIL: email,
+          UPHOLD_PASSWORD: password
+        },
+        timeout: 60000 // 1 minuto timeout
+      });
+
+      if (stderr) {
+        app.log.warn({ stderr }, 'Script stderr output');
+      }
+
+      // Tentar parsear o resultado
+      let extractedData;
+      try {
+        // O script pode retornar múltiplas linhas, pegar a última que contém o JSON
+        const lines = stdout.trim().split('\n');
+        const lastLine = lines[lines.length - 1];
+        extractedData = JSON.parse(lastLine);
+      } catch (parseError) {
+        app.log.error(`Failed to parse extraction result: stdout=${stdout}, stderr=${stderr}, error=${parseError}`);
+        return reply.status(500).send({
+          error: 'PARSE_ERROR',
+          message: 'Erro ao processar dados extraídos',
+          debug: stdout
+        });
+      }
+
+      // Transformar dados para o formato esperado
+      const clients = extractedData.clients?.map((client: any) => ({
+        nome: client.nome || client.name || '',
+        email: client.email || '',
+        documento: client.documento || client.document || client.cpfCnpj || '',
+        inscricaoMunicipal: client.inscricaoMunicipal || client.inscricao || ''
+      })) || [];
+
+      return reply.send({
+        success: true,
+        message: `${clients.length} clientes extraídos com sucesso`,
+        clients,
+        extractedAt: new Date().toISOString()
+      });
+
+    } catch (error: any) {
+      app.log.error('Extraction error:', error);
+      
+      if (error.code === 'ETIMEDOUT') {
+        return reply.status(408).send({
+          error: 'TIMEOUT',
+          message: 'Tempo limite excedido na extração'
+        });
+      }
+
+      return reply.status(500).send({
+        error: 'EXTRACTION_ERROR',
+        message: 'Erro durante a extração dos dados',
+        details: error.message
+      });
+    }
+  });
 }

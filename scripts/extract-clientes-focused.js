@@ -14,13 +14,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function extractClientes() {
+  // Obter credenciais das variáveis de ambiente ou usar padrão
+  const email = process.env.UPHOLD_EMAIL || 'teste.alfa@teste.com';
+  const password = process.env.UPHOLD_PASSWORD || 'Teste@teste@teste123';
+  
   console.log('🎯 Extração focada de clientes do Uphold');
   console.log('==========================================');
+  console.log(`👤 Login: ${email}`);
   
   const browser = await puppeteer.launch({
-    headless: false, // Manter visível para acompanhar
+    headless: process.env.NODE_ENV === 'production', // Headless em produção
     defaultViewport: { width: 1400, height: 900 },
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
   });
   
   const page = await browser.newPage();
@@ -34,8 +39,8 @@ async function extractClientes() {
     });
     
     await page.waitForSelector('input[name="username"]', { timeout: 10000 });
-    await page.type('input[name="username"]', 'teste.alfa@teste.com', { delay: 50 });
-    await page.type('input[name="password"]', 'Teste@teste@teste123', { delay: 50 });
+    await page.type('input[name="username"]', email, { delay: 50 });
+    await page.type('input[name="password"]', password, { delay: 50 });
     
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle2' }),
@@ -254,7 +259,15 @@ async function extractClientes() {
     console.log('\n🔍 Mantendo browser aberto por 15 segundos para inspeção...');
     await new Promise(resolve => setTimeout(resolve, 15000));
     
-    return clientes;
+    // Transformar dados para o formato padrão da nossa API
+    const clientesPadronizados = clientes.map(cliente => ({
+      nome: cliente.nome || '',
+      email: cliente.email || '',
+      documento: cliente.documento || cliente.telefone || '', // Pode ser CPF/CNPJ
+      inscricaoMunicipal: cliente.endereco || '' // Usar endereço como fallback
+    })).filter(cliente => cliente.nome && cliente.nome.length > 2);
+    
+    return clientesPadronizados;
     
   } catch (error) {
     console.error('❌ Erro:', error.message);
@@ -266,7 +279,7 @@ async function extractClientes() {
       // Ignorar erro de screenshot
     }
     
-    return [];
+    throw error; // Re-throw para o endpoint capturar
   } finally {
     await browser.close();
   }
@@ -279,20 +292,41 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.log('\n🎉 EXTRAÇÃO FINALIZADA!');
       console.log(`✅ ${clientes.length} clientes extraídos`);
       
+      // Retornar JSON estruturado para o endpoint capturar
+      const result = {
+        success: true,
+        clients: clientes,
+        extractedAt: new Date().toISOString(),
+        count: clientes.length
+      };
+      
+      // Imprimir JSON na última linha para o endpoint capturar
+      console.log(JSON.stringify(result));
+      
       if (clientes.length > 0) {
-        console.log('\n💡 PRÓXIMOS PASSOS:');
-        console.log('1. Copie o conteúdo do arquivo: clientes-uphold-extraidos.json');
-        console.log('2. Acesse: https://ui-d22svifh3-gustavo-fernandes-projects-accf2b27.vercel.app/clients/import');
-        console.log('3. Selecione "JSON" como tipo de importação');
-        console.log('4. Cole os dados e clique em "Importar Clientes"');
+        console.error('\n💡 PRÓXIMOS PASSOS:');
+        console.error('1. Copie o conteúdo do arquivo: clientes-uphold-extraidos.json');
+        console.error('2. Acesse: https://ui-d22svifh3-gustavo-fernandes-projects-accf2b27.vercel.app/clients/import');
+        console.error('3. Selecione "JSON" como tipo de importação');
+        console.error('4. Cole os dados e clique em "Importar Clientes"');
       } else {
-        console.log('\n💡 NENHUM CLIENTE ENCONTRADO:');
-        console.log('- Verifique se você tem permissão para acessar a página de clientes');
-        console.log('- Confira os arquivos HTML e PNG salvos para debug');
-        console.log('- Tente extrair os dados manualmente da página');
+        console.error('\n💡 NENHUM CLIENTE ENCONTRADO:');
+        console.error('- Verifique se você tem permissão para acessar a página de clientes');
+        console.error('- Confira os arquivos HTML e PNG salvos para debug');
+        console.error('- Tente extrair os dados manualmente da página');
       }
     })
-    .catch(console.error);
+    .catch(error => {
+      // Retornar erro estruturado
+      const result = {
+        success: false,
+        error: error.message,
+        clients: [],
+        extractedAt: new Date().toISOString()
+      };
+      console.log(JSON.stringify(result));
+      process.exit(1);
+    });
 }
 
 export default extractClientes;
