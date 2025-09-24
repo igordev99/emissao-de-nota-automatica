@@ -7,6 +7,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ClientForm from './pages/ClientForm';
 import Clients from './pages/Clients';
 import Dashboard from './pages/Dashboard';
+import ImportClients from './pages/ImportClients';
 import Login from './pages/Login';
 import NfseEmit from './pages/NfseEmit';
 import NfseList from './pages/NfseList';
@@ -33,6 +34,7 @@ function App() {
               <Route path="clients" element={<Clients />} />
               <Route path="clients/new" element={<ClientForm />} />
               <Route path="clients/:id/edit" element={<ClientForm />} />
+              <Route path="clients/import" element={<ImportClients />} />
               <Route path="suppliers" element={<Suppliers />} />
               <Route path="suppliers/new" element={<SupplierForm />} />
               <Route path="suppliers/:id/edit" element={<SupplierForm />} />

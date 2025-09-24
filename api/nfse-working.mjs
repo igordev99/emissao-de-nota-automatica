@@ -2,7 +2,7 @@
 import jwt from '@fastify/jwt';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
-import { getCertificateInfo } from './certificate.mjs';
+import { getCertificateInfo } from './certificate-enhanced.mjs';
 import { jobsService } from './jobs-service.mjs';
 
 let cachedApp;
