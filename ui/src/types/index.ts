@@ -99,6 +99,20 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
+export interface ServiceType {
+  id: number;
+  code: string;
+  name: string;
+  issRetido: boolean;
+}
+
+export interface ServiceTypesResponse {
+  success: boolean;
+  serviceTypes: ServiceType[];
+  total: number;
+  extractedAt?: string;
+}
+
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;

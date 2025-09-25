@@ -46,11 +46,42 @@ const ImportSuppliers: React.FC = () => {
     const suppliers: SupplierImport[] = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-      if (values.length >= 2) {
+      const line = lines[i];
+      
+      // Parser mais robusto para CSV que lida com aspas e vírgulas dentro de campos
+      const values: string[] = [];
+      let currentValue = '';
+      let insideQuotes = false;
+      
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j];
+        
+        if (char === '"') {
+          // Alternar estado de dentro/fora das aspas
+          insideQuotes = !insideQuotes;
+        } else if (char === ',' && !insideQuotes) {
+          // Vírgula fora das aspas = separador de campo
+          values.push(currentValue.trim());
+          currentValue = '';
+        } else {
+          // Caractere normal, adicionar ao valor atual
+          currentValue += char;
+        }
+      }
+      
+      // Adicionar o último valor
+      if (currentValue || values.length > 0) {
+        values.push(currentValue.trim());
+      }
+
+      // Só processar se tiver pelo menos nome e documento
+      if (values.length >= 2 && values[0] && values[1]) {
+        // Limpar CNPJ removendo caracteres especiais
+        const cleanDocument = values[1].replace(/[^\d]/g, '');
+        
         suppliers.push({
           name: values[0] || '',
-          document: values[1] || '',
+          document: cleanDocument || values[1], // Use o limpo se possível, senão o original
           email: values[2] || '',
           phone: values[3] || ''
         });
@@ -216,7 +247,7 @@ const ImportSuppliers: React.FC = () => {
     let filename = '';
     
     if (type === 'csv') {
-      content = 'Nome,CNPJ,Email,Telefone\n"ABC FORNECEDORA LTDA","12.345.678/0001-90","contato@abcfornecedora.com.br","(11) 98765-4321"';
+      content = 'Nome,CNPJ,Email,Telefone\n"ABC FORNECEDORA LTDA","12.345.678/0001-90","contato@abcfornecedora.com.br","(11) 98765-4321"\n"XYZ PRESTADORA DE SERVIÇOS LTDA","98.765.432/0001-12","vendas@xyzprestadora.com.br","(11) 12345-6789"';
       filename = 'template-fornecedores.csv';
     } else {
       content = JSON.stringify([{

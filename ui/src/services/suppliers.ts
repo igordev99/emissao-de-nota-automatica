@@ -37,13 +37,27 @@ export const supplierService = {
 
   // Criar fornecedor
   async createSupplier(data: CreateSupplierData): Promise<Supplier> {
-    const response = await api.post('/api/suppliers', data);
+    // Converter cnpj para document para o backend
+    const backendData = {
+      name: data.name,
+      document: data.cnpj, // cnpj -> document
+      email: data.email,
+      phone: data.phone,
+      address: data.address
+    };
+    const response = await api.post('/api/suppliers', backendData);
     return response.data;
   },
 
   // Atualizar fornecedor
   async updateSupplier(id: string, data: Partial<CreateSupplierData>): Promise<Supplier> {
-    const response = await api.put(`/api/suppliers/${id}`, data);
+    // Converter cnpj para document se presente
+    const backendData: any = { ...data };
+    if (data.cnpj) {
+      backendData.document = data.cnpj; // cnpj -> document
+      delete backendData.cnpj;
+    }
+    const response = await api.put(`/api/suppliers/${id}`, backendData);
     return response.data;
   },
 
