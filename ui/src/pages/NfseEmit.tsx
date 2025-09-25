@@ -54,7 +54,6 @@ export default function NfseEmit() {
   const [internalServiceTypes, setInternalServiceTypes] = useState<ServiceType[]>([]);
   const [upholdServiceTypes, setUpholdServiceTypes] = useState<UpholdServiceType[]>([]);
   const [serviceTypesLoading, setServiceTypesLoading] = useState(false);
-  const [useInternalServices, setUseInternalServices] = useState(true);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>('');
   const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string>('');
