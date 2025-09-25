@@ -2,6 +2,9 @@
   "version": 2,
   "buildCommand": "cd ui && npm install && npm run build",
   "outputDirectory": "ui/dist",
+  "installCommand": "echo 'Skipping root install' && cd ui && npm install",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
+  "framework": null,
   "functions": {
     "api/nfse-working.mjs": {
       "maxDuration": 30
