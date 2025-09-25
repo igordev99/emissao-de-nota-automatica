@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import SearchableSelect from '../components/SearchableSelect';
-import { hybridClientService, hybridNfseService, hybridSupplierService } from '../services';
-import { serviceTypeService } from '../services/serviceTypes';
-import type { NfseEmitRequest, Client, Supplier, ServiceType } from '../types';
+import { hybridClientService, hybridNfseService, hybridSupplierService, upholdServiceTypeService, internalServiceTypeService } from '../services';
+import type { NfseEmitRequest, Client, Supplier, ServiceType, UpholdServiceType } from '../types';
 
 interface NfseEmitFormData extends NfseEmitRequest {}
 
@@ -52,8 +51,10 @@ export default function NfseEmit() {
   const [error, setError] = useState<string | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [internalServiceTypes, setInternalServiceTypes] = useState<ServiceType[]>([]);
+  const [upholdServiceTypes, setUpholdServiceTypes] = useState<UpholdServiceType[]>([]);
   const [serviceTypesLoading, setServiceTypesLoading] = useState(false);
+  const [useInternalServices, setUseInternalServices] = useState(true);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>('');
   const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string>('');
@@ -88,9 +89,18 @@ export default function NfseEmit() {
     const loadServiceTypes = async () => {
       setServiceTypesLoading(true);
       try {
-        const response = await serviceTypeService.getServiceTypes();
-        if (response.success) {
-          setServiceTypes(response.serviceTypes);
+        // Carregar tipos internos e externos em paralelo
+        const [internalResponse, upholdResponse] = await Promise.allSettled([
+          internalServiceTypeService.getServiceTypes({ active: true }),
+          upholdServiceTypeService.getServiceTypes()
+        ]);
+
+        if (internalResponse.status === 'fulfilled') {
+          setInternalServiceTypes(internalResponse.value.items);
+        }
+
+        if (upholdResponse.status === 'fulfilled' && upholdResponse.value.success) {
+          setUpholdServiceTypes(upholdResponse.value.serviceTypes);
         }
       } catch (error) {
         console.error('Erro ao carregar tipos de serviço:', error);
@@ -146,11 +156,21 @@ export default function NfseEmit() {
 
   const handleServiceTypeSelect = (serviceTypeId: string) => {
     setSelectedServiceTypeId(serviceTypeId);
-    const serviceType = serviceTypes.find(st => st.id.toString() === serviceTypeId);
+    
+    // Procurar nos tipos internos primeiro, depois nos da Uphold
+    let serviceType = internalServiceTypes.find(st => st.id === serviceTypeId);
+    
     if (serviceType) {
       setValue('serviceCode', serviceType.code);
       setValue('serviceDescription', serviceType.name);
-      setValue('issRetained', serviceType.issRetido);
+      setValue('issRetained', serviceType.issRetained);
+    } else {
+      const upholdType = upholdServiceTypes.find(st => st.id.toString() === serviceTypeId);
+      if (upholdType) {
+        setValue('serviceCode', upholdType.code);
+        setValue('serviceDescription', upholdType.name);
+        setValue('issRetained', upholdType.issRetido);
+      }
     }
   };
 
@@ -187,11 +207,21 @@ export default function NfseEmit() {
     sublabel: supplier.cnpj
   }));
 
-  const serviceTypeOptions = serviceTypes.map(serviceType => ({
-    id: serviceType.id.toString(),
-    label: `${serviceType.code} - ${serviceType.name}`,
-    sublabel: serviceType.issRetido ? 'ISS Retido' : ''
-  }));
+  // Combinar opções de tipos internos e Uphold
+  const serviceTypeOptions = [
+    // Tipos internos (prioritários)
+    ...internalServiceTypes.map(serviceType => ({
+      id: serviceType.id,
+      label: `${serviceType.code} - ${serviceType.name}`,
+      sublabel: `${serviceType.issRetained ? 'ISS Retido' : ''} (Interno)`
+    })),
+    // Tipos da Uphold
+    ...upholdServiceTypes.map(serviceType => ({
+      id: serviceType.id.toString(),
+      label: `${serviceType.code} - ${serviceType.name}`,
+      sublabel: `${serviceType.issRetido ? 'ISS Retido' : ''} (Uphold)`
+    }))
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -280,7 +310,7 @@ export default function NfseEmit() {
                     placeholder={serviceTypesLoading ? 'Carregando tipos de serviço...' : 'Selecione um tipo de serviço...'}
                     onSelect={handleServiceTypeSelect}
                     onClear={clearServiceTypeSelection}
-                    disabled={serviceTypesLoading || serviceTypes.length === 0}
+                    disabled={serviceTypesLoading || serviceTypeOptions.length === 0}
                     label="Tipo de Serviço (Uphold)"
                   />
                   <p className="text-sm text-gray-500">

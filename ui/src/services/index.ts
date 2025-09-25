@@ -29,3 +29,7 @@ export const services = {
   suppliers: hybridSupplierService,
   nfse: hybridNfseService
 };
+
+// Exportar services de tipos de serviço
+export { serviceTypeService as upholdServiceTypeService } from './serviceTypes';
+export { internalServiceTypeService } from './internalServiceTypes';

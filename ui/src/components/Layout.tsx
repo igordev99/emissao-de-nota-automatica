@@ -21,6 +21,7 @@ const navigation = [
   { name: 'Consultar NFS-e', href: '/nfse-list', icon: MagnifyingGlassIcon },
   { name: 'Clientes', href: '/clients', icon: UsersIcon },
   { name: 'Fornecedores', href: '/suppliers', icon: TruckIcon },
+  { name: 'Tipos de Serviço', href: '/service-types', icon: CogIcon },
   { name: 'Config Uphold', href: '/uphold-config', icon: CogIcon },
   { name: 'Configuração', href: '/system-config', icon: CogIcon },
   { name: 'Status Sistema', href: '/system-status', icon: CheckCircleIcon },

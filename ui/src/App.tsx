@@ -14,6 +14,9 @@ import NfseList from './pages/NfseList';
 import SupplierForm from './pages/SupplierForm';
 import Suppliers from './pages/Suppliers';
 import ImportSuppliers from './pages/ImportSuppliers';
+import ServiceTypes from './pages/ServiceTypes';
+import ServiceTypeForm from './pages/ServiceTypeForm';
+import ImportServiceTypes from './pages/ImportServiceTypes';
 import SystemConfig from './pages/SystemConfig';
 import SystemStatus from './pages/SystemStatus';
 import UpholdConfig from './pages/UpholdConfig';
@@ -43,6 +46,10 @@ function App() {
               <Route path="suppliers/new" element={<SupplierForm />} />
               <Route path="suppliers/:id/edit" element={<SupplierForm />} />
               <Route path="suppliers/import" element={<ImportSuppliers />} />
+              <Route path="service-types" element={<ServiceTypes />} />
+              <Route path="service-types/new" element={<ServiceTypeForm />} />
+              <Route path="service-types/:id/edit" element={<ServiceTypeForm />} />
+              <Route path="service-types/import" element={<ImportServiceTypes />} />
               <Route path="uphold-config" element={<UpholdConfig />} />
               <Route path="system-config" element={<SystemConfig />} />
               <Route path="system-status" element={<SystemStatus />} />
