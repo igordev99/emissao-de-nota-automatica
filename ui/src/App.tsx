@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 import Layout from './components/Layout';
 // import './services/debug'; // Debug tools - removido temporariamente
+// App updated: 2024-09-25 - Tipos de Serviço implementados
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import ClientForm from './pages/ClientForm';
