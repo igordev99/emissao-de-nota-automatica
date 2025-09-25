@@ -8,14 +8,7 @@ import { jobsService } from './jobs-service.mjs';
 let cachedApp;
 let cachedPrisma;
 
-// Arrays para simular dados persistentes em memória
-let mockClients = [
-  { id: '1', name: 'Cliente Exemplo', document: '12345678901', email: 'cliente@exemplo.com', phone: '11999999999', createdAt: new Date() }
-];
-
-let mockSuppliers = [
-  { id: '1', name: 'Fornecedor Exemplo', cnpj: '12345678000123', email: 'fornecedor@exemplo.com', phone: '11888888888', createdAt: new Date() }
-];
+// Usar banco de dados real via Prisma - sem arrays em memória
 
 async function getPrisma() {
   if (!cachedPrisma) {
@@ -587,20 +580,20 @@ async function createNfseApp() {
 
       const prisma = await getPrisma();
       
-      // Filtrar clientes se há busca
-      let filteredClients = mockClients;
-      if (search) {
-        const searchLower = search.toLowerCase();
-        filteredClients = mockClients.filter(client => 
-          client.name.toLowerCase().includes(searchLower) ||
-          client.document.includes(search) ||
-          (client.email && client.email.toLowerCase().includes(searchLower))
-        );
-      }
+      // Buscar clientes no banco de dados real
+      const [items, total] = await Promise.all([
+        prisma.client.findMany({
+          where,
+          skip: offset,
+          take: parseInt(pageSize),
+          orderBy: { createdAt: 'desc' }
+        }),
+        prisma.client.count({ where })
+      ]);
 
       return {
-        items: filteredClients.slice(offset, offset + pageSize),
-        total: filteredClients.length,
+        items,
+        total,
         page: parseInt(page),
         pageSize: parseInt(pageSize)
       };
@@ -613,23 +606,17 @@ async function createNfseApp() {
   app.get('/api/clients/:id', async (request, reply) => {
     try {
       const { id } = request.params;
-      const mockClient = { 
-        id, 
-        name: 'Cliente Exemplo', 
-        document: '12345678901', 
-        email: 'cliente@exemplo.com', 
-        phone: '11999999999',
-        address: {
-          street: 'Rua Exemplo',
-          number: '123',
-          neighborhood: 'Centro',
-          city: 'São Paulo',
-          state: 'SP',
-          zipCode: '01000000'
-        },
-        createdAt: new Date() 
-      };
-      return mockClient;
+      const prisma = await getPrisma();
+      
+      const client = await prisma.client.findUnique({
+        where: { id }
+      });
+      
+      if (!client) {
+        return reply.code(404).send({ error: { message: 'Client not found' } });
+      }
+      
+      return client;
     } catch (error) {
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
@@ -638,18 +625,19 @@ async function createNfseApp() {
   app.post('/api/clients', async (request, reply) => {
     try {
       const clientData = request.body;
-      const newClient = {
-        id: Date.now().toString(),
-        ...clientData,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+      const prisma = await getPrisma();
       
-      // Adicionar ao array global
-      mockClients.push(newClient);
+      const newClient = await prisma.client.create({
+        data: {
+          ...clientData,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      });
       
       return reply.code(201).send(newClient);
     } catch (error) {
+      console.error('Error creating client:', error);
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
@@ -658,15 +646,21 @@ async function createNfseApp() {
     try {
       const { id } = request.params;
       const updateData = request.body;
+      const prisma = await getPrisma();
       
-      const updatedClient = {
-        id,
-        ...updateData,
-        updatedAt: new Date()
-      };
+      const updatedClient = await prisma.client.update({
+        where: { id },
+        data: {
+          ...updateData,
+          updatedAt: new Date()
+        }
+      });
       
       return updatedClient;
     } catch (error) {
+      if (error.code === 'P2025') {
+        return reply.code(404).send({ error: { message: 'Client not found' } });
+      }
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
@@ -674,15 +668,17 @@ async function createNfseApp() {
   app.delete('/api/clients/:id', async (request, reply) => {
     try {
       const { id } = request.params;
-      const clientIndex = mockClients.findIndex(c => c.id === id);
+      const prisma = await getPrisma();
       
-      if (clientIndex === -1) {
-        return reply.code(404).send({ error: { message: 'Client not found' } });
-      }
+      await prisma.client.delete({
+        where: { id }
+      });
       
-      mockClients.splice(clientIndex, 1);
       return reply.code(204).send();
     } catch (error) {
+      if (error.code === 'P2025') {
+        return reply.code(404).send({ error: { message: 'Client not found' } });
+      }
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
@@ -693,20 +689,30 @@ async function createNfseApp() {
       const { page = 1, pageSize = 10, search } = request.query;
       const offset = (page - 1) * pageSize;
       
-      // Filtrar fornecedores se há busca
-      let filteredSuppliers = mockSuppliers;
-      if (search) {
-        const searchLower = search.toLowerCase();
-        filteredSuppliers = mockSuppliers.filter(supplier => 
-          supplier.name.toLowerCase().includes(searchLower) ||
-          (supplier.cnpj && supplier.cnpj.includes(search)) ||
-          (supplier.email && supplier.email.toLowerCase().includes(searchLower))
-        );
-      }
+      const where = search ? {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { document: { contains: search } },
+          { email: { contains: search, mode: 'insensitive' } }
+        ]
+      } : {};
+
+      const prisma = await getPrisma();
+      
+      // Buscar fornecedores no banco de dados real
+      const [items, total] = await Promise.all([
+        prisma.supplier.findMany({
+          where,
+          skip: offset,
+          take: parseInt(pageSize),
+          orderBy: { createdAt: 'desc' }
+        }),
+        prisma.supplier.count({ where })
+      ]);
 
       return {
-        items: filteredSuppliers.slice(offset, offset + pageSize),
-        total: filteredSuppliers.length,
+        items,
+        total,
         page: parseInt(page),
         pageSize: parseInt(pageSize)
       };
@@ -719,23 +725,17 @@ async function createNfseApp() {
   app.get('/api/suppliers/:id', async (request, reply) => {
     try {
       const { id } = request.params;
-      const mockSupplier = { 
-        id, 
-        name: 'Fornecedor Exemplo', 
-        cnpj: '12345678000123', 
-        email: 'fornecedor@exemplo.com', 
-        phone: '11888888888',
-        address: {
-          street: 'Av. Fornecedor',
-          number: '456',
-          neighborhood: 'Comercial',
-          city: 'São Paulo',
-          state: 'SP',
-          zipCode: '02000000'
-        },
-        createdAt: new Date() 
-      };
-      return mockSupplier;
+      const prisma = await getPrisma();
+      
+      const supplier = await prisma.supplier.findUnique({
+        where: { id }
+      });
+      
+      if (!supplier) {
+        return reply.code(404).send({ error: { message: 'Supplier not found' } });
+      }
+      
+      return supplier;
     } catch (error) {
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
@@ -744,18 +744,19 @@ async function createNfseApp() {
   app.post('/api/suppliers', async (request, reply) => {
     try {
       const supplierData = request.body;
-      const newSupplier = {
-        id: Date.now().toString(),
-        ...supplierData,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+      const prisma = await getPrisma();
       
-      // Adicionar ao array global
-      mockSuppliers.push(newSupplier);
+      const newSupplier = await prisma.supplier.create({
+        data: {
+          ...supplierData,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      });
       
       return reply.code(201).send(newSupplier);
     } catch (error) {
+      console.error('Error creating supplier:', error);
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
@@ -764,21 +765,41 @@ async function createNfseApp() {
     try {
       const { id } = request.params;
       const updateData = request.body;
+      const prisma = await getPrisma();
       
-      const updatedSupplier = {
-        id,
-        ...updateData,
-        updatedAt: new Date()
-      };
+      const updatedSupplier = await prisma.supplier.update({
+        where: { id },
+        data: {
+          ...updateData,
+          updatedAt: new Date()
+        }
+      });
       
       return updatedSupplier;
     } catch (error) {
+      if (error.code === 'P2025') {
+        return reply.code(404).send({ error: { message: 'Supplier not found' } });
+      }
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
 
   app.delete('/api/suppliers/:id', async (request, reply) => {
-    return reply.code(204).send();
+    try {
+      const { id } = request.params;
+      const prisma = await getPrisma();
+      
+      await prisma.supplier.delete({
+        where: { id }
+      });
+      
+      return reply.code(204).send();
+    } catch (error) {
+      if (error.code === 'P2025') {
+        return reply.code(404).send({ error: { message: 'Supplier not found' } });
+      }
+      return reply.code(500).send({ error: { message: 'Internal server error' } });
+    }
   });
 
   return app;
