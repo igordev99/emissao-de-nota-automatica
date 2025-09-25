@@ -1,20 +1,23 @@
-// API NFSe no Vercel Serverless
+// API NFSe no Vercel Serverless com Supabase
 import jwt from '@fastify/jwt';
 import Fastify from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import { createClient } from '@supabase/supabase-js';
 import { getCertificateInfo } from './certificate-enhanced.mjs';
 import { jobsService } from './jobs-service.mjs';
 
 let cachedApp;
-let cachedPrisma;
+let cachedSupabase;
 
-// Usar banco de dados real via Prisma - sem arrays em memória
+// Usar Supabase direto - sem dependências Prisma complexas
 
-async function getPrisma() {
-  if (!cachedPrisma) {
-    cachedPrisma = new PrismaClient();
+function getSupabase() {
+  if (!cachedSupabase) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ctrkdpeqiwxkvvwymipi.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0cmtkcGVxaXd4a3Z2d3ltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NjgzNjQsImV4cCI6MjA3NDE0NDM2NH0.TC8ZqqF9EIR7oHg26qDOSSvZKj5IDCma8Ti8d6tqFMQ';
+    
+    cachedSupabase = createClient(supabaseUrl, supabaseKey);
   }
-  return cachedPrisma;
+  return cachedSupabase;
 }
 
 async function createNfseApp() {
@@ -46,8 +49,14 @@ async function createNfseApp() {
 
   app.get('/health/db', async () => {
     try {
-      const prisma = await getPrisma();
-      await prisma.$queryRaw`SELECT 1`;
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from('Client')
+        .select('id')
+        .limit(1);
+        
+      if (error) throw error;
+      
       return {
         status: 'ok',
         database: 'connected',
@@ -123,11 +132,17 @@ async function createNfseApp() {
 
     // Test Database
     try {
-      const prisma = await getPrisma();
-      await prisma.$queryRaw`SELECT 1`;
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from('Client')
+        .select('id')
+        .limit(1);
+        
+      if (error) throw error;
+        
       result.components.database = {
         status: 'healthy',
-        message: 'Connected to database'
+        message: 'Connected to Supabase database'
       };
     } catch (error) {
       result.components.database = {
@@ -363,49 +378,49 @@ async function createNfseApp() {
         });
       }
 
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
       // Parâmetros de query básicos
       const page = Math.max(1, Number(request.query.page || 1));
       const pageSize = Math.min(100, Math.max(1, Number(request.query.pageSize || 20)));
-      const skip = (page - 1) * pageSize;
+      const offset = (page - 1) * pageSize;
       
-      // Filtros básicos
-      const where = {};
+      // Construir query base
+      let query = supabase
+        .from('Invoice')
+        .select(`
+          id,
+          status,
+          rpsNumber,
+          rpsSeries,
+          issueDate,
+          providerCnpj,
+          customerDoc,
+          serviceAmount,
+          nfseNumber
+        `, { count: 'exact' })
+        .order('createdAt', { ascending: false })
+        .range(offset, offset + pageSize - 1);
+      
+      // Aplicar filtros
       if (request.query.status) {
-        where.status = request.query.status;
+        query = query.eq('status', request.query.status);
       }
       if (request.query.providerCnpj) {
-        where.providerCnpj = request.query.providerCnpj;
+        query = query.eq('providerCnpj', request.query.providerCnpj);
       }
       
-      // Buscar invoices
-      const [items, total] = await Promise.all([
-        prisma.invoice.findMany({
-          where,
-          skip,
-          take: pageSize,
-          orderBy: { createdAt: 'desc' },
-          select: {
-            id: true,
-            status: true,
-            rpsNumber: true,
-            rpsSeries: true,
-            issueDate: true,
-            providerCnpj: true,
-            customerDoc: true,
-            serviceAmount: true,
-            nfseNumber: true
-          }
-        }),
-        prisma.invoice.count({ where })
-      ]);
+      const { data: items, count: total, error } = await query;
+      
+      if (error) {
+        throw error;
+      }
       
       return {
         page,
         pageSize,
-        total,
-        items
+        total: total || 0,
+        items: items || []
       };
     } catch (error) {
       console.error('Error listing invoices:', error);
@@ -432,20 +447,25 @@ async function createNfseApp() {
         });
       }
 
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       const id = request.params.id;
       
-      const invoice = await prisma.invoice.findUnique({
-        where: { id },
-        select: {
-          id: true,
-          status: true,
-          nfseNumber: true,
-          verificationCode: true,
-          cancelReason: true,
-          canceledAt: true
-        }
-      });
+      const { data: invoice, error } = await supabase
+        .from('Invoice')
+        .select(`
+          id,
+          status,
+          nfseNumber,
+          verificationCode,
+          cancelReason,
+          canceledAt
+        `)
+        .eq('id', id)
+        .single();
+      
+      if (error) {
+        throw error;
+      }
       
       if (!invoice) {
         return reply.status(404).send({
@@ -485,10 +505,15 @@ async function createNfseApp() {
     reply.type('text/plain; version=0.0.4; charset=utf-8');
     
     try {
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
       // Verificar conexão com banco
-      await prisma.$queryRaw`SELECT 1`;
+      const { error: connectionError } = await supabase
+        .from('Invoice')
+        .select('id')
+        .limit(1);
+        
+      if (connectionError) throw connectionError;
       
       // Coletar métricas básicas (safe mode)
       let totalInvoices = 0;
@@ -498,22 +523,29 @@ async function createNfseApp() {
       let recentErrors = 0;
       
       try {
-        totalInvoices = await prisma.invoice.count();
-        pendingInvoices = await prisma.invoice.count({ where: { status: 'PENDING' } });
-        completedInvoices = await prisma.invoice.count({ where: { status: 'COMPLETED' } });
-        rejectedInvoices = await prisma.invoice.count({ where: { status: 'REJECTED' } });
+        const { count: total } = await supabase.from('Invoice').select('*', { count: 'exact', head: true });
+        const { count: pending } = await supabase.from('Invoice').select('*', { count: 'exact', head: true }).eq('status', 'PENDING');
+        const { count: completed } = await supabase.from('Invoice').select('*', { count: 'exact', head: true }).eq('status', 'COMPLETED');
+        const { count: rejected } = await supabase.from('Invoice').select('*', { count: 'exact', head: true }).eq('status', 'REJECTED');
+        
+        totalInvoices = total || 0;
+        pendingInvoices = pending || 0;
+        completedInvoices = completed || 0;
+        rejectedInvoices = rejected || 0;
       } catch (e) {
         // Tabela invoice pode não existir ainda
         console.log('Invoice table not found, using defaults');
       }
       
       try {
-        recentErrors = await prisma.logEntry.count({ 
-          where: { 
-            level: 'ERROR',
-            createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-          } 
-        });
+        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { count: errors } = await supabase
+          .from('LogEntry')
+          .select('*', { count: 'exact', head: true })
+          .eq('level', 'ERROR')
+          .gte('createdAt', yesterday);
+          
+        recentErrors = errors || 0;
       } catch (e) {
         // Tabela logEntry pode não existir ainda
         console.log('LogEntry table not found, using defaults');
@@ -570,30 +602,30 @@ async function createNfseApp() {
       const { page = 1, pageSize = 10, search } = request.query;
       const offset = (page - 1) * pageSize;
       
-      const where = search ? {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { document: { contains: search } },
-          { email: { contains: search, mode: 'insensitive' } }
-        ]
-      } : {};
-
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
-      // Buscar clientes no banco de dados real
-      const [items, total] = await Promise.all([
-        prisma.client.findMany({
-          where,
-          skip: offset,
-          take: parseInt(pageSize),
-          orderBy: { createdAt: 'desc' }
-        }),
-        prisma.client.count({ where })
-      ]);
+      // Query builder para clientes
+      let query = supabase
+        .from('Client')
+        .select('*', { count: 'exact' })
+        .range(offset, offset + parseInt(pageSize) - 1)
+        .order('createdAt', { ascending: false });
+      
+      // Adicionar filtro de busca se necessário
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,document.ilike.%${search}%,email.ilike.%${search}%`);
+      }
+
+      const { data: items, error, count: total } = await query;
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        return reply.code(500).send({ error: { message: 'Database error' } });
+      }
 
       return {
-        items,
-        total,
+        items: items || [],
+        total: total || 0,
         page: parseInt(page),
         pageSize: parseInt(pageSize)
       };
@@ -606,13 +638,15 @@ async function createNfseApp() {
   app.get('/api/clients/:id', async (request, reply) => {
     try {
       const { id } = request.params;
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
-      const client = await prisma.client.findUnique({
-        where: { id }
-      });
+      const { data: client, error } = await supabase
+        .from('Client')
+        .select('*')
+        .eq('id', id)
+        .single();
       
-      if (!client) {
+      if (error || !client) {
         return reply.code(404).send({ error: { message: 'Client not found' } });
       }
       
@@ -624,20 +658,20 @@ async function createNfseApp() {
 
   app.post('/api/clients', async (request, reply) => {
     try {
-      const clientData = request.body;
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
-      const newClient = await prisma.client.create({
-        data: {
-          ...clientData,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
-      });
+      const { data: client, error } = await supabase
+        .from('Client')
+        .insert([request.body])
+        .select()
+        .single();
       
-      return reply.code(201).send(newClient);
+      if (error) {
+        return reply.code(400).send({ error: { message: error.message } });
+      }
+      
+      return client;
     } catch (error) {
-      console.error('Error creating client:', error);
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
@@ -646,21 +680,28 @@ async function createNfseApp() {
     try {
       const { id } = request.params;
       const updateData = request.body;
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
-      const updatedClient = await prisma.client.update({
-        where: { id },
-        data: {
+      const { data: updatedClient, error } = await supabase
+        .from('Client')
+        .update({
           ...updateData,
-          updatedAt: new Date()
-        }
-      });
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        return reply.code(400).send({ error: { message: error.message } });
+      }
+      
+      if (!updatedClient) {
+        return reply.code(404).send({ error: { message: 'Client not found' } });
+      }
       
       return updatedClient;
     } catch (error) {
-      if (error.code === 'P2025') {
-        return reply.code(404).send({ error: { message: 'Client not found' } });
-      }
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
@@ -668,17 +709,156 @@ async function createNfseApp() {
   app.delete('/api/clients/:id', async (request, reply) => {
     try {
       const { id } = request.params;
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
-      await prisma.client.delete({
-        where: { id }
-      });
+      const { error } = await supabase
+        .from('Client')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        return reply.code(400).send({ error: { message: error.message } });
+      }
       
       return reply.code(204).send();
     } catch (error) {
-      if (error.code === 'P2025') {
-        return reply.code(404).send({ error: { message: 'Client not found' } });
+      return reply.code(500).send({ error: { message: 'Internal server error' } });
+    }
+  });
+
+  // Endpoints de Tipos de Serviço
+  app.get('/api/service-types', async (request, reply) => {
+    try {
+      const { page = 1, pageSize = 10, search, active = 'true' } = request.query;
+      const offset = (page - 1) * pageSize;
+      
+      const supabase = getSupabase();
+      
+      // Query builder para tipos de serviço
+      let query = supabase
+        .from('ServiceType')
+        .select('*', { count: 'exact' })
+        .range(offset, offset + parseInt(pageSize) - 1)
+        .order('createdAt', { ascending: false });
+      
+      // Filtrar apenas ativos por padrão
+      if (active !== 'all') {
+        query = query.eq('active', active === 'true');
       }
+      
+      // Adicionar filtro de busca se necessário
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,code.ilike.%${search}%,description.ilike.%${search}%`);
+      }
+
+      const { data: items, error, count: total } = await query;
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        return reply.code(500).send({ error: { message: 'Database error' } });
+      }
+
+      return {
+        items: items || [],
+        total: total || 0,
+        page: parseInt(page),
+        pageSize: parseInt(pageSize)
+      };
+    } catch (error) {
+      console.error('Error fetching service types:', error);
+      return reply.code(500).send({ error: { message: 'Internal server error' } });
+    }
+  });
+
+  app.get('/api/service-types/:id', async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const supabase = getSupabase();
+      
+      const { data: serviceType, error } = await supabase
+        .from('ServiceType')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error || !serviceType) {
+        return reply.code(404).send({ error: { message: 'Service type not found' } });
+      }
+      
+      return serviceType;
+    } catch (error) {
+      return reply.code(500).send({ error: { message: 'Internal server error' } });
+    }
+  });
+
+  app.post('/api/service-types', async (request, reply) => {
+    try {
+      const { code, name, description, issRetained = false, active = true } = request.body;
+      const supabase = getSupabase();
+      
+      const { data: serviceType, error } = await supabase
+        .from('ServiceType')
+        .insert({ code, name, description, issRetained, active })
+        .select()
+        .single();
+      
+      if (error) {
+        return reply.code(400).send({ error: { message: error.message } });
+      }
+      
+      return serviceType;
+    } catch (error) {
+      return reply.code(500).send({ error: { message: 'Internal server error' } });
+    }
+  });
+
+  app.put('/api/service-types/:id', async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const { code, name, description, issRetained, active } = request.body;
+      const supabase = getSupabase();
+      
+      const updateData = {};
+      if (code !== undefined) updateData.code = code;
+      if (name !== undefined) updateData.name = name;
+      if (description !== undefined) updateData.description = description;
+      if (issRetained !== undefined) updateData.issRetained = issRetained;
+      if (active !== undefined) updateData.active = active;
+      updateData.updatedAt = new Date().toISOString();
+      
+      const { data: serviceType, error } = await supabase
+        .from('ServiceType')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        return reply.code(400).send({ error: { message: error.message } });
+      }
+      
+      return serviceType;
+    } catch (error) {
+      return reply.code(500).send({ error: { message: 'Internal server error' } });
+    }
+  });
+
+  app.delete('/api/service-types/:id', async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const supabase = getSupabase();
+      
+      const { error } = await supabase
+        .from('ServiceType')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        return reply.code(400).send({ error: { message: error.message } });
+      }
+      
+      return reply.code(204).send();
+    } catch (error) {
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
@@ -688,31 +868,30 @@ async function createNfseApp() {
     try {
       const { page = 1, pageSize = 10, search } = request.query;
       const offset = (page - 1) * pageSize;
+      const supabase = getSupabase();
       
-      const where = search ? {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { document: { contains: search } },
-          { email: { contains: search, mode: 'insensitive' } }
-        ]
-      } : {};
-
-      const prisma = await getPrisma();
+      // Construir a query
+      let query = supabase
+        .from('Supplier')
+        .select('*', { count: 'exact' })
+        .order('createdAt', { ascending: false })
+        .range(offset, offset + parseInt(pageSize) - 1);
       
-      // Buscar fornecedores no banco de dados real
-      const [items, total] = await Promise.all([
-        prisma.supplier.findMany({
-          where,
-          skip: offset,
-          take: parseInt(pageSize),
-          orderBy: { createdAt: 'desc' }
-        }),
-        prisma.supplier.count({ where })
-      ]);
+      // Adicionar filtro de busca se especificado
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,document.ilike.%${search}%,email.ilike.%${search}%`);
+      }
+      
+      const { data: items, count: total, error } = await query;
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        return reply.code(500).send({ error: { message: 'Database error' } });
+      }
 
       return {
-        items,
-        total,
+        items: items || [],
+        total: total || 0,
         page: parseInt(page),
         pageSize: parseInt(pageSize)
       };
@@ -725,13 +904,15 @@ async function createNfseApp() {
   app.get('/api/suppliers/:id', async (request, reply) => {
     try {
       const { id } = request.params;
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
-      const supplier = await prisma.supplier.findUnique({
-        where: { id }
-      });
+      const { data: supplier, error } = await supabase
+        .from('Supplier')
+        .select('*')
+        .eq('id', id)
+        .single();
       
-      if (!supplier) {
+      if (error || !supplier) {
         return reply.code(404).send({ error: { message: 'Supplier not found' } });
       }
       
@@ -744,15 +925,22 @@ async function createNfseApp() {
   app.post('/api/suppliers', async (request, reply) => {
     try {
       const supplierData = request.body;
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
-      const newSupplier = await prisma.supplier.create({
-        data: {
+      const { data: newSupplier, error } = await supabase
+        .from('Supplier')
+        .insert([{
           ...supplierData,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
-      });
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }])
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        return reply.code(400).send({ error: { message: error.message } });
+      }
       
       return reply.code(201).send(newSupplier);
     } catch (error) {
@@ -765,21 +953,28 @@ async function createNfseApp() {
     try {
       const { id } = request.params;
       const updateData = request.body;
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
-      const updatedSupplier = await prisma.supplier.update({
-        where: { id },
-        data: {
+      const { data: updatedSupplier, error } = await supabase
+        .from('Supplier')
+        .update({
           ...updateData,
-          updatedAt: new Date()
-        }
-      });
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        return reply.code(400).send({ error: { message: error.message } });
+      }
+      
+      if (!updatedSupplier) {
+        return reply.code(404).send({ error: { message: 'Supplier not found' } });
+      }
       
       return updatedSupplier;
     } catch (error) {
-      if (error.code === 'P2025') {
-        return reply.code(404).send({ error: { message: 'Supplier not found' } });
-      }
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
@@ -787,17 +982,19 @@ async function createNfseApp() {
   app.delete('/api/suppliers/:id', async (request, reply) => {
     try {
       const { id } = request.params;
-      const prisma = await getPrisma();
+      const supabase = getSupabase();
       
-      await prisma.supplier.delete({
-        where: { id }
-      });
+      const { error } = await supabase
+        .from('Supplier')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        return reply.code(400).send({ error: { message: error.message } });
+      }
       
       return reply.code(204).send();
     } catch (error) {
-      if (error.code === 'P2025') {
-        return reply.code(404).send({ error: { message: 'Supplier not found' } });
-      }
       return reply.code(500).send({ error: { message: 'Internal server error' } });
     }
   });
@@ -835,3 +1032,6 @@ export default async function handler(req, res) {
     });
   }
 }
+
+// Exportar também a função para testes
+export { createNfseApp };
