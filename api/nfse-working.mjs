@@ -748,7 +748,7 @@ async function createNfseApp() {
       
       // Adicionar filtro de busca se necessário
       if (search) {
-        query = query.or(`name.ilike.%${search}%,code.ilike.%${search}%,description.ilike.%${search}%`);
+        query = query.or(`name.ilike.%${search}%,code.ilike.%${search}%`);
       }
 
       const { data: items, error, count: total } = await query;
@@ -793,12 +793,12 @@ async function createNfseApp() {
 
   app.post('/api/service-types', async (request, reply) => {
     try {
-      const { code, name, description, issRetained = false, active = true } = request.body;
+      const { code, name, issRetained = false, active = true } = request.body;
       const supabase = getSupabase();
       
       const { data: serviceType, error } = await supabase
         .from('ServiceType')
-        .insert({ code, name, description, issRetained, active })
+        .insert({ code, name, issRetained, active })
         .select()
         .single();
       
@@ -815,13 +815,12 @@ async function createNfseApp() {
   app.put('/api/service-types/:id', async (request, reply) => {
     try {
       const { id } = request.params;
-      const { code, name, description, issRetained, active } = request.body;
+      const { code, name, issRetained, active } = request.body;
       const supabase = getSupabase();
       
       const updateData = {};
       if (code !== undefined) updateData.code = code;
       if (name !== undefined) updateData.name = name;
-      if (description !== undefined) updateData.description = description;
       if (issRetained !== undefined) updateData.issRetained = issRetained;
       if (active !== undefined) updateData.active = active;
       updateData.updatedAt = new Date().toISOString();
