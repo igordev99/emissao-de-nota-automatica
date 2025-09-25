@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build-all",
-  "installCommand": "npm install",
+  "buildCommand": "cd ui && npm install && npm run build",
+  "outputDirectory": "ui/dist",
   "functions": {
     "api/nfse-working.mjs": {
       "maxDuration": 30
@@ -9,6 +9,6 @@
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/nfse-working.mjs" },
-    { "source": "/(.*)", "destination": "/ui/dist/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
