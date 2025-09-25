@@ -11,7 +11,6 @@ interface GetServiceTypesParams {
 interface CreateServiceTypeData {
   code: string;
   name: string;
-  description?: string;
   issRetained?: boolean;
   active?: boolean;
 }

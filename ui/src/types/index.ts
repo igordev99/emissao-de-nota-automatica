@@ -119,7 +119,6 @@ export interface ServiceType {
   id: string;
   code: string;
   name: string;
-  description?: string;
   issRetained: boolean;
   active: boolean;
   createdAt: string;

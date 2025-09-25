@@ -218,14 +218,7 @@ export default function ServiceTypes() {
                             {serviceType.code}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-900">
-                            <div>
-                              <div className="font-medium">{serviceType.name}</div>
-                              {serviceType.description && (
-                                <div className="text-gray-500 text-xs mt-1">
-                                  {serviceType.description}
-                                </div>
-                              )}
-                            </div>
+                            <div className="font-medium">{serviceType.name}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

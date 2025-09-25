@@ -7,7 +7,6 @@ import { internalServiceTypeService } from '../services';
 interface ServiceTypeImport {
   code: string;
   name: string;
-  description?: string;
   issRetained?: boolean;
   active?: boolean;
 }
@@ -29,21 +28,18 @@ const ImportServiceTypes: React.FC = () => {
     {
       code: "01.01",
       name: "Análise e desenvolvimento de sistemas",
-      description: "Serviços de análise e desenvolvimento de sistemas de informação",
       issRetained: false,
       active: true
     },
     {
       code: "01.02", 
       name: "Programação",
-      description: "Serviços de programação de software",
       issRetained: false,
       active: true
     },
     {
       code: "02.01",
       name: "Serviços de pesquisas e desenvolvimento",
-      description: "Pesquisa e desenvolvimento experimental em ciências físicas e naturais",
       issRetained: true,
       active: true
     }
@@ -62,9 +58,8 @@ const ImportServiceTypes: React.FC = () => {
         serviceTypes.push({
           code: values[0] || '',
           name: values[1] || '',
-          description: values[2] || '',
-          issRetained: values[3]?.toLowerCase() === 'true' || values[3]?.toLowerCase() === 'sim',
-          active: values[4]?.toLowerCase() !== 'false' && values[4]?.toLowerCase() !== 'não' // Default true
+          issRetained: values[2]?.toLowerCase() === 'true' || values[2]?.toLowerCase() === 'sim',
+          active: values[3]?.toLowerCase() !== 'false' && values[3]?.toLowerCase() !== 'não' // Default true
         });
       }
     }
@@ -123,10 +118,10 @@ const ImportServiceTypes: React.FC = () => {
   };
 
   const generateCSVTemplate = () => {
-    const csvContent = 'codigo,nome,descricao,iss_retido,ativo\n' +
-      '01.01,Análise e desenvolvimento de sistemas,Serviços de análise e desenvolvimento de sistemas,false,true\n' +
-      '01.02,Programação,Serviços de programação de software,false,true\n' +
-      '02.01,Serviços de pesquisas,Pesquisa e desenvolvimento experimental,true,true';
+    const csvContent = 'codigo,nome,iss_retido,ativo\n' +
+      '01.01,Análise e desenvolvimento de sistemas,false,true\n' +
+      '01.02,Programação,false,true\n' +
+      '02.01,Serviços de pesquisas,true,true';
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -145,10 +140,9 @@ const ImportServiceTypes: React.FC = () => {
   };
 
   const csvInstructions = [
-    "Formato: codigo,nome,descricao,iss_retido,ativo",
+    "Formato: codigo,nome,iss_retido,ativo",
     "Código: Código único do serviço (ex: 01.01)",
     "Nome: Nome descritivo do serviço",
-    "Descrição: Descrição detalhada (opcional)",
     "ISS Retido: true/false ou sim/não",
     "Ativo: true/false ou sim/não (padrão: true)"
   ];
@@ -157,7 +151,6 @@ const ImportServiceTypes: React.FC = () => {
     "Array de objetos com propriedades:",
     "code (string): Código único do serviço",
     "name (string): Nome do serviço", 
-    "description (string, opcional): Descrição detalhada",
     "issRetained (boolean, opcional): ISS retido na fonte",
     "active (boolean, opcional): Se o tipo está ativo (padrão: true)"
   ];
@@ -309,8 +302,8 @@ const ImportServiceTypes: React.FC = () => {
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
                 placeholder={
                   importType === 'csv'
-                    ? 'codigo,nome,descricao,iss_retido,ativo\n01.01,Análise de sistemas,Desenvolvimento de software,false,true'
-                    : '[\n  {\n    "code": "01.01",\n    "name": "Análise de sistemas",\n    "description": "Desenvolvimento de software",\n    "issRetained": false,\n    "active": true\n  }\n]'
+                    ? 'codigo,nome,iss_retido,ativo\n01.01,Análise de sistemas,false,true'
+                    : '[\n  {\n    "code": "01.01",\n    "name": "Análise de sistemas",\n    "issRetained": false,\n    "active": true\n  }\n]'
                 }
               />
             </div>
