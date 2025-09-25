@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import SearchableSelect from '../components/SearchableSelect';
-import { clientService } from '../services/clients';
-import { nfseService } from '../services/nfse';
-import { supplierService } from '../services/suppliers';
+import { hybridClientService, hybridNfseService, hybridSupplierService } from '../services';
 import { serviceTypeService } from '../services/serviceTypes';
 import type { NfseEmitRequest, Client, Supplier, ServiceType } from '../types';
 
@@ -73,8 +71,8 @@ export default function NfseEmit() {
     const loadData = async () => {
       try {
         const [clientsData, suppliersData] = await Promise.all([
-          clientService.getClients(),
-          supplierService.getSuppliers()
+          hybridClientService.getClients(),
+          hybridSupplierService.getSuppliers()
         ]);
         setClients(clientsData.items);
         setSuppliers(suppliersData.items);
@@ -109,7 +107,7 @@ export default function NfseEmit() {
     setSuccess(false);
 
     try {
-      await nfseService.emitNfse(data);
+      await hybridNfseService.emitNfse(data);
       setSuccess(true);
       reset();
       setSelectedClientId('');

@@ -7,7 +7,7 @@ import {
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { supplierService } from '../services/suppliers';
+import { hybridSupplierService } from '../services';
 import type { Supplier, PaginatedResponse } from '../types';
 
 export default function Suppliers() {
@@ -20,7 +20,7 @@ export default function Suppliers() {
   const loadSuppliers = async (page = 1, searchTerm = '') => {
     try {
       setLoading(true);
-      const data = await supplierService.getSuppliers({
+      const data = await hybridSupplierService.getSuppliers({
         page,
         pageSize: 10,
         search: searchTerm || undefined
@@ -48,7 +48,7 @@ export default function Suppliers() {
 
     try {
       setDeleteLoading(id);
-      await supplierService.deleteSupplier(id);
+      await hybridSupplierService.deleteSupplier(id);
       loadSuppliers(currentPage, search);
     } catch (error) {
       console.error('Erro ao excluir fornecedor:', error);

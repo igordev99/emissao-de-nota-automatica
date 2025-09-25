@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { nfseService } from '../services/nfse';
+import { hybridNfseService } from '../services';
 import api from '../services/api';
 import type { NfseStats } from '../types';
 
@@ -24,7 +24,7 @@ export default function Dashboard() {
     const loadData = async () => {
       try {
         // Carregar estatísticas
-        const statsData = await nfseService.getStats();
+        const statsData = await hybridNfseService.getStats();
         setStats(statsData);
 
         // Tentar carregar health do sistema

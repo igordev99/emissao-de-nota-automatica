@@ -8,7 +8,7 @@ import {
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { clientService } from '../services/clients';
+import { hybridClientService } from '../services';
 import type { Client, PaginatedResponse } from '../types';
 
 export default function Clients() {
@@ -21,7 +21,7 @@ export default function Clients() {
   const loadClients = async (page = 1, searchTerm = '') => {
     try {
       setLoading(true);
-      const data = await clientService.getClients({
+      const data = await hybridClientService.getClients({
         page,
         pageSize: 10,
         search: searchTerm || undefined
@@ -49,7 +49,7 @@ export default function Clients() {
 
     try {
       setDeleteLoading(id);
-      await clientService.deleteClient(id);
+      await hybridClientService.deleteClient(id);
       loadClients(currentPage, search);
     } catch (error) {
       console.error('Erro ao excluir cliente:', error);

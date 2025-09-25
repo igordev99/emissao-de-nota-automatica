@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { supplierService } from '../services/suppliers';
-import type { CreateSupplierData } from '../services/suppliers';
+import { hybridSupplierService } from '../services';
+import type { CreateSupplierData } from '../services/suppliers-supabase';
 
 interface SupplierFormData extends CreateSupplierData {}
 
@@ -28,7 +28,7 @@ export default function SupplierForm() {
     if (isEditing) {
       const loadSupplier = async () => {
         try {
-          const supplier = await supplierService.getSupplierById(id!);
+          const supplier = await hybridSupplierService.getSupplierById(id!);
           reset({
             name: supplier.name,
             cnpj: supplier.cnpj,
@@ -53,9 +53,9 @@ export default function SupplierForm() {
 
     try {
       if (isEditing) {
-        await supplierService.updateSupplier(id!, data);
+        await hybridSupplierService.updateSupplier(id!, data);
       } else {
-        await supplierService.createSupplier(data);
+        await hybridSupplierService.createSupplier(data);
       }
       navigate('/suppliers');
     } catch (error: any) {
