@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "cd ui && npm ci && npm run build",
+  "buildCommand": "cd ui && npm ci --include=dev && npm run build",
   "outputDirectory": "ui/dist",
-  "installCommand": "cd ui && npm ci",
+  "installCommand": "cd ui && npm ci --include=dev",
   "framework": null,
   "functions": {
     "api/nfse-working.mjs": {
