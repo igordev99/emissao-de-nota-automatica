@@ -1,15 +1,18 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import type { User, Session } from '@supabase/supabase-js';
 
-import { authService } from '../services/auth';
-import type { User } from '../services/auth';
+import supabaseAuthService, { type LoginCredentials, type RegisterData } from '../services/supabaseAuth';
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (sub?: string) => Promise<void>;
-  logout: () => void;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,28 +31,46 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar autenticação ao inicializar
-    const checkAuth = () => {
-      if (authService.isAuthenticated()) {
-        const currentUser = authService.getCurrentUser();
-        setUser(currentUser);
+    // Verificar sessão ao inicializar
+    const initializeAuth = async () => {
+      try {
+        const currentSession = await supabaseAuthService.getSession();
+        setSession(currentSession);
+        setUser(currentSession?.user || null);
+      } catch (error) {
+        console.error('Erro ao inicializar auth:', error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
-    checkAuth();
+    initializeAuth();
+
+    // Escutar mudanças na autenticação
+    const { data: { subscription } } = supabaseAuthService.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session);
+        setSession(session);
+        setUser(session?.user || null);
+        setIsLoading(false);
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = async (sub: string = 'tester') => {
+  const login = async (credentials: LoginCredentials) => {
     try {
       setIsLoading(true);
-      const response = await authService.login({ sub });
-      authService.setAuthData(response.token);
-      const currentUser = authService.getCurrentUser();
-      setUser(currentUser);
+      const { user: authUser, session: authSession } = await supabaseAuthService.login(credentials);
+      setSession(authSession);
+      setUser(authUser);
     } catch (error) {
       console.error('Erro no login:', error);
       throw error;
@@ -58,17 +79,52 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = () => {
-    authService.logout();
-    setUser(null);
+  const register = async (data: RegisterData) => {
+    try {
+      setIsLoading(true);
+      const { user: authUser, session: authSession } = await supabaseAuthService.register(data);
+      setSession(authSession);
+      setUser(authUser);
+    } catch (error) {
+      console.error('Erro no registro:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setIsLoading(true);
+      await supabaseAuthService.logout();
+      setSession(null);
+      setUser(null);
+    } catch (error) {
+      console.error('Erro no logout:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      await supabaseAuthService.resetPassword({ email });
+    } catch (error) {
+      console.error('Erro ao resetar senha:', error);
+      throw error;
+    }
   };
 
   const value: AuthContextType = {
     user,
+    session,
     isAuthenticated: !!user,
     isLoading,
     login,
-    logout
+    register,
+    logout,
+    resetPassword
   };
 
   return (
