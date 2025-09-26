@@ -93,12 +93,12 @@ export async function buildApp() {
   app.addHook('onRequest', async (req: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     const hdrs = (req.headers || {}) as Record<string, string>;
     const corr = hdrs['x-correlation-id'] || hdrs['x-request-id'] || req.id;
-    (req as any).correlationId = corr;
+    (req as any).correlationId = corr; // eslint-disable-line @typescript-eslint/no-explicit-any
     req.log.setBindings({ traceId: corr });
     setContext({ correlationId: corr, traceId: corr });
   });
   app.addHook('onSend', async (req: any, reply: any, payload: unknown) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-    const corr = (req as any).correlationId || req.id;
+    const corr = (req as any).correlationId || req.id; // eslint-disable-line @typescript-eslint/no-explicit-any
     if (typeof reply.header === 'function') {
       reply.header('x-trace-id', corr);
       reply.header('x-correlation-id', corr);
@@ -160,8 +160,8 @@ export async function buildApp() {
     app.get('/version', { schema: { tags: ['Health'], summary: 'Version info', response: { 200: { type: 'object', properties: { version: { type: 'string' } }, required: ['version'] } } } as any }, async () => ({ version: process.env.npm_package_version || '0.0.0' }));
     app.get('/health/cert', { schema: { tags: ['Health'], summary: 'Certificate health info', response: { 200: { type: 'object', properties: { loaded: { type: 'boolean' }, error: { type: 'string' }, thumbprint: { type: 'string' }, hasPrivateKey: { type: 'boolean' }, notBefore: { type: 'string' }, notAfter: { type: 'string' }, daysToExpire: { type: 'number' } }, required: ['loaded'] } } } as any }, async () => {
       try {
-        if (!env.CERT_PFX_PATH) throw new Error('CERT_PFX_PATH not set');
-        const material = loadPfxMaterial(env.CERT_PFX_PATH!, env.CERT_PFX_PASSWORD);
+        if (!env.CERT_PFX_PATH && !env.CERT_PFX_BASE64) throw new Error('CERT_PFX_PATH or CERT_PFX_BASE64 not set');
+        const material = loadPfxMaterial(env.CERT_PFX_PATH, env.CERT_PFX_PASSWORD, env.CERT_PFX_BASE64);
         const now = new Date();
         const daysToExpire = Math.round((material.notAfter.getTime() - now.getTime()) / 86400000);
         return { thumbprint: material.thumbprint, hasPrivateKey: !!material.privateKeyPem, notBefore: material.notBefore.toISOString(), notAfter: material.notAfter.toISOString(), daysToExpire, loaded: true };
@@ -174,8 +174,8 @@ export async function buildApp() {
       const result: { db: { ok: boolean; error?: string }, cert: { ok: boolean; error?: string; thumbprint?: string; notBefore?: string; notAfter?: string; daysToExpire?: number }, status?: string; timestamp?: string } = { db: { ok: false }, cert: { ok: false } };
       try { await prisma.$queryRaw`SELECT 1`; result.db.ok = true; } catch (e: unknown) { result.db.ok = false; result.db.error = e instanceof Error ? e.message : String(e); }
       try {
-        if (!env.CERT_PFX_PATH) throw new Error('CERT_PFX_PATH not set');
-        const material = loadPfxMaterial(env.CERT_PFX_PATH!, env.CERT_PFX_PASSWORD);
+        if (!env.CERT_PFX_PATH && !env.CERT_PFX_BASE64) throw new Error('CERT_PFX_PATH or CERT_PFX_BASE64 not set');
+        const material = loadPfxMaterial(env.CERT_PFX_PATH, env.CERT_PFX_PASSWORD, env.CERT_PFX_BASE64);
         const now = new Date();
         const daysToExpire = Math.round((material.notAfter.getTime() - now.getTime()) / 86400000);
         result.cert = { ok: true, thumbprint: material.thumbprint, notBefore: material.notBefore.toISOString(), notAfter: material.notAfter.toISOString(), daysToExpire };
@@ -188,8 +188,8 @@ export async function buildApp() {
     app.get('/version', async () => ({ version: process.env.npm_package_version || '0.0.0' }));
     app.get('/health/cert', async () => {
       try {
-        if (!env.CERT_PFX_PATH) throw new Error('CERT_PFX_PATH not set');
-        const material = loadPfxMaterial(env.CERT_PFX_PATH!, env.CERT_PFX_PASSWORD);
+        if (!env.CERT_PFX_PATH && !env.CERT_PFX_BASE64) throw new Error('CERT_PFX_PATH or CERT_PFX_BASE64 not set');
+        const material = loadPfxMaterial(env.CERT_PFX_PATH, env.CERT_PFX_PASSWORD, env.CERT_PFX_BASE64);
         const now = new Date();
         const daysToExpire = Math.round((material.notAfter.getTime() - now.getTime()) / 86400000);
         return { thumbprint: material.thumbprint, hasPrivateKey: !!material.privateKeyPem, notBefore: material.notBefore.toISOString(), notAfter: material.notAfter.toISOString(), daysToExpire, loaded: true };
@@ -202,8 +202,8 @@ export async function buildApp() {
       const result: { db: { ok: boolean; error?: string }, cert: { ok: boolean; error?: string; thumbprint?: string; notBefore?: string; notAfter?: string; daysToExpire?: number }, status?: string; timestamp?: string } = { db: { ok: false }, cert: { ok: false } };
       try { await prisma.$queryRaw`SELECT 1`; result.db.ok = true; } catch (e: unknown) { result.db.ok = false; result.db.error = e instanceof Error ? e.message : String(e); }
       try {
-        if (!env.CERT_PFX_PATH) throw new Error('CERT_PFX_PATH not set');
-        const material = loadPfxMaterial(env.CERT_PFX_PATH!, env.CERT_PFX_PASSWORD);
+        if (!env.CERT_PFX_PATH && !env.CERT_PFX_BASE64) throw new Error('CERT_PFX_PATH or CERT_PFX_BASE64 not set');
+        const material = loadPfxMaterial(env.CERT_PFX_PATH, env.CERT_PFX_PASSWORD, env.CERT_PFX_BASE64);
         const now = new Date();
         const daysToExpire = Math.round((material.notAfter.getTime() - now.getTime()) / 86400000);
         result.cert = { ok: true, thumbprint: material.thumbprint, notBefore: material.notBefore.toISOString(), notAfter: material.notAfter.toISOString(), daysToExpire };
@@ -233,6 +233,10 @@ export async function buildApp() {
   await app.register(clientRoutes, { prefix: '/api' });
   await app.register(supplierRoutes, { prefix: '/api' });
   await app.register(accountRoutes, { prefix: '/api' });
+  
+  // Importar e registrar rotas de configuração do Uphold
+  const { upholdConfigRoutes } = await import('./modules/uphold-config/uphold-config.routes');
+  await app.register(upholdConfigRoutes, { prefix: '/api' });
 
   return app;
 }

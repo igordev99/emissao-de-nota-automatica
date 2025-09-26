@@ -12,6 +12,7 @@ export class RetryService {
   private config: RetryConfig;
   private intervalId?: NodeJS.Timeout;
   private isRunning = false;
+  private isServerless = false;
 
   constructor(config: Partial<RetryConfig> = {}) {
     this.config = {
@@ -19,23 +20,42 @@ export class RetryService {
       retryDelayMs: config.retryDelayMs ?? 30000, // 30 seconds
       maxAgeHours: config.maxAgeHours ?? 24 // 24 hours
     };
+    
+    // Detectar ambiente serverless (Vercel)
+    this.isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
   }
 
   async start(): Promise<void> {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    await audit('INFO', 'Retry service started', { config: this.config });
+    await audit('INFO', 'Retry service started', { 
+      config: this.config, 
+      serverless: this.isServerless 
+    });
+
+    if (this.isServerless) {
+      // Em ambiente serverless, apenas processa uma vez
+      await audit('INFO', 'Serverless mode: processing once and exiting');
+      const result = await this.processPendingInvoices();
+      await audit('INFO', 'Serverless processing completed', result);
+      return;
+    }
 
     // Process immediately on start
-    await this.processPendingInvoices();
+    const initialResult = await this.processPendingInvoices();
+    await audit('INFO', 'Initial processing completed', initialResult);
 
-    // Then process every retryDelayMs
+    // Then process every retryDelayMs (apenas em ambiente não-serverless)
     this.intervalId = setInterval(async () => {
       try {
-        await this.processPendingInvoices();
-      } catch (error: any) {
-        await audit('ERROR', 'Retry service error', { error: error.message });
+        const result = await this.processPendingInvoices();
+        if (result.total > 0) {
+          await audit('INFO', 'Scheduled processing completed', result);
+        }
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        await audit('ERROR', 'Retry service error', { error: errorMessage });
       }
     }, this.config.retryDelayMs);
   }
@@ -49,7 +69,22 @@ export class RetryService {
     await audit('INFO', 'Retry service stopped');
   }
 
-  private async processPendingInvoices(): Promise<void> {
+  /**
+   * Executa processamento único - ideal para chamadas serverless
+   */
+  async processOnce(): Promise<{ processed: number; failed: number; total: number }> {
+    const originalServerless = this.isServerless;
+    this.isServerless = true; // Força modo serverless
+    
+    try {
+      const result = await this.processPendingInvoices();
+      return result;
+    } finally {
+      this.isServerless = originalServerless;
+    }
+  }
+
+  private async processPendingInvoices(): Promise<{ processed: number; failed: number; total: number }> {
     const cutoffDate = new Date(Date.now() - this.config.maxAgeHours * 60 * 60 * 1000);
 
     // Find invoices that are PENDING and older than maxAgeHours
@@ -73,7 +108,13 @@ export class RetryService {
       }
     });
 
-    if (pendingInvoices.length === 0) return;
+    let processed = 0;
+    let failed = 0;
+    const total = pendingInvoices.length;
+
+    if (pendingInvoices.length === 0) {
+      return { processed: 0, failed: 0, total: 0 };
+    }
 
     await audit('INFO', 'Found pending invoices for retry', {
       count: pendingInvoices.length,
@@ -83,18 +124,23 @@ export class RetryService {
     for (const invoice of pendingInvoices) {
       try {
         await this.retryInvoice(invoice);
-      } catch (error: any) {
+        processed++;
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
         await audit('ERROR', 'Failed to retry invoice', {
           invoiceId: invoice.id,
-          error: error.message
+          error: errorMessage
         });
+        failed++;
       }
     }
+
+    return { processed, failed, total };
   }
 
-  private async retryInvoice(invoice: any): Promise<void> {
+  private async retryInvoice(invoice: { id: string; logs: Array<{ message: string; level: string }>; rawNormalizedJson: unknown }): Promise<void> {
     // Check retry count from logs
-    const retryLogs = invoice.logs.filter((log: any) =>
+    const retryLogs = invoice.logs.filter((log) =>
       log.message.includes('retry') || log.message.includes('Retry')
     );
 
@@ -126,7 +172,7 @@ export class RetryService {
 
     try {
       // Re-emit the invoice using the stored normalized data
-      const normalizedData = invoice.rawNormalizedJson as any;
+      const normalizedData = invoice.rawNormalizedJson;
 
       // Import here to avoid circular dependency
       const { emitInvoice } = await import('../nfse/nfse.service');
@@ -139,10 +185,11 @@ export class RetryService {
         retryCount: retryLogs.length + 1
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       await audit('ERROR', 'Invoice retry failed', {
         invoiceId: invoice.id,
-        error: error.message,
+        error: errorMessage,
         retryCount: retryLogs.length + 1
       });
 
@@ -151,8 +198,8 @@ export class RetryService {
         data: {
           invoiceId: invoice.id,
           level: 'ERROR',
-          message: `Retry attempt ${retryLogs.length + 1} failed: ${error.message}`,
-          context: { retryAttempt: retryLogs.length + 1, error: error.message }
+          message: `Retry attempt ${retryLogs.length + 1} failed: ${errorMessage}`,
+          context: { retryAttempt: retryLogs.length + 1, error: errorMessage }
         }
       });
     }

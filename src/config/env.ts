@@ -6,6 +6,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(16).optional(),
   AGENT_BASE_URL: z.string().url().optional(),
   CERT_PFX_PATH: z.string().optional(),
+  CERT_PFX_BASE64: z.string().optional(),
   CERT_PFX_PASSWORD: z.string().optional(),
   DATABASE_URL: z.string().url().optional(),
   ALLOWED_ORIGINS: z.string().optional(), // CSV de origins permitidos para CORS

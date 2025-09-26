@@ -1,0 +1,163 @@
+{
+  "timestamp": "2025-09-24T20:33:11.036Z",
+  "navegacao": {
+    "links": [
+      {
+        "texto": "SOLICITAR NOTA FISCAL",
+        "href": "http://www.upholdapp.com.br:3000/emissoes/emissao",
+        "classe": "nav-link"
+      },
+      {
+        "texto": "MINHAS SOLICITAÇÕES",
+        "href": "http://www.upholdapp.com.br:3000/emissoes",
+        "classe": "nav-link"
+      },
+      {
+        "texto": "Teste",
+        "href": "http://www.upholdapp.com.br:3000/emissoes/ultimas#",
+        "classe": "nav-link dropdown-toggle"
+      },
+      {
+        "texto": "Todas as Solicitações",
+        "href": "http://www.upholdapp.com.br:3000/admin/emissoes",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Todos os Tomadores",
+        "href": "http://www.upholdapp.com.br:3000/admin/tomadores",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Administradores",
+        "href": "http://www.upholdapp.com.br:3000/admin/admins",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Clientes",
+        "href": "http://www.upholdapp.com.br:3000/admin/clientes",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Tipos de Servico",
+        "href": "http://www.upholdapp.com.br:3000/config/tipos_servico",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Fórmulas",
+        "href": "http://www.upholdapp.com.br:3000/admin/config/formulas",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Fechamento Mensal",
+        "href": "http://www.upholdapp.com.br:3000/admin/fechamento",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Faturamento Externo (12 Meses)",
+        "href": "http://www.upholdapp.com.br:3000/admin/faturamento_externo",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Suporte",
+        "href": "http://www.upholdapp.com.br:3000/suporte",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Seu Perfil",
+        "href": "http://www.upholdapp.com.br:3000/admin/admins/797",
+        "classe": "dropdown-item"
+      },
+      {
+        "texto": "Encerrar Sessão",
+        "href": "http://www.upholdapp.com.br:3000/logout",
+        "classe": "dropdown-item"
+      }
+    ],
+    "menus": [
+      {
+        "texto": "SOLICITAR NOTA FISCALMINHAS SOLICITAÇÕESTesteTodas as SolicitaçõesTodos os TomadoresAdministradoresClientesTipos de ServicoFórmulasFechamento MensalFaturamento Externo (12 Meses)SuporteSeu PerfilEncerrar Sessão",
+        "classe": "navbar navbar-expand-sm fixed-top navbar-dark py-md-2",
+        "tag": "nav"
+      },
+      {
+        "texto": "SOLICITAR NOTA FISCALMINHAS SOLICITAÇÕESTesteTodas as SolicitaçõesTodos os TomadoresAdministradoresClientesTipos de ServicoFórmulasFechamento MensalFaturamento Externo (12 Meses)SuporteSeu PerfilEncerrar Sessão",
+        "classe": "collapse navbar-collapse",
+        "tag": "div"
+      },
+      {
+        "texto": "SOLICITAR NOTA FISCALMINHAS SOLICITAÇÕES",
+        "classe": "navbar-nav ml-auto",
+        "tag": "ul"
+      },
+      {
+        "texto": "SOLICITAR NOTA FISCAL",
+        "classe": "nav-item",
+        "tag": "li"
+      },
+      {
+        "texto": "SOLICITAR NOTA FISCAL",
+        "classe": "nav-link",
+        "tag": "a"
+      },
+      {
+        "texto": "MINHAS SOLICITAÇÕES",
+        "classe": "nav-item",
+        "tag": "li"
+      },
+      {
+        "texto": "MINHAS SOLICITAÇÕES",
+        "classe": "nav-link",
+        "tag": "a"
+      },
+      {
+        "texto": "TesteTodas as SolicitaçõesTodos os TomadoresAdministradoresClientesTipos de ServicoFórmulasFechamento MensalFaturamento Externo (12 Meses)SuporteSeu PerfilEncerrar Sessão",
+        "classe": "nav navbar-nav navbar-right",
+        "tag": "ul"
+      },
+      {
+        "texto": "TesteTodas as SolicitaçõesTodos os TomadoresAdministradoresClientesTipos de ServicoFórmulasFechamento MensalFaturamento Externo (12 Meses)SuporteSeu PerfilEncerrar Sessão",
+        "classe": "nav-item dropdown",
+        "tag": "li"
+      },
+      {
+        "texto": "Teste",
+        "classe": "nav-link dropdown-toggle",
+        "tag": "a"
+      },
+      {
+        "texto": "Todas as SolicitaçõesTodos os TomadoresAdministradoresClientesTipos de ServicoFórmulasFechamento MensalFaturamento Externo (12 Meses)SuporteSeu PerfilEncerrar Sessão",
+        "classe": "dropdown-menu",
+        "tag": "div"
+      }
+    ],
+    "buttons": [
+      {
+        "texto": "Teste",
+        "classe": "nav-link dropdown-toggle",
+        "onclick": ""
+      }
+    ]
+  },
+  "paginasRelevantes": [
+    {
+      "texto": "Todos os Tomadores",
+      "href": "http://www.upholdapp.com.br:3000/admin/tomadores",
+      "classe": "dropdown-item"
+    }
+  ],
+  "urlsValidas": [
+    {
+      "url": "/admin/tomadores",
+      "title": "Todos os Tomadores(Administrador)"
+    },
+    {
+      "url": "/tomadores",
+      "title": "Tomadores de Nota Fiscal(Administrador)"
+    }
+  ],
+  "estrutura": {
+    "tabelas": [],
+    "formularios": [],
+    "campos": []
+  }
+}

@@ -2,12 +2,13 @@ import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  ArrowUpTrayIcon
 } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { clientService } from '../services/clients';
+import { hybridClientService } from '../services';
 import type { Client, PaginatedResponse } from '../types';
 
 export default function Clients() {
@@ -20,7 +21,7 @@ export default function Clients() {
   const loadClients = async (page = 1, searchTerm = '') => {
     try {
       setLoading(true);
-      const data = await clientService.getClients({
+      const data = await hybridClientService.getClients({
         page,
         pageSize: 10,
         search: searchTerm || undefined
@@ -48,7 +49,7 @@ export default function Clients() {
 
     try {
       setDeleteLoading(id);
-      await clientService.deleteClient(id);
+      await hybridClientService.deleteClient(id);
       loadClients(currentPage, search);
     } catch (error) {
       console.error('Erro ao excluir cliente:', error);
@@ -79,13 +80,22 @@ export default function Clients() {
               Gerencie os clientes do sistema
             </p>
           </div>
-          <Link
-            to="/clients/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
-            Novo Cliente
-          </Link>
+          <div className="flex gap-3">
+            <Link
+              to="/clients/import"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <ArrowUpTrayIcon className="-ml-1 mr-2 h-5 w-5" />
+              Importar Clientes
+            </Link>
+            <Link
+              to="/clients/new"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+              Novo Cliente
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -121,7 +131,7 @@ export default function Clients() {
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : clients?.items.length === 0 ? (
+        ) : !clients?.items || clients.items.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-500">
               <p className="text-lg">Nenhum cliente encontrado</p>
@@ -133,7 +143,7 @@ export default function Clients() {
         ) : (
           <>
             <ul className="divide-y divide-gray-200">
-              {clients?.items.map((client) => (
+              {clients.items.map((client) => (
                 <li key={client.id}>
                   <div className="px-4 py-4 sm:px-6">
                     <div className="flex items-center justify-between">

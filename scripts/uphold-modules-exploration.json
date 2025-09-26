@@ -1,0 +1,793 @@
+{
+  "explorationDate": "2025-09-24T20:54:01.372Z",
+  "modules": [
+    {
+      "name": "Tipos de Serviço",
+      "url": "/config/tipos_servico",
+      "description": "Configurações de tipos de serviços disponíveis",
+      "accessible": true,
+      "status": 200,
+      "data": {
+        "title": "Tipos de Serviço(Administrador)",
+        "url": "http://www.upholdapp.com.br:3000/config/tipos_servico",
+        "tables": [
+          {
+            "index": 0,
+            "headers": [
+              "",
+              "Código",
+              "Nome",
+              "ISS Retido"
+            ],
+            "rows": [
+              [
+                "",
+                "2500",
+                "Serviços de programação visual, comunicação visual e congêneres",
+                "Não"
+              ],
+              [
+                "",
+                "1023",
+                "Execução por administração, empreitada ou subempreitada, de obras de construção civil, elétrica ou outras obras semelhantes, e respectivos serviços auxiliares ou complementares, inclusive terraplenagem, pavimentação, concretagem e a instalação e montagem",
+                "Não"
+              ],
+              [
+                "",
+                "7617",
+                "Tinturaria e lavanderia",
+                "Não"
+              ],
+              [
+                "",
+                "3158",
+                "Datilografia, digitação, estenografia, expediente, secretaria em geral, resposta audível (telemarketing), redação, edição, revisão, apoio e infra-estrutura administrativa e congêneres",
+                "Não"
+              ],
+              [
+                "",
+                "4030",
+                "Medicina e biomedicina",
+                "Não"
+              ],
+              [
+                "",
+                "2186",
+                "Serviços de desenhos técnicos",
+                "Não"
+              ],
+              [
+                "",
+                "2692",
+                "Disposição, sem cessão definitiva, de conteúdos de áudio por meio da internet.",
+                "Não"
+              ],
+              [
+                "",
+                "7109",
+                "Agenciam/intermediação programas de turismo, passeios, viagens, excursões, hospedagens e congêneres.",
+                "Não"
+              ],
+              [
+                "",
+                "4626",
+                "Nutrição",
+                "Não"
+              ],
+              [
+                "",
+                "2919",
+                "Suporte técnico, instalação, configuração e manutenção de programas de bancos de dados",
+                "Não"
+              ],
+              [
+                "",
+                "5118",
+                "Psicologia",
+                "Não"
+              ],
+              [
+                "",
+                "2054",
+                "Desenho industrial",
+                "Não"
+              ],
+              [
+                "",
+                "4391",
+                "Fisioterapia",
+                "Não"
+              ],
+              [
+                "",
+                "1899",
+                "Planejamento, coordenação, programação ou organização técnica, financeira ou administrativa",
+                "Não"
+              ],
+              [
+                "",
+                "6084",
+                "Agenciamento ou intermediação de seguros",
+                "Sim"
+              ],
+              [
+                "",
+                "2881",
+                "Assessoria e consultoria em informática",
+                "Não"
+              ],
+              [
+                "",
+                "7099",
+                "Hospedagem em apart-service condominiais, flat, apart-hotéis, hotéis residência, residence-service, suite service e congêneres",
+                "Não"
+              ],
+              [
+                "",
+                "2684",
+                "Processamento, armazenamento ou hospedagem de dados, textos, imagens, entre outros e congêneres.",
+                "Não"
+              ],
+              [
+                "",
+                "8400",
+                "Execução de música, individualmente ou por conjunto",
+                "Não"
+              ],
+              [
+                "",
+                "1805",
+                "Acompanhamento e fiscalização da execução de obras de engenharia, arquitetura e urbanismo",
+                "Não"
+              ]
+            ],
+            "totalRows": 70
+          }
+        ],
+        "forms": [],
+        "lists": [
+          {
+            "index": 0,
+            "type": "ul",
+            "items": [
+              "SOLICITAR NOTA FISCAL",
+              "",
+              "MINHAS SOLICITAÇÕES",
+              ""
+            ]
+          },
+          {
+            "index": 1,
+            "type": "ul",
+            "items": [
+              "TesteTodas as SolicitaçõesTodos os TomadoresAdministradoresClientesTipos de ServicoFórmulasFechamento MensalFaturamento Externo (12 Meses)SuporteSeu PerfilEncerrar Sessão"
+            ]
+          },
+          {
+            "index": 2,
+            "type": "ul",
+            "items": [
+              "Anterior",
+              "1",
+              "Próximo"
+            ]
+          }
+        ],
+        "cards": [],
+        "rawData": [
+          {
+            "type": "service_types",
+            "data": [
+              {
+                "text": "10",
+                "value": "10"
+              },
+              {
+                "text": "25",
+                "value": "25"
+              },
+              {
+                "text": "50",
+                "value": "50"
+              },
+              {
+                "text": "100",
+                "value": "100"
+              }
+            ]
+          }
+        ]
+      },
+      "files": {
+        "screenshot": "/Users/alfanet/StudioProjects/git/emissao-de-nota-automatica/scripts/module__config_tipos_servico.png",
+        "html": "/Users/alfanet/StudioProjects/git/emissao-de-nota-automatica/scripts/module__config_tipos_servico.html"
+      }
+    },
+    {
+      "name": "Fórmulas de Cálculo",
+      "url": "/admin/config/formulas",
+      "description": "Configurações de fórmulas (valMin, valMax, índice, fatorRedutor, issRetidoDAS)",
+      "accessible": false,
+      "error": "SyntaxError: Failed to execute 'querySelectorAll' on 'Document': '[name*=\"valmin\"], [id*=\"valmin\"], td:contains(\"valmin\"), th:contains(\"valmin\")' is not a valid selector.\npptr:evaluate;exploreUpholdModules%20(file%3A%2F%2F%2FUsers%2Falfanet%2FStudioProjects%2Fgit%2Femissao-de-nota-automatica%2Fscripts%2Fexplore-uphold-modules.js%3A125%3A41):90:43"
+    },
+    {
+      "name": "Fechamento Mensal",
+      "url": "/admin/fechamento",
+      "description": "Funcionalidades de fechamento mensal",
+      "accessible": true,
+      "status": 200,
+      "data": {
+        "title": "Fechamento Mensal(Administrador)",
+        "url": "http://www.upholdapp.com.br:3000/admin/fechamento",
+        "tables": [
+          {
+            "index": 0,
+            "headers": [
+              "",
+              "CNPJ",
+              "Prestador",
+              "Mês",
+              "Qtd.Emissões",
+              "R$ Emissões",
+              "R$ Fat.Externo",
+              "R$ Total Mês",
+              "Alíquota do mês",
+              ""
+            ],
+            "rows": [
+              [
+                "",
+                "26.268.019/0001-07",
+                "123 SEGURO BARATO CORRETORA DE SEGUROS EIRELI - ME",
+                "Setembro/2025",
+                "3",
+                "R$ 2.181,97",
+                "R$ 0,00",
+                "R$ 2.181,97",
+                "2,49 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "44.962.335/0001-66",
+                "3E CONSULTORIA E SERVIÇOS ADMINISTRATIVOS LTDA",
+                "Setembro/2025",
+                "1",
+                "R$ 15.000,00",
+                "R$ 0,00",
+                "R$ 15.000,00",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "24.940.960/0001-08",
+                "3E Corretora De Seguros - Eireli",
+                "Setembro/2025",
+                "4",
+                "R$ 7.064,36",
+                "R$ 0,00",
+                "R$ 7.064,36",
+                "2,06 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "11.667.556/0001-52",
+                "4U Life & Health Platform Brokers Corretora De Seguros E Bene",
+                "Setembro/2025",
+                "1",
+                "R$ 2.272,90",
+                "R$ 0,00",
+                "R$ 2.272,90",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "53.589.043/0001-10",
+                "ABDALA APOIO DOCUMENTAL LTDA",
+                "Setembro/2025",
+                "1",
+                "R$ 9.379,70",
+                "R$ 0,00",
+                "R$ 9.379,70",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "41.012.663/0001-03",
+                "ACEITE SEGUROS CORRETORA EIRELI",
+                "Setembro/2025",
+                "6",
+                "R$ 2.237,07",
+                "R$ 0,00",
+                "R$ 2.237,07",
+                "3,10 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "13.751.701/0001-04",
+                "Actus Corretora de Seguros Ltda",
+                "Setembro/2025",
+                "1",
+                "R$ 515,48",
+                "R$ 0,00",
+                "R$ 515,48",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "37.258.637/0001-92",
+                "AELCORR ADMINISTRADORA E CORRETORA DE SEGUROS LTDA",
+                "Setembro/2025",
+                "4",
+                "R$ 1.989,92",
+                "R$ 0,00",
+                "R$ 1.989,92",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "29.783.063/0001-43",
+                "Agfe Corretora De Seguros Ltda.",
+                "Setembro/2025",
+                "10",
+                "R$ 2.486,17",
+                "R$ 0,00",
+                "R$ 2.486,17",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "28.356.093/0001-00",
+                "Ajeseg Consultoria E Corretora De Seguros Ltda.",
+                "Setembro/2025",
+                "1",
+                "R$ 136,15",
+                "R$ 0,00",
+                "R$ 136,15",
+                "2,14 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "04.170.566/0001-12",
+                "Akium Assessoria E Corretagem De Seguros Ltda",
+                "Setembro/2025",
+                "19",
+                "R$ 18.463,73",
+                "R$ 0,00",
+                "R$ 18.463,73",
+                "3,85 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "53.714.043/0001-03",
+                "ALANA MARIE TUJISOKI APOIO DOCUMENTAL LTDA",
+                "Setembro/2025",
+                "1",
+                "R$ 10.687,45",
+                "R$ 0,00",
+                "R$ 10.687,45",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "03.493.444/0001-02",
+                "ALVES ALMEIDA BARROS ADMINISTRADORA E CORRETORA DE SEGUROS",
+                "Setembro/2025",
+                "1",
+                "R$ 69,85",
+                "R$ 0,00",
+                "R$ 69,85",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "10.510.812/0001-30",
+                "AM SEG CORRETORA DE SEGUROS LTDA.",
+                "Setembro/2025",
+                "3",
+                "R$ 1.320,16",
+                "R$ 0,00",
+                "R$ 1.320,16",
+                "3,21 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "05.892.349/0001-07",
+                "Ancla Consultoria E Corretagem De Seguros Ltda",
+                "Setembro/2025",
+                "13",
+                "R$ 2.176,39",
+                "R$ 0,00",
+                "R$ 2.176,39",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "32.156.094/0001-89",
+                "ANTONIO DE ANDRADE LIMA NETO",
+                "Setembro/2025",
+                "1",
+                "R$ 279,00",
+                "R$ 0,00",
+                "R$ 279,00",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "36.697.940/0001-29",
+                "AQUARELA COACHING & DESENVOLVIMENTO LTDA",
+                "Setembro/2025",
+                "1",
+                "R$ 9.830,00",
+                "R$ 0,00",
+                "R$ 9.830,00",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "02.612.535/0001-49",
+                "ARAFER CORRETORA DE SEGUROS LTDA ME",
+                "Setembro/2025",
+                "13",
+                "R$ 24.490,45",
+                "R$ 0,00",
+                "R$ 24.490,45",
+                "2,95 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "32.437.341/0001-15",
+                "ARSENAL CORRETORA DE SEGUROS LTDA",
+                "Setembro/2025",
+                "3",
+                "R$ 1.248,83",
+                "R$ 0,00",
+                "R$ 1.248,83",
+                "2,00 %",
+                "Encerrar"
+              ],
+              [
+                "",
+                "64.955.297/0001-21",
+                "Artseg Corretora De Seguros Ltda",
+                "Setembro/2025",
+                "1",
+                "R$ 392,40",
+                "R$ 0,00",
+                "R$ 392,40",
+                "2,00 %",
+                "Encerrar"
+              ]
+            ],
+            "totalRows": 100
+          }
+        ],
+        "forms": [],
+        "lists": [
+          {
+            "index": 0,
+            "type": "ul",
+            "items": [
+              "SOLICITAR NOTA FISCAL",
+              "",
+              "MINHAS SOLICITAÇÕES",
+              ""
+            ]
+          },
+          {
+            "index": 1,
+            "type": "ul",
+            "items": [
+              "TesteTodas as SolicitaçõesTodos os TomadoresAdministradoresClientesTipos de ServicoFórmulasFechamento MensalFaturamento Externo (12 Meses)SuporteSeu PerfilEncerrar Sessão"
+            ]
+          },
+          {
+            "index": 2,
+            "type": "ul",
+            "items": [
+              "Anterior",
+              "1",
+              "2",
+              "3",
+              "Próximo"
+            ]
+          }
+        ],
+        "cards": [],
+        "rawData": []
+      },
+      "files": {
+        "screenshot": "/Users/alfanet/StudioProjects/git/emissao-de-nota-automatica/scripts/module__admin_fechamento.png",
+        "html": "/Users/alfanet/StudioProjects/git/emissao-de-nota-automatica/scripts/module__admin_fechamento.html"
+      }
+    },
+    {
+      "name": "Faturamento Externo",
+      "url": "/admin/faturamento_externo",
+      "description": "Relatórios de faturamento externo (12 meses)",
+      "accessible": true,
+      "status": 200,
+      "data": {
+        "title": "Faturamento Externo(Administrador)",
+        "url": "http://www.upholdapp.com.br:3000/admin/faturamento_externo",
+        "tables": [
+          {
+            "index": 0,
+            "headers": [
+              "Mês",
+              "R$ Externo",
+              "R$ Emissões (pelo sistema)",
+              "R$ Total Mês"
+            ],
+            "rows": [],
+            "totalRows": 0
+          }
+        ],
+        "forms": [],
+        "lists": [
+          {
+            "index": 0,
+            "type": "ul",
+            "items": [
+              "SOLICITAR NOTA FISCAL",
+              "",
+              "MINHAS SOLICITAÇÕES",
+              ""
+            ]
+          },
+          {
+            "index": 1,
+            "type": "ul",
+            "items": [
+              "TesteTodas as SolicitaçõesTodos os TomadoresAdministradoresClientesTipos de ServicoFórmulasFechamento MensalFaturamento Externo (12 Meses)SuporteSeu PerfilEncerrar Sessão"
+            ]
+          },
+          {
+            "index": 2,
+            "type": "ul",
+            "items": [
+              "cnpj- CNPJ do prestador",
+              "mês- Mês de competência, no formato AAAA-MM (Ano-Mês)(Ex: 2020-07)",
+              "faturamento- Valor faturado no mês, no formato 9999,99 - IMPORTANTE: Sem separador de milhar,apenas separador de decimais (Ex: 12345,21)",
+              ";- Ponto-e-vírgula é o caracter separador entre cnpj, mês e faturamento",
+              "<nova-linha>- Cada linha deverá representar um faturamento mensal (cnpj;mês;faturamento por linha)"
+            ]
+          }
+        ],
+        "cards": [],
+        "rawData": []
+      },
+      "files": {
+        "screenshot": "/Users/alfanet/StudioProjects/git/emissao-de-nota-automatica/scripts/module__admin_faturamento_externo.png",
+        "html": "/Users/alfanet/StudioProjects/git/emissao-de-nota-automatica/scripts/module__admin_faturamento_externo.html"
+      }
+    },
+    {
+      "name": "Administradores",
+      "url": "/admin/admins",
+      "description": "Gestão de administradores do sistema",
+      "accessible": true,
+      "status": 200,
+      "data": {
+        "title": "Administradores do Sistema(Administrador)",
+        "url": "http://www.upholdapp.com.br:3000/admin/admins",
+        "tables": [
+          {
+            "index": 0,
+            "headers": [
+              "",
+              "Nome",
+              "e-mail",
+              ""
+            ],
+            "rows": [
+              [
+                "",
+                "Danilo Costa dos Santos",
+                "danilo@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Caue Julio",
+                "caue@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Giovanna Dos Santos Ribeiro",
+                "giovanna@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "ANDERSON ROCHA",
+                "anderson@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "RAYANE KATHLEEN",
+                "Rayane@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Yasmin Braga da Silva",
+                "yasmin@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Gustavo G. Pérez",
+                "gustavogperez@yahoo.com",
+                ""
+              ],
+              [
+                "",
+                "Denilson Rozario",
+                "denilson@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Emily Jaíne de Lima Pedro",
+                "emily@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Henrique Gonçalves dos Santos",
+                "henrique@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Giulia Dias",
+                "giulia.dias@yssy.com.br",
+                ""
+              ],
+              [
+                "",
+                "Ana Emily",
+                "ana.emily@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Samea Fernandes Oliveira",
+                "samea@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Gustavo Nelo",
+                "gustavo@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Guilherme",
+                "guidev001@gmail.com",
+                ""
+              ],
+              [
+                "",
+                "Rayane Kathleen",
+                "rayane@uphold.com.br",
+                ""
+              ],
+              [
+                "",
+                "Luciano Eric Damasceno Silva",
+                "luciano.silva@yssy.com.br",
+                ""
+              ],
+              [
+                "",
+                "Guilherme David",
+                "guilherme.david@yssy.com.br",
+                ""
+              ],
+              [
+                "",
+                "OTAVIO REDONDO DOS SANTOS",
+                "otavio@smallcontabilidade.com.br",
+                ""
+              ],
+              [
+                "",
+                "Everton Rocha da Silva",
+                "everton@uphold.com.br",
+                ""
+              ]
+            ],
+            "totalRows": 30
+          }
+        ],
+        "forms": [],
+        "lists": [
+          {
+            "index": 0,
+            "type": "ul",
+            "items": [
+              "SOLICITAR NOTA FISCAL",
+              "",
+              "MINHAS SOLICITAÇÕES",
+              ""
+            ]
+          },
+          {
+            "index": 1,
+            "type": "ul",
+            "items": [
+              "TesteTodas as SolicitaçõesTodos os TomadoresAdministradoresClientesTipos de ServicoFórmulasFechamento MensalFaturamento Externo (12 Meses)SuporteSeu PerfilEncerrar Sessão"
+            ]
+          },
+          {
+            "index": 2,
+            "type": "ul",
+            "items": [
+              "Anterior",
+              "1",
+              "Próximo"
+            ]
+          }
+        ],
+        "cards": [],
+        "rawData": []
+      },
+      "files": {
+        "screenshot": "/Users/alfanet/StudioProjects/git/emissao-de-nota-automatica/scripts/module__admin_admins.png",
+        "html": "/Users/alfanet/StudioProjects/git/emissao-de-nota-automatica/scripts/module__admin_admins.html"
+      }
+    }
+  ],
+  "summary": {
+    "totalModules": 5,
+    "accessibleModules": 5,
+    "extractedData": {
+      "Tipos de Serviço": {
+        "tables": 1,
+        "forms": 0,
+        "lists": 3,
+        "hasRawData": true
+      },
+      "Fechamento Mensal": {
+        "tables": 1,
+        "forms": 0,
+        "lists": 3,
+        "hasRawData": false
+      },
+      "Faturamento Externo": {
+        "tables": 1,
+        "forms": 0,
+        "lists": 3,
+        "hasRawData": false
+      },
+      "Administradores": {
+        "tables": 1,
+        "forms": 0,
+        "lists": 3,
+        "hasRawData": false
+      }
+    }
+  }
+}

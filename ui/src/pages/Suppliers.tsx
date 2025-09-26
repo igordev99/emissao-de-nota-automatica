@@ -7,7 +7,7 @@ import {
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { supplierService } from '../services/suppliers';
+import { hybridSupplierService } from '../services';
 import type { Supplier, PaginatedResponse } from '../types';
 
 export default function Suppliers() {
@@ -20,7 +20,7 @@ export default function Suppliers() {
   const loadSuppliers = async (page = 1, searchTerm = '') => {
     try {
       setLoading(true);
-      const data = await supplierService.getSuppliers({
+      const data = await hybridSupplierService.getSuppliers({
         page,
         pageSize: 10,
         search: searchTerm || undefined
@@ -48,7 +48,7 @@ export default function Suppliers() {
 
     try {
       setDeleteLoading(id);
-      await supplierService.deleteSupplier(id);
+      await hybridSupplierService.deleteSupplier(id);
       loadSuppliers(currentPage, search);
     } catch (error) {
       console.error('Erro ao excluir fornecedor:', error);
@@ -115,7 +115,7 @@ export default function Suppliers() {
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : suppliers?.items.length === 0 ? (
+        ) : !suppliers?.items || suppliers.items.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-500">
               <p className="text-lg">Nenhum fornecedor encontrado</p>
@@ -127,7 +127,7 @@ export default function Suppliers() {
         ) : (
           <>
             <ul className="divide-y divide-gray-200">
-              {suppliers?.items.map((supplier) => (
+              {suppliers.items.map((supplier) => (
                 <li key={supplier.id}>
                   <div className="px-4 py-4 sm:px-6">
                     <div className="flex items-center justify-between">

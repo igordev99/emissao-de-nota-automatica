@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { clientService, type CreateClientData } from '../services/clients';
+import { hybridClientService } from '../services';
+import type { CreateClientData } from '../services/clients-supabase';
 
 interface ClientFormData extends CreateClientData {}
 
@@ -27,7 +28,7 @@ export default function ClientForm() {
     if (isEditing) {
       const loadClient = async () => {
         try {
-          const client = await clientService.getClientById(id!);
+          const client = await hybridClientService.getClientById(id!);
           reset({
             name: client.name,
             document: client.document,
@@ -52,9 +53,9 @@ export default function ClientForm() {
 
     try {
       if (isEditing) {
-        await clientService.updateClient(id!, data);
+        await hybridClientService.updateClient(id!, data);
       } else {
-        await clientService.createClient(data);
+        await hybridClientService.createClient(data);
       }
       navigate('/clients');
     } catch (error: any) {

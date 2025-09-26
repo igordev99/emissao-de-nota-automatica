@@ -3,11 +3,13 @@
 generator client {
   provider = "prisma-client-js"
   engineType = "library"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum InvoiceStatus {
@@ -126,6 +128,19 @@ model Supplier {
 
   @@unique([document])
   @@index([document])
+}
+
+model ServiceType {
+  id          String   @id @default(uuid())
+  code        String   @unique // Código único do serviço (ex: "01.01", "02.05")
+  name        String   // Nome do serviço
+  issRetained Boolean  @default(false) // ISS retido na fonte
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([code])
+  @@index([active])
 }
 
 enum AccountType {

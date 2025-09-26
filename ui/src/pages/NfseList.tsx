@@ -7,7 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 
-import { nfseService } from '../services/nfse';
+import { hybridNfseService } from '../services';
 import type { NfseInvoice, PaginatedResponse } from '../types';
 
 export default function NfseList() {
@@ -34,7 +34,7 @@ export default function NfseList() {
           Object.entries(filters).filter(([, value]) => value !== '')
         )
       };
-      const data = await nfseService.getNfseList(params);
+      const data = await hybridNfseService.getNfseList(params);
       setNfse(data);
     } catch (error) {
       console.error('Erro ao carregar NFS-e:', error);
@@ -72,7 +72,7 @@ export default function NfseList() {
 
   const handleDownloadPdf = async (id: string, nfseNumber?: string) => {
     try {
-      const blob = await nfseService.getNfsePdf(id);
+      const blob = await hybridNfseService.getNfsePdf(id);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -89,7 +89,7 @@ export default function NfseList() {
 
   const handleDownloadXml = async (id: string, nfseNumber?: string) => {
     try {
-      const xmlData = await nfseService.getNfseXml(id);
+      const xmlData = await hybridNfseService.getNfseXml(id);
       const blob = new Blob([xmlData], { type: 'application/xml' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
