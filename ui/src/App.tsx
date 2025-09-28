@@ -25,6 +25,7 @@ import WebhookForm from './pages/WebhookForm';
 import Webhooks from './pages/Webhooks';
 import FormulaGroupsPage from './pages/FormulaGroupsPage';
 import FormulaGroupRowsPage from './pages/FormulaGroupRowsPage';
+import AuthDebug from './components/AuthDebug';
 
 function App() {
   try {
@@ -63,6 +64,9 @@ function App() {
               {/* Rotas para Fórmulas */}
               <Route path="admin/formulas" element={<FormulaGroupsPage />} />
               <Route path="admin/formulas/groups/:groupId" element={<FormulaGroupRowsPage />} />
+              
+              {/* Debug temporário - remover após testes */}
+              <Route path="admin/debug" element={<AuthDebug />} />
             </Route>
             {/* Redirecionar qualquer rota não encontrada para dashboard */}
             <Route path="*" element={<Navigate to="/" replace />} />
