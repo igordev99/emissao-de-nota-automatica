@@ -4,28 +4,60 @@ import { useEffect, useState } from 'react';
 export default function LoginDebug() {
   const { user, session, profile, isLoading, isAuthenticated } = useAuth();
   const [logs, setLogs] = useState<string[]>([]);
+  const [renderCount, setRenderCount] = useState(0);
   
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
-    setLogs(prev => [`${timestamp}: ${message}`, ...prev].slice(0, 20));
+    setLogs(prev => [`${timestamp}: ${message}`, ...prev].slice(0, 30));
   };
   
   useEffect(() => {
-    addLog(`isLoading: ${isLoading}, isAuth: ${isAuthenticated}, hasUser: ${!!user}, hasProfile: ${!!profile}`);
-  }, [isLoading, isAuthenticated, user, profile]);
+    setRenderCount(prev => prev + 1);
+    addLog(`RENDER #${renderCount + 1} - Loading: ${isLoading}, Auth: ${isAuthenticated}, User: ${!!user}, Profile: ${!!profile}`);
+  }, [isLoading, isAuthenticated, user, profile, renderCount]);
+  
+  useEffect(() => {
+    if (user) {
+      addLog(`USER DETAILS - ID: ${user.id}, Email: ${user.email}`);
+    }
+  }, [user]);
+  
+  useEffect(() => {
+    if (profile) {
+      addLog(`PROFILE DETAILS - Role: ${profile.role}, Email: ${profile.email}`);
+    }
+  }, [profile]);
   
   const clearLogs = () => setLogs([]);
+  
+  const forceStopLoading = () => {
+    // @ts-ignore - Acesso direto ao contexto para debug
+    if (window.location.hostname === 'localhost') {
+      addLog('🚨 FORÇANDO FIM DO LOADING - EMERGÊNCIA');
+      window.location.reload();
+    }
+  };
   
   return (
     <div className="fixed top-4 right-4 bg-white border border-gray-300 rounded-lg p-4 shadow-lg max-w-md z-50">
       <div className="flex justify-between items-center mb-3">
         <h3 className="font-bold text-sm">Debug Login</h3>
-        <button 
-          onClick={clearLogs}
-          className="text-xs bg-gray-100 px-2 py-1 rounded"
-        >
-          Limpar
-        </button>
+        <div className="flex gap-2">
+          {isLoading && (
+            <button 
+              onClick={forceStopLoading}
+              className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded"
+            >
+              🚨 Emergência
+            </button>
+          )}
+          <button 
+            onClick={clearLogs}
+            className="text-xs bg-gray-100 px-2 py-1 rounded"
+          >
+            Limpar
+          </button>
+        </div>
       </div>
       
       <div className="space-y-2 text-xs">

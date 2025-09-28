@@ -41,16 +41,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState<string | null>(null); // Cache do userId do perfil carregado
+  const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Função para carregar perfil do usuário
   const loadUserProfile = async (currentUser: User) => {
     // Se já carregamos o perfil para este usuário, não carregar novamente
     if (profileLoaded === currentUser.id && profile) {
-      console.log('Perfil já carregado para usuário:', currentUser.id);
+      console.log('✅ Perfil já carregado para usuário:', currentUser.id);
       return;
     }
     
-    console.log('Carregando perfil para usuário:', currentUser.id);
+    // Evitar chamadas múltiplas simultâneas
+    if (profileLoaded === `loading-${currentUser.id}`) {
+      console.log('⏳ Perfil já sendo carregado para usuário:', currentUser.id);
+      return;
+    }
+    
+    // Marcar como carregando para evitar chamadas simultâneas
+    setProfileLoaded(`loading-${currentUser.id}`);
+    console.log('🔄 Iniciando carregamento do perfil para usuário:', currentUser.id);
     
     try {
       const userProfile = await UserProfileService.getCurrentUserProfile();
@@ -121,6 +130,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Timeout de segurança para garantir que loading nunca trave para sempre
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      console.warn('⚠️ TIMEOUT DE SEGURANÇA: Forçando fim do loading após 15 segundos');
+      setIsLoading(false);
+    }, 15000);
+    
+    setLoadingTimeout(timeout);
+    
+    return () => {
+      if (loadingTimeout) {
+        clearTimeout(loadingTimeout);
+      }
+    };
+  }, [loadingTimeout]);
+
   useEffect(() => {
     if (initialized) return; // Evitar re-inicialização
 
@@ -150,6 +175,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.error('Erro ao inicializar auth:', error);
       } finally {
         if (isInitializing) {
+          if (loadingTimeout) {
+            clearTimeout(loadingTimeout);
+            setLoadingTimeout(null);
+          }
           setIsLoading(false);
           console.log('Loading finalizado na inicialização');
         }
@@ -170,31 +199,45 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // Apenas processar mudanças reais de estado
         if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+          console.log(`🔄 Processando evento: ${event}, User ID: ${session?.user?.id || 'null'}`);
+          
           setSession(session);
           setUser(session?.user || null);
           
           // Carregar perfil apenas no login, não em refresh
           if (event === 'SIGNED_IN' && session?.user) {
+            console.log('📝 Iniciando carregamento do perfil...');
             try {
               await loadUserProfile(session.user);
+              console.log('✅ Perfil carregado com sucesso, finalizando loading...');
             } catch (error) {
-              console.error('Erro ao carregar perfil após login:', error);
+              console.error('❌ Erro ao carregar perfil após login:', error);
             } finally {
               // Sempre finalizar loading após tentativa de carregar perfil
+              console.log('🎯 Definindo isLoading = false após SIGNED_IN');
+              if (loadingTimeout) {
+                clearTimeout(loadingTimeout);
+                setLoadingTimeout(null);
+              }
               setIsLoading(false);
             }
           } else if (event === 'SIGNED_OUT') {
+            console.log('👋 Usuário saiu, limpando dados...');
             setProfile(null);
             setProfileLoaded(null); // Limpar cache do perfil
             setIsLoading(false);
           } else if (event === 'TOKEN_REFRESHED') {
+            console.log('🔄 Token renovado, finalizando loading...');
             // No refresh, não recarregar perfil, apenas finalizar loading
             setIsLoading(false);
           }
           
           if (!initialized) {
+            console.log('🚀 Marcando como inicializado...');
             setInitialized(true);
           }
+        } else {
+          console.log(`⏭️ Ignorando evento: ${event}`);
         }
       }
     );
