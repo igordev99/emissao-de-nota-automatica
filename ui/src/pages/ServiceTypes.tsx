@@ -10,42 +10,52 @@ import {
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { internalServiceTypeService } from '../services';
-import type { ServiceType, PaginatedResponse } from '../types';
+import { ServiceTypesService } from '../services/serviceTypesService';
+import type { Database } from '../lib/supabase';
+
+type ServiceType = Database['public']['Tables']['service_types']['Row'];
 
 export default function ServiceTypes() {
-  const [serviceTypes, setServiceTypes] = useState<PaginatedResponse<ServiceType> | null>(null);
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [filteredServiceTypes, setFilteredServiceTypes] = useState<ServiceType[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [showInactive, setShowInactive] = useState(false);
 
-  const loadServiceTypes = async (page = 1, searchTerm = '') => {
+  const loadServiceTypes = async () => {
     try {
       setLoading(true);
-      const data = await internalServiceTypeService.getServiceTypes({
-        page,
-        pageSize: 10,
-        search: searchTerm || undefined,
-        active: showInactive ? 'all' : true
-      });
+      const data = await ServiceTypesService.getAll(!showInactive); // activeOnly
       setServiceTypes(data);
+      setFilteredServiceTypes(data);
     } catch (error) {
       console.error('Erro ao carregar tipos de serviço:', error);
+      alert('Erro ao carregar tipos de serviço');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadServiceTypes(currentPage, search);
-  }, [currentPage, showInactive]);
+    loadServiceTypes();
+  }, [showInactive]);
+
+  useEffect(() => {
+    if (search.trim() === '') {
+      setFilteredServiceTypes(serviceTypes);
+    } else {
+      const filtered = serviceTypes.filter(serviceType => 
+        serviceType.name.toLowerCase().includes(search.toLowerCase()) ||
+        serviceType.code.includes(search)
+      );
+      setFilteredServiceTypes(filtered);
+    }
+  }, [search, serviceTypes]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1);
-    loadServiceTypes(1, search);
+    // A filtragem já é feita no useEffect acima
   };
 
   const handleDelete = async (id: string) => {
@@ -53,10 +63,11 @@ export default function ServiceTypes() {
 
     try {
       setDeleteLoading(id);
-      await internalServiceTypeService.deleteServiceType(id);
-      loadServiceTypes(currentPage, search);
+      await ServiceTypesService.delete(id);
+      await loadServiceTypes(); // Recarrega a lista
     } catch (error) {
       console.error('Erro ao excluir tipo de serviço:', error);
+      alert('Erro ao excluir tipo de serviço');
     } finally {
       setDeleteLoading(null);
     }
@@ -64,12 +75,11 @@ export default function ServiceTypes() {
 
   const toggleActive = async (serviceType: ServiceType) => {
     try {
-      await internalServiceTypeService.updateServiceType(serviceType.id, {
-        active: !serviceType.active
-      });
-      loadServiceTypes(currentPage, search);
+      await ServiceTypesService.toggleActive(serviceType.id, !serviceType.active);
+      await loadServiceTypes(); // Recarrega a lista
     } catch (error) {
       console.error('Erro ao alterar status do tipo de serviço:', error);
+      alert('Erro ao alterar status do tipo de serviço');
     }
   };
 
@@ -170,11 +180,11 @@ export default function ServiceTypes() {
           <div className="bg-white shadow rounded-lg">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">
-                {serviceTypes.total} tipo(s) de serviço encontrado(s)
+                {filteredServiceTypes.length} tipo(s) de serviço encontrado(s)
               </h3>
             </div>
             
-            {serviceTypes.items.length === 0 ? (
+            {filteredServiceTypes.length === 0 ? (
               <div className="p-6 text-center">
                 <p className="text-gray-500">Nenhum tipo de serviço encontrado.</p>
                 <Link
@@ -212,7 +222,7 @@ export default function ServiceTypes() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {serviceTypes.items.map((serviceType) => (
+                      {filteredServiceTypes.map((serviceType: ServiceType) => (
                         <tr key={serviceType.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {serviceType.code}
@@ -222,11 +232,11 @@ export default function ServiceTypes() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              serviceType.issRetained 
+                              serviceType.iss_retained 
                                 ? 'bg-red-100 text-red-800' 
                                 : 'bg-green-100 text-green-800'
                             }`}>
-                              {serviceType.issRetained ? 'Sim' : 'Não'}
+                              {serviceType.iss_retained ? 'Sim' : 'Não'}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -239,7 +249,7 @@ export default function ServiceTypes() {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {formatDate(serviceType.createdAt)}
+                            {formatDate(serviceType.created_at)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex items-center justify-end space-x-3">
@@ -276,60 +286,6 @@ export default function ServiceTypes() {
                     </tbody>
                   </table>
                 </div>
-
-                {/* Pagination */}
-                {serviceTypes.total > serviceTypes.pageSize && (
-                  <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                    <div className="flex-1 flex justify-between sm:hidden">
-                      <button
-                        disabled={currentPage === 1}
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                        className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        Anterior
-                      </button>
-                      <button
-                        disabled={currentPage * serviceTypes.pageSize >= serviceTypes.total}
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        Próxima
-                      </button>
-                    </div>
-                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm text-gray-700">
-                          Mostrando <span className="font-medium">{((currentPage - 1) * serviceTypes.pageSize) + 1}</span> a{' '}
-                          <span className="font-medium">
-                            {Math.min(currentPage * serviceTypes.pageSize, serviceTypes.total)}
-                          </span>{' '}
-                          de <span className="font-medium">{serviceTypes.total}</span> resultados
-                        </p>
-                      </div>
-                      <div>
-                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                          <button
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(currentPage - 1)}
-                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                          >
-                            Anterior
-                          </button>
-                          <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                            Página {currentPage} de {Math.ceil(serviceTypes.total / serviceTypes.pageSize)}
-                          </span>
-                          <button
-                            disabled={currentPage * serviceTypes.pageSize >= serviceTypes.total}
-                            onClick={() => setCurrentPage(currentPage + 1)}
-                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                          >
-                            Próxima
-                          </button>
-                        </nav>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </>
             )}
           </div>

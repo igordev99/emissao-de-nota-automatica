@@ -7,40 +7,52 @@ import {
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { hybridSupplierService } from '../services';
-import type { Supplier, PaginatedResponse } from '../types';
+import { SuppliersService } from '../services/suppliersService';
+import type { Database } from '../lib/supabase';
+
+type Supplier = Database['public']['Tables']['suppliers']['Row'];
 
 export default function Suppliers() {
-  const [suppliers, setSuppliers] = useState<PaginatedResponse<Supplier> | null>(null);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [filteredSuppliers, setFilteredSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
-  const loadSuppliers = async (page = 1, searchTerm = '') => {
+  const loadSuppliers = async () => {
     try {
       setLoading(true);
-      const data = await hybridSupplierService.getSuppliers({
-        page,
-        pageSize: 10,
-        search: searchTerm || undefined
-      });
+      const data = await SuppliersService.getAll();
       setSuppliers(data);
+      setFilteredSuppliers(data);
     } catch (error) {
       console.error('Erro ao carregar fornecedores:', error);
+      alert('Erro ao carregar fornecedores');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadSuppliers(currentPage, search);
-  }, [currentPage]);
+    loadSuppliers();
+  }, []);
+
+  useEffect(() => {
+    if (search.trim() === '') {
+      setFilteredSuppliers(suppliers);
+    } else {
+      const filtered = suppliers.filter(supplier => 
+        supplier.name.toLowerCase().includes(search.toLowerCase()) ||
+        supplier.document.includes(search) ||
+        (supplier.email && supplier.email.toLowerCase().includes(search.toLowerCase()))
+      );
+      setFilteredSuppliers(filtered);
+    }
+  }, [search, suppliers]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1);
-    loadSuppliers(1, search);
+    // A filtragem já é feita no useEffect acima
   };
 
   const handleDelete = async (id: string) => {
@@ -48,8 +60,8 @@ export default function Suppliers() {
 
     try {
       setDeleteLoading(id);
-      await hybridSupplierService.deleteSupplier(id);
-      loadSuppliers(currentPage, search);
+      await SuppliersService.delete(id);
+      await loadSuppliers(); // Recarrega a lista
     } catch (error) {
       console.error('Erro ao excluir fornecedor:', error);
       alert('Erro ao excluir fornecedor');
@@ -115,7 +127,7 @@ export default function Suppliers() {
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : !suppliers?.items || suppliers.items.length === 0 ? (
+        ) : filteredSuppliers.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-500">
               <p className="text-lg">Nenhum fornecedor encontrado</p>
@@ -125,9 +137,8 @@ export default function Suppliers() {
             </div>
           </div>
         ) : (
-          <>
-            <ul className="divide-y divide-gray-200">
-              {suppliers.items.map((supplier) => (
+          <ul className="divide-y divide-gray-200">
+            {filteredSuppliers.map((supplier: Supplier) => (
                 <li key={supplier.id}>
                   <div className="px-4 py-4 sm:px-6">
                     <div className="flex items-center justify-between">
@@ -149,7 +160,7 @@ export default function Suppliers() {
                             </span>
                           </div>
                           <div className="mt-1 text-sm text-gray-600">
-                            <p>{formatCNPJ(supplier.cnpj)}</p>
+                            <p>{formatCNPJ(supplier.document)}</p>
                             {supplier.email && <p>{supplier.email}</p>}
                             {supplier.phone && <p>{supplier.phone}</p>}
                           </div>
@@ -185,66 +196,6 @@ export default function Suppliers() {
                 </li>
               ))}
             </ul>
-
-            {/* Paginação */}
-            {suppliers && suppliers.total > suppliers.items.length && (
-              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div className="flex-1 flex justify-between sm:hidden">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    Anterior
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage * 10 >= suppliers.total}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    Próximo
-                  </button>
-                </div>
-                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Mostrando{' '}
-                      <span className="font-medium">
-                        {(currentPage - 1) * 10 + 1}
-                      </span>{' '}
-                      a{' '}
-                      <span className="font-medium">
-                        {Math.min(currentPage * 10, suppliers.total)}
-                      </span>{' '}
-                      de{' '}
-                      <span className="font-medium">{suppliers.total}</span>{' '}
-                      resultados
-                    </p>
-                  </div>
-                  <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                      <button
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        <span className="sr-only">Anterior</span>
-                        ‹
-                      </button>
-                      <button
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage * 10 >= suppliers.total}
-                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        <span className="sr-only">Próximo</span>
-                        ›
-                      </button>
-                    </nav>
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
         )}
       </div>
     </div>
