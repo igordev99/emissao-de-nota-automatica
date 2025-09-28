@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import FormulasService, { type FormulaGroup } from '../services/formulasService'
+import FormulasService from '../services/formulasService'
+import type { Database } from '../lib/supabase'
 import { 
   FolderIcon, 
   PlusIcon, 
@@ -10,6 +11,8 @@ import {
   EyeIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/outline'
+
+type FormulaGroup = Database['public']['Tables']['formula_groups']['Row']
 
 const FormulaGroupsPage: React.FC = () => {
   const { user } = useAuth()

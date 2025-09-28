@@ -1,5 +1,4 @@
 import { supabase } from '../lib/supabase'
-import type { Database } from '../lib/supabase'
 
 // Tipos para o sistema de perfis e roles
 export type UserRole = 'user' | 'admin' | 'super_admin'

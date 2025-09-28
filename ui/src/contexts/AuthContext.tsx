@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 
 import supabaseAuthService, { type LoginCredentials, type RegisterData } from '../services/supabaseAuth';
-import { UserProfileService, type UserProfile, type UserRole } from '../services/userProfileService';
+import { UserProfileService, type UserProfile } from '../services/userProfileService';
 
 interface AuthContextType {
   user: User | null;

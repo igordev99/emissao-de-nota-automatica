@@ -3,9 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import FormulasService, { 
   type FormulaWithRows, 
-  type FormulaRow, 
   type FormulaRowData 
 } from '../services/formulasService'
+import type { Database } from '../lib/supabase'
 import { 
   ArrowLeftIcon,
   PlusIcon,
@@ -17,6 +17,8 @@ import {
   CheckCircleIcon,
   XCircleIcon
 } from '@heroicons/react/24/outline'
+
+type FormulaRow = Database['public']['Tables']['formula_rows']['Row']
 
 const FormulaDetailPage: React.FC = () => {
   const { formulaId } = useParams<{ formulaId: string }>()

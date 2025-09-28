@@ -480,6 +480,7 @@ export class FormulasService {
           .update({ order_position: index + 1 })
           .eq('id', rowId)
           .eq('user_id', user.id)
+          .eq('formula_id', formulaId) // Usar formulaId para segurança extra
       )
 
       await Promise.all(updatePromises)
