@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import FormulasService, { 
-  type FormulaWithRows, 
+import FormulaService, { 
+  type FormulaGroupWithRows, 
+  type FormulaRow, 
   type FormulaRowData 
-} from '../services/formulasService'
-import type { Database } from '../lib/supabase'
+} from '../services/formulaService'
 import { 
   ArrowLeftIcon,
   PlusIcon,
@@ -15,24 +15,23 @@ import {
   TableCellsIcon,
   CurrencyDollarIcon,
   CheckCircleIcon,
-  XCircleIcon
+  XCircleIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline'
 
-type FormulaRow = Database['public']['Tables']['formula_rows']['Row']
-
-const FormulaDetailPage: React.FC = () => {
-  const { formulaId } = useParams<{ formulaId: string }>()
+const FormulaGroupRowsPage: React.FC = () => {
+  const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
   
-  const [formula, setFormula] = useState<FormulaWithRows | null>(null)
+  const [group, setGroup] = useState<FormulaGroupWithRows | null>(null)
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingRow, setEditingRow] = useState<FormulaRow | null>(null)
   
   // Form state
   const [formData, setFormData] = useState<FormulaRowData>({
-    formula_id: formulaId || '',
+    group_id: groupId || '',
     val_min: 0,
     val_max: 0,
     indice: 0,
@@ -42,23 +41,19 @@ const FormulaDetailPage: React.FC = () => {
 
   const [validationError, setValidationError] = useState<string | null>(null)
 
-  const loadFormulaData = async () => {
-    if (!formulaId) return
+  const loadGroupData = async () => {
+    if (!groupId) return
     
     try {
       setLoading(true)
-      // Buscar a fórmula com suas linhas
-      const formulas = await FormulasService.getFormulasByGroup('')
-      const foundFormula = formulas.find(f => f.id === formulaId)
-      
-      if (!foundFormula) {
+      const data = await FormulaService.getGroupWithRows(groupId)
+      if (!data) {
         navigate('/admin/formulas')
         return
       }
-      
-      setFormula(foundFormula)
+      setGroup(data)
     } catch (error) {
-      console.error('Erro ao carregar fórmula:', error)
+      console.error('Erro ao carregar grupo:', error)
       navigate('/admin/formulas')
     } finally {
       setLoading(false)
@@ -66,10 +61,10 @@ const FormulaDetailPage: React.FC = () => {
   }
 
   useEffect(() => {
-    if (user && formulaId) {
-      loadFormulaData()
+    if (user && groupId) {
+      loadGroupData()
     }
-  }, [user, formulaId])
+  }, [user, groupId])
 
   const validateRowData = async (rowData: FormulaRowData): Promise<string | null> => {
     // Validar valores mínimo e máximo
@@ -78,9 +73,9 @@ const FormulaDetailPage: React.FC = () => {
     }
 
     // Validar se não há conflito com outras linhas
-    if (formulaId) {
-      const isValid = await FormulasService.validateRowRange(
-        formulaId, 
+    if (groupId) {
+      const isValid = await FormulaService.validateRowRange(
+        groupId, 
         rowData.val_min, 
         rowData.val_max,
         editingRow?.id
@@ -108,12 +103,12 @@ const FormulaDetailPage: React.FC = () => {
       }
       
       if (editingRow) {
-        await FormulasService.updateFormulaRow(editingRow.id, formData)
+        await FormulaService.updateRow(editingRow.id, formData)
       } else {
-        await FormulasService.createFormulaRow(formData)
+        await FormulaService.createRow(formData)
       }
       
-      await loadFormulaData()
+      await loadGroupData()
       resetForm()
     } catch (error) {
       console.error('Erro ao salvar linha:', error)
@@ -127,8 +122,8 @@ const FormulaDetailPage: React.FC = () => {
     }
 
     try {
-      await FormulasService.deleteFormulaRow(rowId)
-      await loadFormulaData()
+      await FormulaService.deleteRow(rowId)
+      await loadGroupData()
     } catch (error) {
       console.error('Erro ao excluir linha:', error)
       alert('Erro ao excluir linha. Tente novamente.')
@@ -137,7 +132,7 @@ const FormulaDetailPage: React.FC = () => {
 
   const resetForm = () => {
     setFormData({
-      formula_id: formulaId || '',
+      group_id: groupId || '',
       val_min: 0,
       val_max: 0,
       indice: 0,
@@ -151,7 +146,7 @@ const FormulaDetailPage: React.FC = () => {
 
   const openEditModal = (row: FormulaRow) => {
     setFormData({
-      formula_id: row.formula_id,
+      group_id: row.group_id,
       val_min: row.val_min,
       val_max: row.val_max,
       indice: row.indice,
@@ -181,12 +176,12 @@ const FormulaDetailPage: React.FC = () => {
     )
   }
 
-  if (!formula) {
+  if (!group) {
     return (
       <div className="text-center py-12">
-        <TableCellsIcon className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">Fórmula não encontrada</h3>
-        <p className="mt-1 text-sm text-gray-500">A fórmula solicitada não existe ou foi excluída.</p>
+        <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
+        <h3 className="mt-2 text-sm font-medium text-gray-900">Grupo não encontrado</h3>
+        <p className="mt-1 text-sm text-gray-500">O grupo solicitado não existe ou foi excluído.</p>
         <div className="mt-6">
           <Link
             to="/admin/formulas"
@@ -210,39 +205,32 @@ const FormulaDetailPage: React.FC = () => {
           Grupos de Fórmulas
         </Link>
         <ChevronRightIcon className="h-4 w-4 text-gray-400" />
-        <Link 
-          to={`/admin/formulas/groups/${formula.group_id}`} 
-          className="text-gray-500 hover:text-gray-700"
-        >
-          {formula.group?.name || 'Grupo'}
-        </Link>
-        <ChevronRightIcon className="h-4 w-4 text-gray-400" />
-        <span className="text-gray-900 font-medium">{formula.name}</span>
+        <span className="text-gray-900 font-medium">{group.name}</span>
       </nav>
 
       {/* Header */}
       <div className="flex justify-between items-start">
         <div className="flex items-start space-x-3">
           <button
-            onClick={() => navigate(`/admin/formulas/groups/${formula.group_id}`)}
+            onClick={() => navigate('/admin/formulas')}
             className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
           >
             <ArrowLeftIcon className="h-5 w-5" />
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-gray-900">{formula.name}</h1>
-              {!formula.is_active && (
+              <h1 className="text-2xl font-bold text-gray-900">{group.name}</h1>
+              {!group.is_active && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                   Inativo
                 </span>
               )}
             </div>
-            {formula.description && (
-              <p className="text-gray-600 mt-1">{formula.description}</p>
+            {group.description && (
+              <p className="text-gray-600 mt-1">{group.description}</p>
             )}
             <p className="text-sm text-gray-500 mt-2">
-              {formula.rows?.length || 0} linha(s) de cálculo
+              {group.rows?.length || 0} linha(s) de cálculo configuradas
             </p>
           </div>
         </div>
@@ -256,11 +244,11 @@ const FormulaDetailPage: React.FC = () => {
       </div>
 
       {/* Tabela de Linhas */}
-      {!formula.rows || formula.rows.length === 0 ? (
+      {!group.rows || group.rows.length === 0 ? (
         <div className="text-center py-12">
           <TableCellsIcon className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Nenhuma linha encontrada</h3>
-          <p className="mt-1 text-sm text-gray-500">Comece criando a primeira linha de cálculo desta fórmula.</p>
+          <p className="mt-1 text-sm text-gray-500">Comece criando a primeira linha de cálculo para este grupo de fórmulas.</p>
           <div className="mt-6">
             <button
               onClick={() => setShowCreateModal(true)}
@@ -295,7 +283,7 @@ const FormulaDetailPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {formula.rows.map((row) => (
+                {group.rows.map((row) => (
                   <tr key={row.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
@@ -477,4 +465,4 @@ const FormulaDetailPage: React.FC = () => {
   )
 }
 
-export default FormulaDetailPage
+export default FormulaGroupRowsPage

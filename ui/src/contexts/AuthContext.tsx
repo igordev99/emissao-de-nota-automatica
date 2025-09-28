@@ -41,20 +41,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Função para carregar perfil do usuário
-  const loadUserProfile = async (userId: string) => {
+  const loadUserProfile = async (currentUser: User) => {
     try {
       const userProfile = await UserProfileService.getCurrentUserProfile();
       
       // Se não existe perfil, criar um com role 'user'
-      if (!userProfile && user) {
+      if (!userProfile) {
         console.log('Perfil não encontrado, criando perfil padrão...');
-        const newProfile = await UserProfileService.createProfile({
-          user_id: user.id,
-          email: user.email || '',
-          role: 'user',
-          company_name: 'Empresa'
-        });
-        setProfile(newProfile);
+        try {
+          const newProfile = await UserProfileService.createProfile({
+            user_id: currentUser.id,
+            email: currentUser.email || '',
+            role: 'user',
+            company_name: 'Empresa'
+          });
+          setProfile(newProfile);
+        } catch (createError) {
+          console.error('Erro ao criar perfil:', createError);
+          // Definir perfil temporário para não travar o sistema
+          setProfile({
+            id: `temp-${currentUser.id}`,
+            user_id: currentUser.id,
+            email: currentUser.email || '',
+            role: 'user',
+            is_active: true,
+            company_name: 'Empresa',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        }
       } else {
         setProfile(userProfile);
       }
@@ -63,9 +78,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // Se erro na criação, definir perfil padrão para não travar
       setProfile({
-        id: 'temp',
-        user_id: userId,
-        email: user?.email || '',
+        id: `temp-${currentUser.id}`,
+        user_id: currentUser.id,
+        email: currentUser.email || '',
         role: 'user',
         is_active: true,
         company_name: 'Empresa',
@@ -77,7 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const refreshProfile = async () => {
     if (user) {
-      await loadUserProfile(user.id);
+      await loadUserProfile(user);
     }
   };
 
@@ -91,7 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // Carregar perfil se há usuário
         if (currentSession?.user) {
-          await loadUserProfile(currentSession.user.id);
+          await loadUserProfile(currentSession.user);
         }
       } catch (error) {
         console.error('Erro ao inicializar auth:', error);
@@ -111,7 +126,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // Carregar perfil quando usuário faz login
         if (session?.user) {
-          await loadUserProfile(session.user.id);
+          await loadUserProfile(session.user);
         } else {
           setProfile(null);
         }
@@ -134,7 +149,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // Carregar perfil após login
       if (authUser) {
-        await loadUserProfile(authUser.id);
+        await loadUserProfile(authUser);
       }
     } catch (error) {
       console.error('Erro no login:', error);
@@ -154,7 +169,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Carregar perfil após registro (pode não existir ainda devido ao trigger)
       if (authUser) {
         // Aguardar um pouco para o trigger criar o perfil
-        setTimeout(() => loadUserProfile(authUser.id), 1000);
+        setTimeout(() => loadUserProfile(authUser), 1000);
       }
     } catch (error) {
       console.error('Erro no registro:', error);

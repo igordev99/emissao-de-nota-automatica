@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import FormulasService from '../services/formulasService'
-import type { Database } from '../lib/supabase'
+import FormulaService, { type FormulaGroup } from '../services/formulaService'
 import { 
   FolderIcon, 
   PlusIcon, 
@@ -11,8 +10,6 @@ import {
   EyeIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/outline'
-
-type FormulaGroup = Database['public']['Tables']['formula_groups']['Row']
 
 const FormulaGroupsPage: React.FC = () => {
   const { user } = useAuth()
@@ -31,7 +28,7 @@ const FormulaGroupsPage: React.FC = () => {
   const loadGroups = async () => {
     try {
       setLoading(true)
-      const data = await FormulasService.getAllGroups(false) // Incluir inativos
+      const data = await FormulaService.getAllGroups(false) // Incluir inativos
       setGroups(data)
     } catch (error) {
       console.error('Erro ao carregar grupos:', error)
@@ -51,9 +48,9 @@ const FormulaGroupsPage: React.FC = () => {
     
     try {
       if (editingGroup) {
-        await FormulasService.updateGroup(editingGroup.id, formData)
+        await FormulaService.updateGroup(editingGroup.id, formData)
       } else {
-        await FormulasService.createGroup(formData)
+        await FormulaService.createGroup(formData)
       }
       
       await loadGroups()
@@ -70,7 +67,7 @@ const FormulaGroupsPage: React.FC = () => {
     }
 
     try {
-      await FormulasService.deleteGroup(groupId)
+      await FormulaService.deleteGroup(groupId)
       await loadGroups()
     } catch (error) {
       console.error('Erro ao excluir grupo:', error)
@@ -170,7 +167,7 @@ const FormulaGroupsPage: React.FC = () => {
                     <Link
                       to={`/admin/formulas/groups/${group.id}`}
                       className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50"
-                      title="Ver fórmulas"
+                      title="Ver linhas da fórmula"
                     >
                       <EyeIcon className="h-4 w-4" />
                     </Link>

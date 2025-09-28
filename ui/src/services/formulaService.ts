@@ -6,10 +6,6 @@ type FormulaGroup = Database['public']['Tables']['formula_groups']['Row']
 type FormulaGroupInsert = Database['public']['Tables']['formula_groups']['Insert']
 type FormulaGroupUpdate = Database['public']['Tables']['formula_groups']['Update']
 
-type Formula = Database['public']['Tables']['formulas']['Row']
-type FormulaInsert = Database['public']['Tables']['formulas']['Insert']
-type FormulaUpdate = Database['public']['Tables']['formulas']['Update']
-
 type FormulaRow = Database['public']['Tables']['formula_rows']['Row']
 type FormulaRowInsert = Database['public']['Tables']['formula_rows']['Insert']
 type FormulaRowUpdate = Database['public']['Tables']['formula_rows']['Update']
@@ -21,17 +17,9 @@ export interface FormulaGroupData {
   is_active?: boolean
 }
 
-export interface FormulaData {
-  id?: string
-  group_id: string
-  name: string
-  description?: string
-  is_active?: boolean
-}
-
 export interface FormulaRowData {
   id?: string
-  formula_id: string
+  group_id: string
   val_min: number
   val_max: number
   indice: number
@@ -41,16 +29,11 @@ export interface FormulaRowData {
 }
 
 // Tipo completo com relacionamentos
-export interface FormulaGroupWithFormulas extends FormulaGroup {
-  formulas?: FormulaWithRows[]
-}
-
-export interface FormulaWithRows extends Formula {
+export interface FormulaGroupWithRows extends FormulaGroup {
   rows?: FormulaRow[]
-  group?: FormulaGroup
 }
 
-export class FormulasService {
+export class FormulaService {
   // ================================================
   // CRUD - GRUPOS DE FÓRMULAS
   // ================================================
@@ -85,9 +68,9 @@ export class FormulasService {
   }
 
   /**
-   * Busca grupo de fórmulas por ID com suas fórmulas
+   * Busca grupo de fórmulas por ID com suas linhas
    */
-  static async getGroupWithFormulas(groupId: string): Promise<FormulaGroupWithFormulas | null> {
+  static async getGroupWithRows(groupId: string): Promise<FormulaGroupWithRows | null> {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -109,12 +92,12 @@ export class FormulasService {
       throw new Error(`Erro ao buscar grupo: ${groupError.message}`)
     }
 
-    // Buscar fórmulas do grupo
-    const formulas = await this.getFormulasByGroup(groupId)
+    // Buscar linhas do grupo
+    const rows = await this.getGroupRows(groupId)
 
     return {
       ...group,
-      formulas
+      rows
     }
   }
 
@@ -182,7 +165,7 @@ export class FormulasService {
   }
 
   /**
-   * Deleta um grupo de fórmulas (e suas fórmulas em cascata)
+   * Deleta um grupo de fórmulas (e suas linhas em cascata)
    */
   static async deleteGroup(groupId: string): Promise<boolean> {
     const { data: { user } } = await supabase.auth.getUser()
@@ -206,141 +189,13 @@ export class FormulasService {
   }
 
   // ================================================
-  // CRUD - FÓRMULAS
+  // CRUD - LINHAS DE FÓRMULAS (DIRETO NO GRUPO)
   // ================================================
 
   /**
-   * Busca fórmulas de um grupo
+   * Busca linhas de um grupo
    */
-  static async getFormulasByGroup(groupId: string): Promise<FormulaWithRows[]> {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      throw new Error('Usuário não autenticado')
-    }
-
-    const { data: formulas, error } = await supabase
-      .from('formulas')
-      .select('*')
-      .eq('group_id', groupId)
-      .eq('user_id', user.id)
-      .eq('is_active', true)
-      .order('name', { ascending: true })
-
-    if (error) {
-      console.error('Erro ao buscar fórmulas:', error)
-      throw new Error(`Erro ao buscar fórmulas: ${error.message}`)
-    }
-
-    // Buscar linhas de cada fórmula
-    const formulasWithRows: FormulaWithRows[] = []
-    
-    for (const formula of formulas || []) {
-      const rows = await this.getFormulaRows(formula.id)
-      formulasWithRows.push({
-        ...formula,
-        rows
-      })
-    }
-
-    return formulasWithRows
-  }
-
-  /**
-   * Cria uma nova fórmula
-   */
-  static async createFormula(formulaData: FormulaData): Promise<Formula> {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      throw new Error('Usuário não autenticado')
-    }
-
-    const insertData: FormulaInsert = {
-      ...formulaData,
-      user_id: user.id,
-      is_active: formulaData.is_active ?? true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-
-    const { data, error } = await supabase
-      .from('formulas')
-      .insert([insertData])
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Erro ao criar fórmula:', error)
-      throw new Error(`Erro ao criar fórmula: ${error.message}`)
-    }
-
-    return data
-  }
-
-  /**
-   * Atualiza uma fórmula
-   */
-  static async updateFormula(formulaId: string, formulaData: Partial<FormulaData>): Promise<Formula> {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      throw new Error('Usuário não autenticado')
-    }
-
-    const updateData: FormulaUpdate = {
-      ...formulaData,
-      updated_at: new Date().toISOString()
-    }
-
-    const { data, error } = await supabase
-      .from('formulas')
-      .update(updateData)
-      .eq('id', formulaId)
-      .eq('user_id', user.id)
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Erro ao atualizar fórmula:', error)
-      throw new Error(`Erro ao atualizar fórmula: ${error.message}`)
-    }
-
-    return data
-  }
-
-  /**
-   * Deleta uma fórmula (e suas linhas em cascata)
-   */
-  static async deleteFormula(formulaId: string): Promise<boolean> {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      throw new Error('Usuário não autenticado')
-    }
-
-    const { error } = await supabase
-      .from('formulas')
-      .delete()
-      .eq('id', formulaId)
-      .eq('user_id', user.id)
-
-    if (error) {
-      console.error('Erro ao deletar fórmula:', error)
-      throw new Error(`Erro ao deletar fórmula: ${error.message}`)
-    }
-
-    return true
-  }
-
-  // ================================================
-  // CRUD - LINHAS DE FÓRMULAS
-  // ================================================
-
-  /**
-   * Busca linhas de uma fórmula
-   */
-  static async getFormulaRows(formulaId: string): Promise<FormulaRow[]> {
+  static async getGroupRows(groupId: string): Promise<FormulaRow[]> {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -350,12 +205,12 @@ export class FormulasService {
     const { data, error } = await supabase
       .from('formula_rows')
       .select('*')
-      .eq('formula_id', formulaId)
+      .eq('group_id', groupId)
       .eq('user_id', user.id)
       .order('order_position', { ascending: true })
 
     if (error) {
-      console.error('Erro ao buscar linhas da fórmula:', error)
+      console.error('Erro ao buscar linhas do grupo:', error)
       throw new Error(`Erro ao buscar linhas: ${error.message}`)
     }
 
@@ -365,7 +220,7 @@ export class FormulasService {
   /**
    * Cria uma nova linha de fórmula
    */
-  static async createFormulaRow(rowData: FormulaRowData): Promise<FormulaRow> {
+  static async createRow(rowData: FormulaRowData): Promise<FormulaRow> {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -375,7 +230,7 @@ export class FormulasService {
     // Se não foi especificada ordem, usar a próxima disponível
     let order_position = rowData.order_position
     if (order_position === undefined) {
-      const existingRows = await this.getFormulaRows(rowData.formula_id)
+      const existingRows = await this.getGroupRows(rowData.group_id)
       order_position = Math.max(0, ...existingRows.map(r => r.order_position)) + 1
     }
 
@@ -406,7 +261,7 @@ export class FormulasService {
   /**
    * Atualiza uma linha de fórmula
    */
-  static async updateFormulaRow(rowId: string, rowData: Partial<FormulaRowData>): Promise<FormulaRow> {
+  static async updateRow(rowId: string, rowData: Partial<FormulaRowData>): Promise<FormulaRow> {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -437,7 +292,7 @@ export class FormulasService {
   /**
    * Deleta uma linha de fórmula
    */
-  static async deleteFormulaRow(rowId: string): Promise<boolean> {
+  static async deleteRow(rowId: string): Promise<boolean> {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -463,9 +318,9 @@ export class FormulasService {
   // ================================================
 
   /**
-   * Reordena linhas de uma fórmula
+   * Reordena linhas de um grupo
    */
-  static async reorderFormulaRows(formulaId: string, rowIds: string[]): Promise<boolean> {
+  static async reorderRows(groupId: string, rowIds: string[]): Promise<boolean> {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -480,7 +335,7 @@ export class FormulasService {
           .update({ order_position: index + 1 })
           .eq('id', rowId)
           .eq('user_id', user.id)
-          .eq('formula_id', formulaId) // Usar formulaId para segurança extra
+          .eq('group_id', groupId) // Usar groupId para segurança extra
       )
 
       await Promise.all(updatePromises)
@@ -492,10 +347,10 @@ export class FormulasService {
   }
 
   /**
-   * Valida se uma nova linha não conflita com existentes
+   * Valida se uma nova linha não conflita com existentes no mesmo grupo
    */
-  static async validateRowRange(formulaId: string, valMin: number, valMax: number, excludeRowId?: string): Promise<boolean> {
-    const rows = await this.getFormulaRows(formulaId)
+  static async validateRowRange(groupId: string, valMin: number, valMax: number, excludeRowId?: string): Promise<boolean> {
+    const rows = await this.getGroupRows(groupId)
     
     return !rows.some(row => {
       if (excludeRowId && row.id === excludeRowId) return false
@@ -510,4 +365,7 @@ export class FormulasService {
   }
 }
 
-export default FormulasService
+export default FormulaService
+
+// Export tipos para compatibilidade
+export type { FormulaGroup, FormulaRow }

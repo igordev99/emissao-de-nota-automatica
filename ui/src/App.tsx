@@ -24,8 +24,7 @@ import UpholdConfig from './pages/UpholdConfig';
 import WebhookForm from './pages/WebhookForm';
 import Webhooks from './pages/Webhooks';
 import FormulaGroupsPage from './pages/FormulaGroupsPage';
-import FormulaGroupDetailPage from './pages/FormulaGroupDetailPage';
-import FormulaDetailPage from './pages/FormulaDetailPage';
+import FormulaGroupRowsPage from './pages/FormulaGroupRowsPage';
 
 function App() {
   try {
@@ -63,8 +62,7 @@ function App() {
               
               {/* Rotas para Fórmulas */}
               <Route path="admin/formulas" element={<FormulaGroupsPage />} />
-              <Route path="admin/formulas/groups/:groupId" element={<FormulaGroupDetailPage />} />
-              <Route path="admin/formulas/formulas/:formulaId" element={<FormulaDetailPage />} />
+              <Route path="admin/formulas/groups/:groupId" element={<FormulaGroupRowsPage />} />
             </Route>
             {/* Redirecionar qualquer rota não encontrada para dashboard */}
             <Route path="*" element={<Navigate to="/" replace />} />

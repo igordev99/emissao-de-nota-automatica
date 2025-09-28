@@ -175,41 +175,10 @@ export interface Database {
           updated_at?: string
         }
       }
-      formulas: {
-        Row: {
-          id: string
-          group_id: string
-          name: string
-          description: string | null
-          is_active: boolean
-          user_id: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          group_id: string
-          name: string
-          description?: string | null
-          is_active?: boolean
-          user_id: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          group_id?: string
-          name?: string
-          description?: string | null
-          is_active?: boolean
-          user_id?: string
-          updated_at?: string
-        }
-      }
       formula_rows: {
         Row: {
           id: string
-          formula_id: string
+          group_id: string
           val_min: number
           val_max: number
           indice: number
@@ -222,7 +191,7 @@ export interface Database {
         }
         Insert: {
           id?: string
-          formula_id: string
+          group_id: string
           val_min: number
           val_max: number
           indice: number
@@ -235,7 +204,7 @@ export interface Database {
         }
         Update: {
           id?: string
-          formula_id?: string
+          group_id?: string
           val_min?: number
           val_max?: number
           indice?: number
