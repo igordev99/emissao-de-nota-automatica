@@ -147,6 +147,105 @@ export interface Database {
           updated_at?: string
         }
       }
+      formula_groups: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          is_active: boolean
+          user_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          is_active?: boolean
+          user_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          is_active?: boolean
+          user_id?: string
+          updated_at?: string
+        }
+      }
+      formulas: {
+        Row: {
+          id: string
+          group_id: string
+          name: string
+          description: string | null
+          is_active: boolean
+          user_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          group_id: string
+          name: string
+          description?: string | null
+          is_active?: boolean
+          user_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          group_id?: string
+          name?: string
+          description?: string | null
+          is_active?: boolean
+          user_id?: string
+          updated_at?: string
+        }
+      }
+      formula_rows: {
+        Row: {
+          id: string
+          formula_id: string
+          val_min: number
+          val_max: number
+          indice: number
+          fator_redutor: number
+          iss_retido_das: boolean
+          order_position: number
+          user_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          formula_id: string
+          val_min: number
+          val_max: number
+          indice: number
+          fator_redutor?: number
+          iss_retido_das?: boolean
+          order_position?: number
+          user_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          formula_id?: string
+          val_min?: number
+          val_max?: number
+          indice?: number
+          fator_redutor?: number
+          iss_retido_das?: boolean
+          order_position?: number
+          user_id?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }

@@ -44,10 +44,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const loadUserProfile = async (userId: string) => {
     try {
       const userProfile = await UserProfileService.getCurrentUserProfile();
-      setProfile(userProfile);
+      
+      // Se não existe perfil, criar um com role 'user'
+      if (!userProfile && user) {
+        console.log('Perfil não encontrado, criando perfil padrão...');
+        const newProfile = await UserProfileService.createProfile({
+          user_id: user.id,
+          email: user.email || '',
+          role: 'user',
+          company_name: 'Empresa'
+        });
+        setProfile(newProfile);
+      } else {
+        setProfile(userProfile);
+      }
     } catch (error) {
       console.error('Erro ao carregar perfil do usuário:', error);
-      setProfile(null);
+      
+      // Se erro na criação, definir perfil padrão para não travar
+      setProfile({
+        id: 'temp',
+        user_id: userId,
+        email: user?.email || '',
+        role: 'user',
+        is_active: true,
+        company_name: 'Empresa',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
     }
   };
 
