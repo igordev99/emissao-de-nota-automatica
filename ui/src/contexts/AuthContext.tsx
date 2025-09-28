@@ -3,16 +3,21 @@ import type { ReactNode } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 
 import supabaseAuthService, { type LoginCredentials, type RegisterData } from '../services/supabaseAuth';
+import { UserProfileService, type UserProfile, type UserRole } from '../services/userProfileService';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  profile: UserProfile | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
+  isSuperAdmin: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,7 +37,25 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Função para carregar perfil do usuário
+  const loadUserProfile = async (userId: string) => {
+    try {
+      const userProfile = await UserProfileService.getCurrentUserProfile();
+      setProfile(userProfile);
+    } catch (error) {
+      console.error('Erro ao carregar perfil do usuário:', error);
+      setProfile(null);
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      await loadUserProfile(user.id);
+    }
+  };
 
   useEffect(() => {
     // Verificar sessão ao inicializar
@@ -41,6 +64,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const currentSession = await supabaseAuthService.getSession();
         setSession(currentSession);
         setUser(currentSession?.user || null);
+        
+        // Carregar perfil se há usuário
+        if (currentSession?.user) {
+          await loadUserProfile(currentSession.user.id);
+        }
       } catch (error) {
         console.error('Erro ao inicializar auth:', error);
       } finally {
@@ -56,6 +84,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('Auth state changed:', event, session);
         setSession(session);
         setUser(session?.user || null);
+        
+        // Carregar perfil quando usuário faz login
+        if (session?.user) {
+          await loadUserProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
+        
         setIsLoading(false);
       }
     );
@@ -71,6 +107,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { user: authUser, session: authSession } = await supabaseAuthService.login(credentials);
       setSession(authSession);
       setUser(authUser);
+      
+      // Carregar perfil após login
+      if (authUser) {
+        await loadUserProfile(authUser.id);
+      }
     } catch (error) {
       console.error('Erro no login:', error);
       throw error;
@@ -85,6 +126,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { user: authUser, session: authSession } = await supabaseAuthService.register(data);
       setSession(authSession);
       setUser(authUser);
+      
+      // Carregar perfil após registro (pode não existir ainda devido ao trigger)
+      if (authUser) {
+        // Aguardar um pouco para o trigger criar o perfil
+        setTimeout(() => loadUserProfile(authUser.id), 1000);
+      }
     } catch (error) {
       console.error('Erro no registro:', error);
       throw error;
@@ -99,6 +146,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await supabaseAuthService.logout();
       setSession(null);
       setUser(null);
+      setProfile(null);
     } catch (error) {
       console.error('Erro no logout:', error);
       throw error;
@@ -116,15 +164,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Computed values baseados no perfil
+  const isAdmin = profile ? ['admin', 'super_admin'].includes(profile.role) : false;
+  const isSuperAdmin = profile ? profile.role === 'super_admin' : false;
+
   const value: AuthContextType = {
     user,
     session,
+    profile,
     isAuthenticated: !!user,
+    isAdmin,
+    isSuperAdmin,
     isLoading,
     login,
     register,
     logout,
-    resetPassword
+    resetPassword,
+    refreshProfile
   };
 
   return (

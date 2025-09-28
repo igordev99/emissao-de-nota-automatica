@@ -116,6 +116,37 @@ export interface Database {
           updated_at?: string
         }
       }
+      user_profiles: {
+        Row: {
+          id: string
+          user_id: string
+          email: string
+          role: 'user' | 'admin' | 'super_admin'
+          is_active: boolean
+          company_name: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          email: string
+          role?: 'user' | 'admin' | 'super_admin'
+          is_active?: boolean
+          company_name?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          email?: string
+          role?: 'user' | 'admin' | 'super_admin'
+          is_active?: boolean
+          company_name?: string | null
+          updated_at?: string
+        }
+      }
     }
   }
 }
