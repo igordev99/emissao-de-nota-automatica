@@ -3,28 +3,63 @@
 -- Execute este script no SQL Editor do Supabase
 -- ================================================
 
--- Passo 1: Remover triggers e funções antigas
-DROP TRIGGER IF EXISTS validate_ranges ON public.formula_rows;
-DROP TRIGGER IF EXISTS update_formula_rows_updated_at ON public.formula_rows;
-DROP TRIGGER IF EXISTS update_formulas_updated_at ON public.formulas;
-DROP TRIGGER IF EXISTS update_formula_groups_updated_at ON public.formula_groups;
-DROP FUNCTION IF EXISTS validate_formula_ranges();
+-- Passo 1: Verificar quais tabelas existem
+DO $$
+BEGIN
+    -- Verificar e limpar triggers existentes
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'validate_ranges') THEN
+        DROP TRIGGER validate_ranges ON public.formula_rows;
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_formula_rows_updated_at') THEN
+        DROP TRIGGER update_formula_rows_updated_at ON public.formula_rows;
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_formulas_updated_at') THEN
+        DROP TRIGGER update_formulas_updated_at ON public.formulas;
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_formula_groups_updated_at') THEN
+        DROP TRIGGER update_formula_groups_updated_at ON public.formula_groups;
+    END IF;
+    
+    -- Remover função de validação se existir
+    DROP FUNCTION IF EXISTS validate_formula_ranges();
+    
+    RAISE NOTICE 'Triggers e funções removidos com segurança';
+END $$;
 
--- Passo 2: Remover políticas RLS antigas
-DROP POLICY IF EXISTS "Users can view own formula rows" ON public.formula_rows;
-DROP POLICY IF EXISTS "Users can insert own formula rows" ON public.formula_rows;
-DROP POLICY IF EXISTS "Users can update own formula rows" ON public.formula_rows;
-DROP POLICY IF EXISTS "Users can delete own formula rows" ON public.formula_rows;
-DROP POLICY IF EXISTS "Users can view own formulas" ON public.formulas;
-DROP POLICY IF EXISTS "Users can insert own formulas" ON public.formulas;
-DROP POLICY IF EXISTS "Users can update own formulas" ON public.formulas;
-DROP POLICY IF EXISTS "Users can delete own formulas" ON public.formulas;
-DROP POLICY IF EXISTS "Users can view own formula groups" ON public.formula_groups;
-DROP POLICY IF EXISTS "Users can insert own formula groups" ON public.formula_groups;
-DROP POLICY IF EXISTS "Users can update own formula groups" ON public.formula_groups;
-DROP POLICY IF EXISTS "Users can delete own formula groups" ON public.formula_groups;
+-- Passo 2: Remover políticas RLS de forma segura
+DO $$
+BEGIN
+    -- Remover políticas de formula_rows se a tabela existir
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'formula_rows' AND table_schema = 'public') THEN
+        DROP POLICY IF EXISTS "Users can view own formula rows" ON public.formula_rows;
+        DROP POLICY IF EXISTS "Users can insert own formula rows" ON public.formula_rows;
+        DROP POLICY IF EXISTS "Users can update own formula rows" ON public.formula_rows;
+        DROP POLICY IF EXISTS "Users can delete own formula rows" ON public.formula_rows;
+    END IF;
+    
+    -- Remover políticas de formulas se a tabela existir
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'formulas' AND table_schema = 'public') THEN
+        DROP POLICY IF EXISTS "Users can view own formulas" ON public.formulas;
+        DROP POLICY IF EXISTS "Users can insert own formulas" ON public.formulas;
+        DROP POLICY IF EXISTS "Users can update own formulas" ON public.formulas;
+        DROP POLICY IF EXISTS "Users can delete own formulas" ON public.formulas;
+    END IF;
+    
+    -- Remover políticas de formula_groups se a tabela existir
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'formula_groups' AND table_schema = 'public') THEN
+        DROP POLICY IF EXISTS "Users can view own formula groups" ON public.formula_groups;
+        DROP POLICY IF EXISTS "Users can insert own formula groups" ON public.formula_groups;
+        DROP POLICY IF EXISTS "Users can update own formula groups" ON public.formula_groups;
+        DROP POLICY IF EXISTS "Users can delete own formula groups" ON public.formula_groups;
+    END IF;
+    
+    RAISE NOTICE 'Políticas RLS removidas com segurança';
+END $$;
 
--- Passo 3: Remover tabelas antigas
+-- Passo 3: Remover tabelas antigas de forma segura
 DROP TABLE IF EXISTS public.formula_rows CASCADE;
 DROP TABLE IF EXISTS public.formulas CASCADE;
 DROP TABLE IF EXISTS public.formula_groups CASCADE;
@@ -184,6 +219,12 @@ CREATE TRIGGER validate_ranges
     EXECUTE FUNCTION validate_formula_ranges();
 
 -- ================================================
+-- NOTA: FUNÇÃO is_admin JÁ EXISTE
+-- ================================================
+-- A função is_admin já está implementada e sendo usada por outras políticas RLS.
+-- Não precisamos recriar, apenas usar a existente nas novas políticas.
+
+-- ================================================
 -- VERIFICAÇÃO FINAL
 -- ================================================
 
@@ -198,6 +239,10 @@ SELECT 'RLS habilitado:' as status;
 SELECT tablename, rowsecurity FROM pg_tables 
 WHERE schemaname = 'public' 
 AND tablename IN ('formula_groups', 'formula_rows');
+
+-- Verificar se a função is_admin existe (deve retornar 1 linha)
+SELECT 'Função is_admin:' as status;
+SELECT proname FROM pg_proc WHERE proname = 'is_admin';
 
 -- Sucesso!
 SELECT 'Migração concluída com sucesso!' as resultado;

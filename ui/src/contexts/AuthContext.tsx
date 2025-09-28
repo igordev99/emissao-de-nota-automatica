@@ -46,8 +46,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const loadUserProfile = async (currentUser: User) => {
     // Se já carregamos o perfil para este usuário, não carregar novamente
     if (profileLoaded === currentUser.id && profile) {
+      console.log('Perfil já carregado para usuário:', currentUser.id);
       return;
     }
+    
+    console.log('Carregando perfil para usuário:', currentUser.id);
+    
     try {
       const userProfile = await UserProfileService.getCurrentUserProfile();
       
@@ -62,22 +66,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
             company_name: 'Empresa'
           });
           setProfile(newProfile);
+          console.log('Perfil criado:', newProfile);
         } catch (createError) {
           console.error('Erro ao criar perfil:', createError);
           // Definir perfil temporário para não travar o sistema
-          setProfile({
+          const tempProfile = {
             id: `temp-${currentUser.id}`,
             user_id: currentUser.id,
             email: currentUser.email || '',
-            role: 'user',
+            role: 'user' as const,
             is_active: true,
             company_name: 'Empresa',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          });
+          };
+          setProfile(tempProfile);
+          console.log('Perfil temporário criado:', tempProfile);
         }
       } else {
         setProfile(userProfile);
+        console.log('Perfil carregado:', userProfile);
       }
       
       // Marcar perfil como carregado para este usuário
@@ -87,16 +95,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error('Erro ao carregar perfil do usuário:', error);
       
       // Se erro na criação, definir perfil padrão para não travar
-      setProfile({
+      const fallbackProfile = {
         id: `temp-${currentUser.id}`,
         user_id: currentUser.id,
         email: currentUser.email || '',
-        role: 'user',
+        role: 'user' as const,
         is_active: true,
         company_name: 'Empresa',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      });
+      };
+      setProfile(fallbackProfile);
+      console.log('Perfil de fallback criado:', fallbackProfile);
       
       // Marcar perfil como carregado mesmo em caso de erro
       setProfileLoaded(currentUser.id);
@@ -128,7 +138,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // Carregar perfil se há usuário (apenas na inicialização)
         if (currentSession?.user) {
-          await loadUserProfile(currentSession.user);
+          try {
+            await loadUserProfile(currentSession.user);
+          } catch (error) {
+            console.error('Erro ao carregar perfil na inicialização:', error);
+          }
         }
         
         setInitialized(true);
@@ -137,6 +151,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } finally {
         if (isInitializing) {
           setIsLoading(false);
+          console.log('Loading finalizado na inicialização');
         }
       }
     };
@@ -160,14 +175,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
           
           // Carregar perfil apenas no login, não em refresh
           if (event === 'SIGNED_IN' && session?.user) {
-            await loadUserProfile(session.user);
+            try {
+              await loadUserProfile(session.user);
+            } catch (error) {
+              console.error('Erro ao carregar perfil após login:', error);
+            } finally {
+              // Sempre finalizar loading após tentativa de carregar perfil
+              setIsLoading(false);
+            }
           } else if (event === 'SIGNED_OUT') {
             setProfile(null);
             setProfileLoaded(null); // Limpar cache do perfil
+            setIsLoading(false);
+          } else if (event === 'TOKEN_REFRESHED') {
+            // No refresh, não recarregar perfil, apenas finalizar loading
+            setIsLoading(false);
           }
           
           if (!initialized) {
-            setIsLoading(false);
             setInitialized(true);
           }
         }
@@ -186,7 +211,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await supabaseAuthService.login(credentials);
       
       // O evento SIGNED_IN do listener já vai processar a sessão e usuário
-      // Não precisamos duplicar a lógica aqui
+      // Mas garantimos que o loading seja finalizado após o login
       
     } catch (error) {
       console.error('Erro no login:', error);
