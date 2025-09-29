@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 
 import supabaseAuthService, { type LoginCredentials, type RegisterData } from '../services/supabaseAuth';
-import { UserProfileService, type UserProfile } from '../services/userProfileService';
+import { type UserProfile } from '../services/userProfileService';
+import { supabase } from '../lib/supabase';
 
 interface AuthContextType {
   user: User | null;
@@ -62,39 +63,65 @@ export function AuthProvider({ children }: AuthProviderProps) {
     console.log('🔄 Iniciando carregamento do perfil para usuário:', currentUser.id);
     
     try {
-      const userProfile = await UserProfileService.getCurrentUserProfile();
+      console.log('📡 Fazendo query direto para user_profiles...');
       
-      // Se não existe perfil, criar um com role 'user'
-      if (!userProfile) {
-        console.log('Perfil não encontrado, criando perfil padrão...');
-        try {
-          const newProfile = await UserProfileService.createProfile({
-            user_id: currentUser.id,
-            email: currentUser.email || '',
-            role: 'user',
-            company_name: 'Empresa'
-          });
+      // Fazer query direta para evitar conflito com getUser()
+      const { data: userProfile, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+        
+      console.log('📋 Resposta da query:', { userProfile, error });
+      
+      // Verificar se houve erro na query
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('🆕 Perfil não encontrado, criando perfil padrão...');
+          // Criar perfil diretamente no banco
+          const { data: newProfile, error: createError } = await supabase
+            .from('user_profiles')
+            .insert([{
+              user_id: currentUser.id,
+              email: currentUser.email || '',
+              role: 'user',
+              company_name: 'Empresa',
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }])
+            .select()
+            .single();
+            
+          if (createError) {
+            console.error('❌ Erro ao criar perfil:', createError);
+            throw createError;
+          }
+          
           setProfile(newProfile);
-          console.log('Perfil criado:', newProfile);
-        } catch (createError) {
-          console.error('Erro ao criar perfil:', createError);
-          // Definir perfil temporário para não travar o sistema
-          const tempProfile = {
-            id: `temp-${currentUser.id}`,
-            user_id: currentUser.id,
-            email: currentUser.email || '',
-            role: 'user' as const,
-            is_active: true,
-            company_name: 'Empresa',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
-          setProfile(tempProfile);
-          console.log('Perfil temporário criado:', tempProfile);
+          console.log('✅ Perfil criado com sucesso:', newProfile);
+        } else {
+          console.error('❌ Erro na query do perfil:', error);
+          throw error;
         }
-      } else {
+      } else if (userProfile) {
         setProfile(userProfile);
-        console.log('Perfil carregado:', userProfile);
+        console.log('✅ Perfil encontrado:', userProfile);
+      } else {
+        console.log('⚠️ Perfil é null, criando temporário...');
+        // Criar perfil temporário
+        const tempProfile = {
+          id: `temp-${currentUser.id}`,
+          user_id: currentUser.id,
+          email: currentUser.email || '',
+          role: 'user' as const,
+          is_active: true,
+          company_name: 'Empresa',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        setProfile(tempProfile);
+        console.log('🔧 Perfil temporário criado:', tempProfile);
       }
       
       // Marcar perfil como carregado para este usuário
