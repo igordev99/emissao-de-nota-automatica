@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
-import { internalServiceTypeService } from '../services';
+import { ServiceTypesService } from '../services/serviceTypesService';
 
 interface FormData {
   code: string;
@@ -37,13 +37,15 @@ export default function ServiceTypeForm() {
   const loadServiceType = async (serviceTypeId: string) => {
     try {
       setLoading(true);
-      const serviceType = await internalServiceTypeService.getServiceTypeById(serviceTypeId);
-      setFormData({
-        code: serviceType.code,
-        name: serviceType.name,
-        issRetained: serviceType.issRetained,
-        active: serviceType.active
-      });
+      const serviceType = await ServiceTypesService.getById(serviceTypeId);
+      if (serviceType) {
+        setFormData({
+          code: serviceType.code,
+          name: serviceType.name,
+          issRetained: serviceType.iss_retained,
+          active: serviceType.active
+        });
+      }
     } catch (error) {
       console.error('Erro ao carregar tipo de serviço:', error);
       setError('Erro ao carregar tipo de serviço');
@@ -66,15 +68,22 @@ export default function ServiceTypeForm() {
     setSaveLoading(true);
 
     try {
+      const serviceTypeData = {
+        code: formData.code,
+        name: formData.name,
+        iss_retained: formData.issRetained,
+        active: formData.active
+      };
+
       if (isEditing && id) {
-        await internalServiceTypeService.updateServiceType(id, formData);
+        await ServiceTypesService.update(id, serviceTypeData);
       } else {
-        await internalServiceTypeService.createServiceType(formData);
+        await ServiceTypesService.create(serviceTypeData);
       }
       navigate('/service-types');
     } catch (error: any) {
       console.error('Erro ao salvar tipo de serviço:', error);
-      setError(error.response?.data?.error?.message || 'Erro ao salvar tipo de serviço');
+      setError(error.message || 'Erro ao salvar tipo de serviço');
     } finally {
       setSaveLoading(false);
     }
@@ -147,10 +156,10 @@ export default function ServiceTypeForm() {
                   value={formData.code}
                   onChange={handleInputChange}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Ex: 01.01, 02.05"
+                  placeholder="Ex: 2500, 1023, 7617"
                 />
                 <p className="mt-1 text-xs text-gray-500">
-                  Código único do serviço (ex: 01.01, 02.05)
+                  Código do serviço (pode ser qualquer número ou texto)
                 </p>
               </div>
 
