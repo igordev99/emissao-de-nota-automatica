@@ -46,21 +46,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Função para carregar perfil do usuário
   const loadUserProfile = async (currentUser: User) => {
+    console.log('🚀 [loadUserProfile] INICIADO para:', currentUser.id);
+    console.log('🔍 [loadUserProfile] Estado atual:', {
+      profileLoaded,
+      hasProfile: !!profile,
+      isLoading
+    });
+    
     // Se já carregamos o perfil para este usuário, não carregar novamente
     if (profileLoaded === currentUser.id && profile) {
-      console.log('✅ Perfil já carregado para usuário:', currentUser.id);
+      console.log('✅ [loadUserProfile] Perfil já carregado para usuário:', currentUser.id);
       return;
     }
     
     // Evitar chamadas múltiplas simultâneas
     if (profileLoaded === `loading-${currentUser.id}`) {
-      console.log('⏳ Perfil já sendo carregado para usuário:', currentUser.id);
+      console.log('⏳ [loadUserProfile] Perfil já sendo carregado para usuário:', currentUser.id);
       return;
     }
     
     // Marcar como carregando para evitar chamadas simultâneas
     setProfileLoaded(`loading-${currentUser.id}`);
-    console.log('🔄 Iniciando carregamento do perfil para usuário:', currentUser.id);
+    console.log('🔄 [loadUserProfile] Iniciando carregamento do perfil para usuário:', currentUser.id);
     
     try {
       console.log('📡 Fazendo query direto para user_profiles...');
@@ -126,9 +133,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // Marcar perfil como carregado para este usuário
       setProfileLoaded(currentUser.id);
+      console.log('✅ [loadUserProfile] CONCLUÍDO com sucesso para:', currentUser.id);
       
     } catch (error) {
-      console.error('Erro ao carregar perfil do usuário:', error);
+      console.error('❌ [loadUserProfile] Erro ao carregar perfil do usuário:', error);
       
       // Se erro na criação, definir perfil padrão para não travar
       const fallbackProfile = {
@@ -142,11 +150,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         updated_at: new Date().toISOString()
       };
       setProfile(fallbackProfile);
-      console.log('Perfil de fallback criado:', fallbackProfile);
+      console.log('🔧 [loadUserProfile] Perfil de fallback criado:', fallbackProfile);
       
       // Marcar perfil como carregado mesmo em caso de erro
       setProfileLoaded(currentUser.id);
+      console.log('✅ [loadUserProfile] CONCLUÍDO com fallback para:', currentUser.id);
     }
+    
+    console.log('🏁 [loadUserProfile] FINALIZANDO função para:', currentUser.id);
   };
 
   const refreshProfile = async () => {
@@ -207,7 +218,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setLoadingTimeout(null);
           }
           setIsLoading(false);
-          console.log('Loading finalizado na inicialização');
+          console.log('🏁 [initializeAuth] Loading finalizado na inicialização');
         }
       }
     };
@@ -226,7 +237,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // Apenas processar mudanças reais de estado
         if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-          console.log(`🔄 Processando evento: ${event}, User ID: ${session?.user?.id || 'null'}`);
+          console.log(`🔄 [onAuthStateChange] Processando evento: ${event}, User ID: ${session?.user?.id || 'null'}`);
+          console.log(`📊 [onAuthStateChange] Estado antes:`, { isLoading, initialized, profileLoaded });
           
           setSession(session);
           setUser(session?.user || null);
@@ -234,19 +246,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
           // Carregar perfil apenas no login, não em refresh
           if (event === 'SIGNED_IN' && session?.user) {
             console.log('📝 Iniciando carregamento do perfil...');
+            
+            // FORÇA O LOADING PARA FALSE IMEDIATAMENTE
+            console.log('🚨 FORÇA: Definindo isLoading = false ANTES de carregar perfil');
+            setIsLoading(false);
+            
             try {
               await loadUserProfile(session.user);
-              console.log('✅ Perfil carregado com sucesso, finalizando loading...');
+              console.log('✅ Perfil carregado com sucesso após loading false');
             } catch (error) {
               console.error('❌ Erro ao carregar perfil após login:', error);
-            } finally {
-              // Sempre finalizar loading após tentativa de carregar perfil
-              console.log('🎯 Definindo isLoading = false após SIGNED_IN');
-              if (loadingTimeout) {
-                clearTimeout(loadingTimeout);
-                setLoadingTimeout(null);
-              }
-              setIsLoading(false);
+            }
+            
+            // Limpar timeout se existir
+            if (loadingTimeout) {
+              clearTimeout(loadingTimeout);
+              setLoadingTimeout(null);
             }
           } else if (event === 'SIGNED_OUT') {
             console.log('👋 Usuário saiu, limpando dados...');
