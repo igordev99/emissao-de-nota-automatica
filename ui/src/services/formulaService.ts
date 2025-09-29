@@ -26,6 +26,8 @@ export interface FormulaRowData {
   fator_redutor?: number
   iss_retido_das?: boolean
   order_position?: number
+  codigo_servico?: string  // Novo: código do serviço
+  descricao_servico?: string  // Novo: descrição do serviço
 }
 
 // Tipo completo com relacionamentos
@@ -362,6 +364,103 @@ export class FormulaService {
         (row.val_max >= valMin && row.val_max <= valMax)
       )
     })
+  }
+
+  /**
+   * Importa códigos de serviço em massa para um grupo
+   */
+  static async importServiceCodes(groupId: string, serviceCodes: Array<{
+    codigo: string
+    descricao: string
+    iss_retido_das: boolean
+    val_min?: number
+    val_max?: number
+    indice?: number
+    fator_redutor?: number
+  }>): Promise<FormulaRow[]> {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error('Usuário não autenticado')
+    }
+
+    // Preparar dados para inserção em lote
+    const insertData: FormulaRowInsert[] = serviceCodes.map((service, index) => ({
+      group_id: groupId,
+      user_id: user.id,
+      codigo_servico: service.codigo,
+      descricao_servico: service.descricao,
+      iss_retido_das: service.iss_retido_das,
+      val_min: service.val_min ?? 0,
+      val_max: service.val_max ?? 0,
+      indice: service.indice ?? 0,
+      fator_redutor: service.fator_redutor ?? 0,
+      order_position: index + 1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }))
+
+    const { data, error } = await supabase
+      .from('formula_rows')
+      .insert(insertData)
+      .select()
+
+    if (error) {
+      console.error('Erro ao importar códigos de serviço:', error)
+      throw new Error(`Erro ao importar códigos: ${error.message}`)
+    }
+
+    return data || []
+  }
+
+  /**
+   * Busca linhas por código de serviço
+   */
+  static async searchByServiceCode(codigo: string): Promise<FormulaRow[]> {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error('Usuário não autenticado')
+    }
+
+    const { data, error } = await supabase
+      .from('formula_rows')
+      .select('*')
+      .eq('user_id', user.id)
+      .ilike('codigo_servico', `%${codigo}%`)
+      .order('codigo_servico', { ascending: true })
+
+    if (error) {
+      console.error('Erro ao buscar por código de serviço:', error)
+      throw new Error(`Erro na busca: ${error.message}`)
+    }
+
+    return data || []
+  }
+
+  /**
+   * Busca linhas por descrição de serviço
+   */
+  static async searchByServiceDescription(descricao: string): Promise<FormulaRow[]> {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error('Usuário não autenticado')
+    }
+
+    const { data, error } = await supabase
+      .from('formula_rows')
+      .select('*')
+      .eq('user_id', user.id)
+      .ilike('descricao_servico', `%${descricao}%`)
+      .order('codigo_servico', { ascending: true })
+
+    if (error) {
+      console.error('Erro ao buscar por descrição de serviço:', error)
+      throw new Error(`Erro na busca: ${error.message}`)
+    }
+
+    return data || []
   }
 }
 
