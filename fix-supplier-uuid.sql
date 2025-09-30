@@ -11,7 +11,21 @@ ALTER COLUMN id SET DEFAULT gen_random_uuid();
 ALTER TABLE "Client" 
 ALTER COLUMN id SET DEFAULT gen_random_uuid();
 
--- 4. Verificar configuração das tabelas
+-- 4. Configurar timestamps automáticos para tabela Supplier
+ALTER TABLE "Supplier" 
+ALTER COLUMN "createdAt" SET DEFAULT now();
+
+ALTER TABLE "Supplier" 
+ALTER COLUMN "updatedAt" SET DEFAULT now();
+
+-- 5. Configurar timestamps automáticos para tabela Client
+ALTER TABLE "Client" 
+ALTER COLUMN "createdAt" SET DEFAULT now();
+
+ALTER TABLE "Client" 
+ALTER COLUMN "updatedAt" SET DEFAULT now();
+
+-- 6. Verificar configuração das tabelas
 SELECT 
     'Supplier' as table_name,
     column_name, 
@@ -29,7 +43,7 @@ SELECT
     data_type 
 FROM information_schema.columns 
 WHERE table_name = 'Client' AND table_schema = 'public'
-ORDER BY table_name, ordinal_position;
+ORDER BY table_name, column_name;
 
--- 5. Testar criação de UUID
+-- 7. Testar criação de UUID
 SELECT gen_random_uuid() as test_uuid;

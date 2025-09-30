@@ -81,9 +81,14 @@ export const clientSupabaseService = {
       document: data.document 
     });
 
+    const now = new Date().toISOString();
     const { data: client, error } = await supabase
       .from('Client')
-      .insert([data]) // Não incluir timestamps - deixar o banco gerar
+      .insert([{
+        ...data,
+        createdAt: now,
+        updatedAt: now
+      }])
       .select()
       .single();
 
@@ -103,7 +108,10 @@ export const clientSupabaseService = {
 
     const { data: client, error } = await supabase
       .from('Client')
-      .update(data) // Remover updatedAt manual
+      .update({
+        ...data,
+        updatedAt: new Date().toISOString()
+      })
       .eq('id', id)
       .select()
       .single();

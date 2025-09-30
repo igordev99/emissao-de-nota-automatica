@@ -91,6 +91,7 @@ export const supplierSupabaseService = {
     });
 
     // Converter cnpj para document para o banco
+    const now = new Date().toISOString();
     const { data: supplier, error } = await supabase
       .from('Supplier')
       .insert([{
@@ -98,8 +99,9 @@ export const supplierSupabaseService = {
         document: data.cnpj, // cnpj -> document
         email: data.email,
         phone: data.phone,
-        address: data.address
-        // Remover createdAt e updatedAt - deixar o banco gerar automaticamente
+        address: data.address,
+        createdAt: now,
+        updatedAt: now
       }])
       .select()
       .single();
@@ -128,7 +130,7 @@ export const supplierSupabaseService = {
       updateData.document = data.cnpj; // cnpj -> document
       delete updateData.cnpj;
     }
-    // Remover updatedAt - deixar o banco gerar automaticamente
+    updateData.updatedAt = new Date().toISOString();
 
     const { data: supplier, error } = await supabase
       .from('Supplier')
