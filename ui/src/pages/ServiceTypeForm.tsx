@@ -68,23 +68,32 @@ export default function ServiceTypeForm() {
     setSaveLoading(true);
 
     try {
+      console.log('🚀 [ServiceTypeForm] Iniciando submit...');
+      
       const serviceTypeData = {
         code: formData.code,
         name: formData.name,
         iss_retained: formData.issRetained,
         active: formData.active
       };
+      
+      console.log('📋 [ServiceTypeForm] Dados para salvar:', serviceTypeData);
 
       if (isEditing && id) {
+        console.log('✏️ [ServiceTypeForm] Atualizando tipo de serviço...');
         await ServiceTypesService.update(id, serviceTypeData);
       } else {
+        console.log('➕ [ServiceTypeForm] Criando novo tipo de serviço...');
         await ServiceTypesService.create(serviceTypeData);
       }
+      
+      console.log('✅ [ServiceTypeForm] Salvo com sucesso, redirecionando...');
       navigate('/service-types');
     } catch (error: any) {
-      console.error('Erro ao salvar tipo de serviço:', error);
+      console.error('❌ [ServiceTypeForm] Erro ao salvar tipo de serviço:', error);
       setError(error.message || 'Erro ao salvar tipo de serviço');
     } finally {
+      console.log('🏁 [ServiceTypeForm] Finalizando submit...');
       setSaveLoading(false);
     }
   };

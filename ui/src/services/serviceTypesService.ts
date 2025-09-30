@@ -104,11 +104,16 @@ export class ServiceTypesService {
    * Cria um novo tipo de serviço
    */
   static async create(serviceTypeData: ServiceTypeData): Promise<ServiceType> {
+    console.log('🚀 [ServiceTypesService] Iniciando criação...');
+    console.log('📋 [ServiceTypesService] Dados recebidos:', serviceTypeData);
+    
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
       throw new Error('Usuário não autenticado')
     }
+    
+    console.log('👤 [ServiceTypesService] Usuário autenticado:', user.id);
 
     const insertData: ServiceTypeInsert = {
       ...serviceTypeData,
@@ -118,6 +123,8 @@ export class ServiceTypesService {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
+    
+    console.log('📤 [ServiceTypesService] Dados para inserção:', insertData);
 
     const { data, error } = await supabase
       .from('service_types')
@@ -126,7 +133,7 @@ export class ServiceTypesService {
       .single()
 
     if (error) {
-      console.error('Erro ao criar tipo de serviço:', error)
+      console.error('❌ [ServiceTypesService] Erro ao criar tipo de serviço:', error)
       
       // Tratamento de erro de código duplicado
       if (error.code === '23505' && error.message.includes('service_types_user_code_unique')) {
@@ -135,7 +142,8 @@ export class ServiceTypesService {
       
       throw new Error(`Erro ao criar tipo de serviço: ${error.message}`)
     }
-
+    
+    console.log('✅ [ServiceTypesService] Tipo de serviço criado com sucesso:', data);
     return data
   }
 

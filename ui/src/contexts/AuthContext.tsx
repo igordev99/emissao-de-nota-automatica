@@ -40,6 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [processedUserId, setProcessedUserId] = useState<string | null>(null);
 
   // Função simplificada para carregar perfil
   const loadUserProfile = async (currentUser: User) => {
@@ -151,11 +152,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(session?.user || null);
         
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('✅ Login detectado, carregando perfil...');
-          await loadUserProfile(session.user);
+          // Evitar processar o mesmo usuário múltiplas vezes
+          if (processedUserId !== session.user.id) {
+            console.log('✅ Login detectado, carregando perfil...');
+            setProcessedUserId(session.user.id);
+            await loadUserProfile(session.user);
+          } else {
+            console.log('⏭️ SIGNED_IN já processado para usuário:', session.user.id);
+          }
         } else if (event === 'SIGNED_OUT') {
           console.log('👋 Logout detectado, limpando dados...');
           setProfile(null);
+          setProcessedUserId(null);
         }
         
         // Sempre garantir que loading seja false após processar eventos
