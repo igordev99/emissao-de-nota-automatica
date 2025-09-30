@@ -1,24 +1,16 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["dist/**"]
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/dist/server.js"
-    }
-  ],
+  "buildCommand": "cd ui && npm ci --include=dev && npm run build",
+  "outputDirectory": "ui/dist",
+  "installCommand": "cd ui && npm ci --include=dev",
+  "framework": null,
   "functions": {
-    "dist/server.js": {
+    "api/nfse-working.mjs": {
       "maxDuration": 30
     }
   },
-  "buildCommand": "npm run vercel-build"
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/nfse-working.mjs" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

@@ -1,0 +1,16 @@
+codigo_servico,descricao_servico,iss_retido_das,indice,val_min,val_max
+2500,"Serviços de programação visual, comunicação visual e congêneres",false,0.05,0,999999
+1023,"Execução por administração, empreitada ou subempreitada, de obras de construção civil, elétrica ou outras obras semelhantes, e respectivos serviços auxiliares ou complementares, inclusive terraplenagem, pavimentação, concretagem e a instalação e montagem",false,0.03,0,999999
+7617,"Tinturaria e lavanderia",false,0.05,0,999999
+1401,"Serviços de análises clínicas, patologia, eletricidade médica, radioterapia, quimioterapia, ultra-sonografia, ressonância magnética, medicina nuclear e congêneres",true,0.02,0,999999
+0801,"Ensino regular pré-escolar, fundamental, médio e superior",false,0.02,0,999999
+1701,"Assessoria ou consultoria de qualquer natureza, não contida em outros itens desta lista, organização, programação, planejamento, assessoria, consultoria, supervisão e congêneres",false,0.05,0,999999
+1404,"Hospitalização, inclusive internação, psiquiatria, fisioterapia, assistência médica e congêneres",true,0.02,0,999999
+0501,"Reparação, conservação e reforma de edifícios, estradas, pontes, portos e congêneres",false,0.03,0,999999
+1001,"Agenciamento, corretagem ou intermediação de câmbio, de seguros, de cartões de crédito, de planos de saúde e de planos de previdência privada",false,0.05,0,999999
+1716,"Auditoria",false,0.05,0,999999
+1501,"Administração de fundos quaisquer, de consórcio, de cartão de crédito ou débito e congêneres, de carteira de clientes, de cheques pré-datados e congêneres",false,0.05,0,999999
+1601,"Serviços de avaliação de bens e serviços de qualquer natureza",false,0.05,0,999999
+1301,"Processamento, armazenamento ou hospedagem de dados, textos, imagens, vídeos, páginas eletrônicas, aplicativos e sistemas de informação, entre outros formatos, e congêneres",false,0.05,0,999999
+2501,"Computação gráfica, inclusive jogos eletrônicos, animação, cinema, televisão e congêneres",false,0.05,0,999999
+2502,"Planejamento, confecção, manutenção e atualização de páginas eletrônicas",false,0.05,0,999999

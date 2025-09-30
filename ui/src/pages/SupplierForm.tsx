@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { supplierService } from '../services/suppliers';
-import type { CreateSupplierData } from '../services/suppliers';
+import { hybridSupplierService } from '../services';
+import type { CreateSupplierData } from '../services/suppliers-supabase';
 
 interface SupplierFormData extends CreateSupplierData {}
 
@@ -28,7 +28,7 @@ export default function SupplierForm() {
     if (isEditing) {
       const loadSupplier = async () => {
         try {
-          const supplier = await supplierService.getSupplierById(id!);
+          const supplier = await hybridSupplierService.getSupplierById(id!);
           reset({
             name: supplier.name,
             cnpj: supplier.cnpj,
@@ -48,18 +48,27 @@ export default function SupplierForm() {
   }, [id, isEditing, reset]);
 
   const onSubmit = async (data: SupplierFormData) => {
+    console.log('🚀 [SupplierForm] Iniciando submissão:', data);
     setLoading(true);
     setError(null);
 
     try {
       if (isEditing) {
-        await supplierService.updateSupplier(id!, data);
+        console.log('🔄 [SupplierForm] Atualizando fornecedor:', id);
+        await hybridSupplierService.updateSupplier(id!, data);
       } else {
-        await supplierService.createSupplier(data);
+        console.log('📝 [SupplierForm] Criando novo fornecedor');
+        const result = await hybridSupplierService.createSupplier(data);
+        console.log('✅ [SupplierForm] Fornecedor criado com sucesso:', result);
       }
       navigate('/suppliers');
     } catch (error: any) {
-      setError(error.response?.data?.message || `Erro ao ${isEditing ? 'atualizar' : 'criar'} fornecedor`);
+      console.error('❌ [SupplierForm] Erro ao processar:', error);
+      setError(
+        error?.message || 
+        error?.response?.data?.message || 
+        `Erro ao ${isEditing ? 'atualizar' : 'criar'} fornecedor`
+      );
     } finally {
       setLoading(false);
     }

@@ -448,4 +448,83 @@ export async function registerNfseRoutes(app: FastifyInstance<any, any, any, any
       return reply.send(stats);
     });
   }
+
+  // Endpoint simplificado para tipos de serviço (Uphold integration)
+  if (hasSwagger) {
+    app.get('/tipos-servico', {
+      schema: {
+        tags: ['NFSe'],
+        summary: 'Listar tipos de serviço do Uphold',
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              serviceTypes: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'number' },
+                    code: { type: 'string' },
+                    name: { type: 'string' },
+                    issRetido: { type: 'boolean' }
+                  }
+                }
+              },
+              total: { type: 'number' },
+              extractedAt: { type: 'string' }
+            }
+          },
+          404: { type: 'object', properties: { error: { type: 'string' }, message: { type: 'string' } } },
+          401: { type: 'object', properties: { error: { type: 'object', properties: { message: { type: 'string' } } } } }
+        }
+      } as any,
+      preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } }
+    } as any, async (req: FastifyRequest, reply: FastifyReply) => {
+      // Delegar para o endpoint do uphold-config
+      try {
+        const response = await app.inject({
+          method: 'GET',
+          url: '/api/service-types',
+          headers: req.headers
+        });
+        
+        if (response.statusCode === 200) {
+          return reply.send(response.json());
+        } else {
+          return reply.status(response.statusCode).send(response.json());
+        }
+      } catch (error: any) {
+        app.log.error('Error delegating to uphold service-types:', error);
+        return reply.status(500).send({
+          error: 'DELEGATION_ERROR',
+          message: 'Erro ao obter tipos de serviço'
+        });
+      }
+    });
+  } else {
+    app.get('/tipos-servico', { preValidation: async (req: FastifyRequest) => { try { await (req as any).jwtVerify(); } catch { throw new AuthError(); } } } as any, async (req: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const response = await app.inject({
+          method: 'GET',
+          url: '/api/service-types',
+          headers: req.headers
+        });
+        
+        if (response.statusCode === 200) {
+          return reply.send(response.json());
+        } else {
+          return reply.status(response.statusCode).send(response.json());
+        }
+      } catch (error: any) {
+        app.log.error('Error delegating to uphold service-types:', error);
+        return reply.status(500).send({
+          error: 'DELEGATION_ERROR',
+          message: 'Erro ao obter tipos de serviço'
+        });
+      }
+    });
+  }
 }

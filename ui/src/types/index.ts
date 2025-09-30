@@ -99,6 +99,32 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
+// Tipo para consumir da API Uphold (externa)
+export interface UpholdServiceType {
+  id: number;
+  code: string;
+  name: string;
+  issRetido: boolean;
+}
+
+export interface ServiceTypesResponse {
+  success: boolean;
+  serviceTypes: UpholdServiceType[];
+  total: number;
+  extractedAt?: string;
+}
+
+// Tipo para nossa gestão interna de tipos de serviço
+export interface ServiceType {
+  id: string;
+  code: string;
+  name: string;
+  issRetained: boolean;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;

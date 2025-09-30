@@ -15,9 +15,20 @@ interface CertMaterial {
 
 let cached: CertMaterial | null = null;
 
-export function loadPfxMaterial(pfxPath: string, passphrase?: string): CertMaterial {
+export function loadPfxMaterial(pfxPath?: string, passphrase?: string, pfxBase64?: string): CertMaterial {
   if (cached) return cached;
-  const pfxBuffer = fs.readFileSync(pfxPath);
+  
+  let pfxBuffer: Buffer;
+  if (pfxBase64) {
+    // Load from base64 string (for serverless environments)
+    pfxBuffer = Buffer.from(pfxBase64, 'base64');
+  } else if (pfxPath) {
+    // Load from file path (for local development)
+    pfxBuffer = fs.readFileSync(pfxPath);
+  } else {
+    throw new Error('Either pfxPath or pfxBase64 must be provided');
+  }
+  
   const p12Asn1 = forge.asn1.fromDer(pfxBuffer.toString('binary'));
   const p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, passphrase || '');
   let keyObj: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -66,7 +77,7 @@ export function signXmlEnveloped(xml: string, referenceXPath = "/*[local-name()=
       throw new Error('CERT_PFX_PATH not configured');
     }
   } else {
-    material = loadPfxMaterial(process.env.CERT_PFX_PATH, process.env.CERT_PFX_PASSWORD);
+    material = loadPfxMaterial(process.env.CERT_PFX_PATH, process.env.CERT_PFX_PASSWORD, process.env.CERT_PFX_BASE64);
   }
   // Definição de algoritmos: padrão SHA-256, fallback SHA-1 se SIGN_LEGACY_SHA1=1
   const legacy = process.env.SIGN_LEGACY_SHA1 === '1';

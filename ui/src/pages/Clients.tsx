@@ -2,45 +2,58 @@ import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  ArrowUpTrayIcon
 } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { clientService } from '../services/clients';
-import type { Client, PaginatedResponse } from '../types';
+import { ClientsService } from '../services/clientsService';
+import type { Database } from '../lib/supabase';
+
+type Client = Database['public']['Tables']['clients']['Row'];
 
 export default function Clients() {
-  const [clients, setClients] = useState<PaginatedResponse<Client> | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
-  const loadClients = async (page = 1, searchTerm = '') => {
+  const loadClients = async () => {
     try {
       setLoading(true);
-      const data = await clientService.getClients({
-        page,
-        pageSize: 10,
-        search: searchTerm || undefined
-      });
+      const data = await ClientsService.getAll();
       setClients(data);
+      setFilteredClients(data);
     } catch (error) {
       console.error('Erro ao carregar clientes:', error);
+      alert('Erro ao carregar clientes');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadClients(currentPage, search);
-  }, [currentPage]);
+    loadClients();
+  }, []);
+
+  useEffect(() => {
+    if (search.trim() === '') {
+      setFilteredClients(clients);
+    } else {
+      const filtered = clients.filter(client => 
+        client.name.toLowerCase().includes(search.toLowerCase()) ||
+        client.document.includes(search) ||
+        (client.email && client.email.toLowerCase().includes(search.toLowerCase()))
+      );
+      setFilteredClients(filtered);
+    }
+  }, [search, clients]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1);
-    loadClients(1, search);
+    // A filtragem já é feita no useEffect acima
   };
 
   const handleDelete = async (id: string) => {
@@ -48,8 +61,8 @@ export default function Clients() {
 
     try {
       setDeleteLoading(id);
-      await clientService.deleteClient(id);
-      loadClients(currentPage, search);
+      await ClientsService.delete(id);
+      await loadClients(); // Recarrega a lista
     } catch (error) {
       console.error('Erro ao excluir cliente:', error);
       alert('Erro ao excluir cliente');
@@ -79,13 +92,22 @@ export default function Clients() {
               Gerencie os clientes do sistema
             </p>
           </div>
-          <Link
-            to="/clients/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
-            Novo Cliente
-          </Link>
+          <div className="flex gap-3">
+            <Link
+              to="/clients/import"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <ArrowUpTrayIcon className="-ml-1 mr-2 h-5 w-5" />
+              Importar Clientes
+            </Link>
+            <Link
+              to="/clients/new"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+              Novo Cliente
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -121,7 +143,7 @@ export default function Clients() {
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : clients?.items.length === 0 ? (
+        ) : filteredClients.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-500">
               <p className="text-lg">Nenhum cliente encontrado</p>
@@ -131,9 +153,8 @@ export default function Clients() {
             </div>
           </div>
         ) : (
-          <>
-            <ul className="divide-y divide-gray-200">
-              {clients?.items.map((client) => (
+          <ul className="divide-y divide-gray-200">
+            {filteredClients.map((client: Client) => (
                 <li key={client.id}>
                   <div className="px-4 py-4 sm:px-6">
                     <div className="flex items-center justify-between">
@@ -191,66 +212,6 @@ export default function Clients() {
                 </li>
               ))}
             </ul>
-
-            {/* Paginação */}
-            {clients && clients.total > clients.items.length && (
-              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div className="flex-1 flex justify-between sm:hidden">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    Anterior
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage * 10 >= clients.total}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    Próximo
-                  </button>
-                </div>
-                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Mostrando{' '}
-                      <span className="font-medium">
-                        {(currentPage - 1) * 10 + 1}
-                      </span>{' '}
-                      a{' '}
-                      <span className="font-medium">
-                        {Math.min(currentPage * 10, clients.total)}
-                      </span>{' '}
-                      de{' '}
-                      <span className="font-medium">{clients.total}</span>{' '}
-                      resultados
-                    </p>
-                  </div>
-                  <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                      <button
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        <span className="sr-only">Anterior</span>
-                        ‹
-                      </button>
-                      <button
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage * 10 >= clients.total}
-                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        <span className="sr-only">Próximo</span>
-                        ›
-                      </button>
-                    </nav>
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
         )}
       </div>
     </div>

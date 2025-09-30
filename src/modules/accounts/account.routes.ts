@@ -33,15 +33,16 @@ const listAccountsQuerySchema = z.object({
   pageSize: z.string().transform(val => parseInt(val)).optional()
 });
 
-const successResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string()
-});
+// Schemas removidos - não utilizados atualmente
+// const successResponseSchema = z.object({
+//   success: z.boolean(),
+//   message: z.string()
+// });
 
-const errorResponseSchema = z.object({
-  error: z.string(),
-  message: z.string()
-});
+// const errorResponseSchema = z.object({
+//   error: z.string(),
+//   message: z.string()
+// });
 
 export async function accountRoutes(app: FastifyInstance) {
   // Criar conta

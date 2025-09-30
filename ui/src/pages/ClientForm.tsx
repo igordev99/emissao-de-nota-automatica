@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { clientService, type CreateClientData } from '../services/clients';
+import { ClientsService, type ClientData } from '../services/clientsService';
 
-interface ClientFormData extends CreateClientData {}
+interface ClientFormData extends ClientData {}
 
 export default function ClientForm() {
   const navigate = useNavigate();
@@ -27,14 +27,18 @@ export default function ClientForm() {
     if (isEditing) {
       const loadClient = async () => {
         try {
-          const client = await clientService.getClientById(id!);
-          reset({
-            name: client.name,
-            document: client.document,
-            email: client.email,
-            phone: client.phone,
-            address: client.address
-          });
+          const client = await ClientsService.getById(id!);
+          if (client) {
+            reset({
+              name: client.name,
+              document: client.document,
+              email: client.email || '',
+              phone: client.phone || '',
+              address: client.address || {}
+            });
+          } else {
+            setError('Cliente não encontrado');
+          }
         } catch (error) {
           console.error('Erro ao carregar cliente:', error);
           setError('Erro ao carregar dados do cliente');
@@ -52,13 +56,13 @@ export default function ClientForm() {
 
     try {
       if (isEditing) {
-        await clientService.updateClient(id!, data);
+        await ClientsService.update(id!, data);
       } else {
-        await clientService.createClient(data);
+        await ClientsService.create(data);
       }
       navigate('/clients');
     } catch (error: any) {
-      setError(error.response?.data?.message || `Erro ao ${isEditing ? 'atualizar' : 'criar'} cliente`);
+      setError(error.message || `Erro ao ${isEditing ? 'atualizar' : 'criar'} cliente`);
     } finally {
       setLoading(false);
     }

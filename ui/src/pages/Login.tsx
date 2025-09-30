@@ -1,23 +1,44 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../contexts/AuthContext';
+import LoginDebug from '../components/LoginDebug';
 
 export default function Login() {
-  const [sub, setSub] = useState('tester');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { login, isLoading } = useAuth();
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const { login, register, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    if (!email || !password) {
+      setError('Email e senha são obrigatórios');
+      return;
+    }
+
     try {
-      await login(sub);
+      if (isRegisterMode) {
+        await register({ 
+          email, 
+          password, 
+          firstName: firstName || undefined, 
+          lastName: lastName || undefined 
+        });
+      } else {
+        await login({ email, password });
+      }
       navigate('/');
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Erro ao fazer login');
+      console.error('Auth error details:', error);
+      const errorMessage = error.message || 'Erro na autenticação';
+      setError(errorMessage);
     }
   };
 
@@ -31,28 +52,74 @@ export default function Login() {
             </svg>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            NFS-e SP
+            {isRegisterMode ? 'Criar Conta' : 'Sistema NFSe SP'}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Sistema de Emissão de Nota Fiscal de Serviços
+            Sistema de Emissão de Notas Fiscais Eletrônicas
           </p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="rounded-md shadow-sm space-y-4">
+            {/* Campos de nome para registro */}
+            {isRegisterMode && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="firstName" className="sr-only">Primeiro Nome</label>
+                  <input
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Primeiro nome"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="sr-only">Último Nome</label>
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Último nome"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Email */}
             <div>
-              <label htmlFor="sub" className="sr-only">
-                Identificador do usuário
-              </label>
+              <label htmlFor="email" className="sr-only">Email</label>
               <input
-                id="sub"
-                name="sub"
-                type="text"
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
                 required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Identificador do usuário (ex: tester)"
-                value={sub}
-                onChange={(e) => setSub(e.target.value)}
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            {/* Senha */}
+            <div>
+              <label htmlFor="password" className="sr-only">Senha</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete={isRegisterMode ? "new-password" : "current-password"}
+                required
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
@@ -67,7 +134,7 @@ export default function Login() {
                 </div>
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-red-800">
-                    Erro no login
+                    {isRegisterMode ? 'Erro no registro' : 'Erro no login'}
                   </h3>
                   <div className="mt-2 text-sm text-red-700">
                     <p>{error}</p>
@@ -83,18 +150,32 @@ export default function Login() {
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Entrando...' : 'Entrar'}
+              {isLoading 
+                ? (isRegisterMode ? 'Criando conta...' : 'Entrando...') 
+                : (isRegisterMode ? 'Criar Conta' : 'Entrar')}
             </button>
           </div>
 
-          <div className="text-center">
-            <div className="text-sm text-gray-600">
-              <p>Este é um sistema de demonstração.</p>
-              <p className="mt-1">Digite "tester" ou qualquer identificador para continuar.</p>
+          <div className="text-center space-y-2">
+            <button
+              type="button"
+              onClick={() => setIsRegisterMode(!isRegisterMode)}
+              className="text-sm text-blue-600 hover:text-blue-500"
+            >
+              {isRegisterMode 
+                ? 'Já tem uma conta? Faça login' 
+                : 'Não tem uma conta? Cadastre-se'}
+            </button>
+            
+            <div className="text-xs text-gray-500">
+              <p>Sistema seguro com autenticação Supabase</p>
             </div>
           </div>
         </form>
       </div>
+      
+      {/* Debug temporário - remove após corrigir */}
+      <LoginDebug />
     </div>
   );
 }

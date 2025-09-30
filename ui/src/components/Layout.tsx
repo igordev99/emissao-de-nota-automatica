@@ -8,7 +8,9 @@ import {
   MagnifyingGlassIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon,
-  GlobeAltIcon
+  GlobeAltIcon,
+  CheckCircleIcon,
+  CalculatorIcon
 } from '@heroicons/react/24/outline';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
@@ -20,9 +22,13 @@ const navigation = [
   { name: 'Consultar NFS-e', href: '/nfse-list', icon: MagnifyingGlassIcon },
   { name: 'Clientes', href: '/clients', icon: UsersIcon },
   { name: 'Fornecedores', href: '/suppliers', icon: TruckIcon },
+  { name: 'Tipos de Serviço', href: '/service-types', icon: DocumentTextIcon },
+  { name: 'Fórmulas', href: '/admin/formulas', icon: CalculatorIcon },
+  { name: 'Config Uphold', href: '/uphold-config', icon: CogIcon },
+  { name: 'Configuração', href: '/system-config', icon: CogIcon },
+  { name: 'Status Sistema', href: '/system-status', icon: CheckCircleIcon },
   { name: 'Webhooks', href: '/webhooks', icon: GlobeAltIcon },
   { name: 'Relatórios', href: '/reports', icon: ChartBarIcon },
-  { name: 'Configurações', href: '/settings', icon: CogIcon },
 ];
 
 function classNames(...classes: string[]) {
@@ -85,7 +91,7 @@ export default function Layout() {
               <div className="flex items-center space-x-2">
                 <UserCircleIcon className="h-8 w-8 text-gray-400" />
                 <span className="text-sm font-medium text-gray-700">
-                  {user?.sub || 'Usuário'}
+                  {user?.email || 'Usuário'}
                 </span>
               </div>
               <button
