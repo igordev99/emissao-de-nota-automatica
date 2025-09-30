@@ -107,13 +107,31 @@ export class ServiceTypesService {
     console.log('🚀 [ServiceTypesService] Iniciando criação...');
     console.log('📋 [ServiceTypesService] Dados recebidos:', serviceTypeData);
     
-    const { data: { user } } = await supabase.auth.getUser()
+    console.log('🔍 [ServiceTypesService] Buscando usuário autenticado...');
     
-    if (!user) {
-      throw new Error('Usuário não autenticado')
+    let user;
+    
+    try {
+      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
+      
+      console.log('📡 [ServiceTypesService] Resposta getUser:', { user: authUser?.id, error: userError });
+      
+      if (userError) {
+        console.error('❌ [ServiceTypesService] Erro ao buscar usuário:', userError);
+        throw new Error(`Erro de autenticação: ${userError.message}`);
+      }
+      
+      if (!authUser) {
+        console.error('❌ [ServiceTypesService] Usuário não encontrado');
+        throw new Error('Usuário não autenticado')
+      }
+      
+      user = authUser;
+      console.log('👤 [ServiceTypesService] Usuário autenticado:', user.id);
+    } catch (authError) {
+      console.error('💥 [ServiceTypesService] Erro na autenticação:', authError);
+      throw authError;
     }
-    
-    console.log('👤 [ServiceTypesService] Usuário autenticado:', user.id);
 
     const insertData: ServiceTypeInsert = {
       ...serviceTypeData,
