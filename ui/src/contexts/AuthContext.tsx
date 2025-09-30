@@ -47,35 +47,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       console.log('🔄 Carregando perfil para usuário:', currentUser.id);
       
-      const { data: userProfile, error } = await supabase
+      // Tentar buscar perfil na base, mas criar fallback se der erro
+      try {
+        const { data: userProfile, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .single();
+          
+        if (userProfile && !error) {
+          setProfile(userProfile);
+          console.log('✅ Perfil carregado da base de dados');
+          return;
+        }
+      } catch (dbError) {
+        console.log('ℹ️ Tabela user_profiles não disponível, usando perfil básico');
+      }
+      
+      // Criar perfil básico na base de dados se não existir
+      console.log('📝 Criando perfil na base de dados...');
+      const { data: newProfile, error: insertError } = await supabase
         .from('user_profiles')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .single();
-        
-      if (error && error.code === 'PGRST116') {
-        // Perfil não encontrado, criar um básico
-        const newProfile = {
-          id: `temp-${currentUser.id}`,
+        .insert([{
           user_id: currentUser.id,
           email: currentUser.email || '',
-          role: 'user' as const,
-          is_active: true,
+          role: 'user',
           company_name: 'Empresa',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
+          is_active: true
+        }])
+        .select()
+        .single();
+        
+      if (newProfile && !insertError) {
         setProfile(newProfile);
-        console.log('✅ Perfil temporário criado');
-      } else if (userProfile) {
-        setProfile(userProfile);
-        console.log('✅ Perfil carregado com sucesso');
+        console.log('✅ Perfil criado na base de dados');
+        return;
       }
-    } catch (error) {
-      console.error('❌ Erro ao carregar perfil:', error);
-      // Criar perfil de fallback para não travar
-      const fallbackProfile = {
-        id: `fallback-${currentUser.id}`,
+      
+      // Se falhar criar na base, usar perfil básico temporário
+      const basicProfile = {
+        id: `basic-${currentUser.id}`,
         user_id: currentUser.id,
         email: currentUser.email || '',
         role: 'user' as const,
@@ -84,7 +95,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
-      setProfile(fallbackProfile);
+      setProfile(basicProfile);
+      console.log('✅ Perfil básico criado');
+      
+    } catch (error) {
+      console.error('❌ Erro ao carregar perfil:', error);
+      // Sempre garantir que um perfil seja criado
+      const emergencyProfile = {
+        id: `emergency-${currentUser.id}`,
+        user_id: currentUser.id,
+        email: currentUser.email || 'user@example.com',
+        role: 'user' as const,
+        is_active: true,
+        company_name: 'Empresa',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      setProfile(emergencyProfile);
+      console.log('🆘 Perfil de emergência criado');
     }
   };
 
@@ -132,7 +160,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (mounted) {
         setIsLoading(false);
       }
-    }, 10000); // 10 segundos
+    }, 5000); // 5 segundos
 
     initialize();
 
