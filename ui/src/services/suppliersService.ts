@@ -2,9 +2,9 @@ import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/supabase'
 
 // Tipos derivados do database schema
-type Supplier = Database['public']['Tables']['suppliers']['Row']
-type SupplierInsert = Database['public']['Tables']['suppliers']['Insert']
-type SupplierUpdate = Database['public']['Tables']['suppliers']['Update']
+type Supplier = Database['public']['Tables']['Supplier']['Row']
+type SupplierInsert = Database['public']['Tables']['Supplier']['Insert']
+type SupplierUpdate = Database['public']['Tables']['Supplier']['Update']
 
 export interface SupplierData {
   id?: string
@@ -35,7 +35,7 @@ export class SuppliersService {
     }
 
     const { data, error } = await supabase
-      .from('suppliers')
+      .from('Supplier')
       .select('*')
       .eq('user_id', user.id)
       .order('name', { ascending: true })
@@ -59,7 +59,7 @@ export class SuppliersService {
     }
 
     const { data, error } = await supabase
-      .from('suppliers')
+      .from('Supplier')
       .select('*')
       .eq('id', id)
       .eq('user_id', user.id)
@@ -94,7 +94,7 @@ export class SuppliersService {
     }
 
     const { data, error } = await supabase
-      .from('suppliers')
+      .from('Supplier')
       .insert([insertData])
       .select()
       .single()
@@ -129,7 +129,7 @@ export class SuppliersService {
     }
 
     const { data, error } = await supabase
-      .from('suppliers')
+      .from('Supplier')
       .update(updateData)
       .eq('id', id)
       .eq('user_id', user.id)
@@ -161,7 +161,7 @@ export class SuppliersService {
     }
 
     const { error } = await supabase
-      .from('suppliers')
+      .from('Supplier')
       .delete()
       .eq('id', id)
       .eq('user_id', user.id)
@@ -185,7 +185,7 @@ export class SuppliersService {
     }
 
     const { data, error } = await supabase
-      .from('suppliers')
+      .from('Supplier')
       .select('*')
       .eq('document', document)
       .eq('user_id', user.id)
@@ -213,7 +213,7 @@ export class SuppliersService {
     }
 
     const { data, error } = await supabase
-      .from('suppliers')
+      .from('Supplier')
       .select('*')
       .eq('user_id', user.id)
       .ilike('name', `%${name}%`)

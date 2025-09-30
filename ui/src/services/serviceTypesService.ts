@@ -1,10 +1,15 @@
 import { supabase } from '../lib/supabase'
-import type { Database } from '../lib/supabase'
 
-// Tipos derivados do database schema
-type ServiceType = Database['public']['Tables']['service_types']['Row']
-type ServiceTypeInsert = Database['public']['Tables']['service_types']['Insert']
-type ServiceTypeUpdate = Database['public']['Tables']['service_types']['Update']
+// Tipos para service type
+interface ServiceType {
+  id: string
+  code: string
+  name: string
+  issRetained: boolean
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
 
 export interface ServiceTypeData {
   id?: string
@@ -26,7 +31,7 @@ export class ServiceTypesService {
     }
 
     let query = supabase
-      .from('service_types')
+      .from('ServiceType')
       .select('*')
       .eq('user_id', user.id)
 
@@ -55,7 +60,7 @@ export class ServiceTypesService {
     }
 
     const { data, error } = await supabase
-      .from('service_types')
+      .from('ServiceType')
       .select('*')
       .eq('id', id)
       .eq('user_id', user.id)
@@ -83,7 +88,7 @@ export class ServiceTypesService {
     }
 
     const { data, error } = await supabase
-      .from('service_types')
+      .from('ServiceType')
       .select('*')
       .eq('code', code)
       .eq('user_id', user.id)
@@ -133,19 +138,19 @@ export class ServiceTypesService {
       throw authError;
     }
 
-    const insertData: ServiceTypeInsert = {
-      ...serviceTypeData,
-      user_id: user.id,
-      iss_retained: serviceTypeData.iss_retained ?? false,
+    const insertData = {
+      code: serviceTypeData.code,
+      name: serviceTypeData.name,
+      issRetained: serviceTypeData.iss_retained ?? false,
       active: serviceTypeData.active ?? true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
     
     console.log('📤 [ServiceTypesService] Dados para inserção:', insertData);
 
     const { data, error } = await supabase
-      .from('service_types')
+      .from('ServiceType')
       .insert([insertData])
       .select()
       .single()
@@ -154,7 +159,7 @@ export class ServiceTypesService {
       console.error('❌ [ServiceTypesService] Erro ao criar tipo de serviço:', error)
       
       // Tratamento de erro de código duplicado
-      if (error.code === '23505' && error.message.includes('service_types_user_code_unique')) {
+      if (error.code === '23505' && error.message.includes('ServiceType.*unique')) {
         throw new Error('Já existe um tipo de serviço com este código')
       }
       
@@ -175,13 +180,16 @@ export class ServiceTypesService {
       throw new Error('Usuário não autenticado')
     }
 
-    const updateData: ServiceTypeUpdate = {
-      ...serviceTypeData,
-      updated_at: new Date().toISOString()
+    const updateData = {
+      code: serviceTypeData.code,
+      name: serviceTypeData.name,
+      issRetained: serviceTypeData.iss_retained ?? false,
+      active: serviceTypeData.active ?? true,
+      updatedAt: new Date().toISOString()
     }
 
     const { data, error } = await supabase
-      .from('service_types')
+      .from('ServiceType')
       .update(updateData)
       .eq('id', id)
       .eq('user_id', user.id)
@@ -192,7 +200,7 @@ export class ServiceTypesService {
       console.error('Erro ao atualizar tipo de serviço:', error)
       
       // Tratamento de erro de código duplicado
-      if (error.code === '23505' && error.message.includes('service_types_user_code_unique')) {
+      if (error.code === '23505' && error.message.includes('ServiceType.*unique')) {
         throw new Error('Já existe um tipo de serviço com este código')
       }
       
@@ -213,7 +221,7 @@ export class ServiceTypesService {
     }
 
     const { error } = await supabase
-      .from('service_types')
+      .from('ServiceType')
       .delete()
       .eq('id', id)
       .eq('user_id', user.id)
@@ -244,7 +252,7 @@ export class ServiceTypesService {
     }
 
     let query = supabase
-      .from('service_types')
+      .from('ServiceType')
       .select('*')
       .eq('user_id', user.id)
       .ilike('name', `%${name}%`)
@@ -273,17 +281,17 @@ export class ServiceTypesService {
       throw new Error('Usuário não autenticado')
     }
 
-    const insertData: ServiceTypeInsert[] = serviceTypes.map(serviceType => ({
-      ...serviceType,
-      user_id: user.id,
-      iss_retained: serviceType.iss_retained ?? false,
+    const insertData = serviceTypes.map(serviceType => ({
+      code: serviceType.code,
+      name: serviceType.name,
+      issRetained: serviceType.iss_retained ?? false,
       active: serviceType.active ?? true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }))
 
     const { data, error } = await supabase
-      .from('service_types')
+      .from('ServiceType')
       .insert(insertData)
       .select()
 

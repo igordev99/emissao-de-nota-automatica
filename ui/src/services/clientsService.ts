@@ -2,9 +2,9 @@ import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/supabase'
 
 // Tipos derivados do database schema
-type Client = Database['public']['Tables']['clients']['Row']
-type ClientInsert = Database['public']['Tables']['clients']['Insert']
-type ClientUpdate = Database['public']['Tables']['clients']['Update']
+type Client = Database['public']['Tables']['Client']['Row']
+type ClientInsert = Database['public']['Tables']['Client']['Insert']
+type ClientUpdate = Database['public']['Tables']['Client']['Update']
 
 export interface ClientData {
   id?: string
@@ -35,7 +35,7 @@ export class ClientsService {
     }
 
     const { data, error } = await supabase
-      .from('clients')
+      .from('Client')
       .select('*')
       .eq('user_id', user.id)
       .order('name', { ascending: true })
@@ -59,7 +59,7 @@ export class ClientsService {
     }
 
     const { data, error } = await supabase
-      .from('clients')
+      .from('Client')
       .select('*')
       .eq('id', id)
       .eq('user_id', user.id)
@@ -94,7 +94,7 @@ export class ClientsService {
     }
 
     const { data, error } = await supabase
-      .from('clients')
+      .from('Client')
       .insert([insertData])
       .select()
       .single()
@@ -129,7 +129,7 @@ export class ClientsService {
     }
 
     const { data, error } = await supabase
-      .from('clients')
+      .from('Client')
       .update(updateData)
       .eq('id', id)
       .eq('user_id', user.id)
@@ -161,7 +161,7 @@ export class ClientsService {
     }
 
     const { error } = await supabase
-      .from('clients')
+      .from('Client')
       .delete()
       .eq('id', id)
       .eq('user_id', user.id)
@@ -185,7 +185,7 @@ export class ClientsService {
     }
 
     const { data, error } = await supabase
-      .from('clients')
+      .from('Client')
       .select('*')
       .eq('document', document)
       .eq('user_id', user.id)
@@ -213,7 +213,7 @@ export class ClientsService {
     }
 
     const { data, error } = await supabase
-      .from('clients')
+      .from('Client')
       .select('*')
       .eq('user_id', user.id)
       .ilike('name', `%${name}%`)
