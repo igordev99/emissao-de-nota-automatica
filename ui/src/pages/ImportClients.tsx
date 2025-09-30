@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, FileText, Users, Download, AlertCircle, CheckCircle } from 'lucide-react';
+import { hybridClientService } from '../services';
 
 interface ClienteImport {
   nome: string;
@@ -98,27 +99,27 @@ const ImportClients: React.FC = () => {
         throw new Error('Nenhum cliente válido encontrado nos dados');
       }
 
-      // Importar para a API
+      // Importar usando o serviço Supabase
       let success = 0;
       for (const client of clients) {
         try {
-          const response = await fetch('/api/clients', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(client)
-          });
+          console.log('🔄 [ImportClients] Importando cliente:', client.nome);
+          
+          // Converter para o formato esperado pelo service
+          const clientData = {
+            name: client.nome,
+            document: client.documento,
+            email: client.email,
+            municipalRegistration: client.inscricaoMunicipal
+          };
 
-          if (response.ok) {
-            success++;
-          } else {
-            const errorText = await response.text();
-            errors.push(`${client.nome}: ${errorText}`);
-          }
-        } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-          errors.push(`${client.nome}: Erro de rede - ${errorMessage}`);
+          await hybridClientService.createClient(clientData);
+          success++;
+          console.log('✅ [ImportClients] Cliente importado:', client.nome);
+        } catch (error: any) {
+          console.error('❌ [ImportClients] Erro ao importar cliente:', client.nome, error);
+          const errorMessage = error?.message || error?.response?.data?.message || 'Erro desconhecido';
+          errors.push(`${client.nome}: ${errorMessage}`);
         }
       }
 
@@ -174,28 +175,23 @@ const ImportClients: React.FC = () => {
 
       for (const client of clients) {
         try {
-          const importResponse = await fetch('/api/clients', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              nome: client.nome,
-              email: client.email,
-              documento: client.documento,
-              inscricaoMunicipal: client.inscricaoMunicipal
-            })
-          });
+          console.log('🔄 [ImportClients] Importando cliente do Uphold:', client.nome);
+          
+          // Converter para o formato esperado pelo service
+          const clientData = {
+            name: client.nome,
+            document: client.documento,
+            email: client.email,
+            municipalRegistration: client.inscricaoMunicipal
+          };
 
-          if (importResponse.ok) {
-            success++;
-          } else {
-            const errorText = await importResponse.text();
-            errors.push(`${client.nome}: ${errorText}`);
-          }
-        } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-          errors.push(`${client.nome}: Erro de importação - ${errorMessage}`);
+          await hybridClientService.createClient(clientData);
+          success++;
+          console.log('✅ [ImportClients] Cliente do Uphold importado:', client.nome);
+        } catch (error: any) {
+          console.error('❌ [ImportClients] Erro ao importar cliente do Uphold:', client.nome, error);
+          const errorMessage = error?.message || error?.response?.data?.message || 'Erro desconhecido';
+          errors.push(`${client.nome}: ${errorMessage}`);
         }
       }
 

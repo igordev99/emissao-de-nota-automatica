@@ -6,6 +6,7 @@ export interface CreateClientData {
   document: string;
   email?: string;
   phone?: string;
+  municipalRegistration?: string;
   address?: {
     street: string;
     number: string;
@@ -75,31 +76,34 @@ export const clientSupabaseService = {
 
   // Criar cliente
   async createClient(data: CreateClientData): Promise<Client> {
+    console.log('🔄 [ClientSupabaseService] Criando cliente:', { 
+      name: data.name, 
+      document: data.document 
+    });
+
     const { data: client, error } = await supabase
       .from('Client')
-      .insert([{
-        ...data,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }])
+      .insert([data]) // Não incluir timestamps - deixar o banco gerar
       .select()
       .single();
 
     if (error) {
-      throw new Error(error.message);
+      console.error('❌ [ClientSupabaseService] Erro ao criar cliente:', error);
+      throw new Error(`Erro ao criar cliente: ${error.message}`);
     }
+
+    console.log('✅ [ClientSupabaseService] Cliente criado com sucesso:', client.id);
 
     return client;
   },
 
   // Atualizar cliente
   async updateClient(id: string, data: Partial<CreateClientData>): Promise<Client> {
+    console.log('🔄 [ClientSupabaseService] Atualizando cliente:', id, data);
+
     const { data: client, error } = await supabase
       .from('Client')
-      .update({
-        ...data,
-        updatedAt: new Date().toISOString()
-      })
+      .update(data) // Remover updatedAt manual
       .eq('id', id)
       .select()
       .single();

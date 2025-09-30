@@ -85,6 +85,11 @@ export const supplierSupabaseService = {
 
   // Criar fornecedor
   async createSupplier(data: CreateSupplierData): Promise<Supplier> {
+    console.log('🔄 [SupplierSupabaseService] Criando fornecedor:', { 
+      name: data.name, 
+      document: data.cnpj 
+    });
+
     // Converter cnpj para document para o banco
     const { data: supplier, error } = await supabase
       .from('Supplier')
@@ -93,16 +98,18 @@ export const supplierSupabaseService = {
         document: data.cnpj, // cnpj -> document
         email: data.email,
         phone: data.phone,
-        address: data.address,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        address: data.address
+        // Remover createdAt e updatedAt - deixar o banco gerar automaticamente
       }])
       .select()
       .single();
 
     if (error) {
-      throw new Error(error.message);
+      console.error('❌ [SupplierSupabaseService] Erro ao criar fornecedor:', error);
+      throw new Error(`Erro ao criar fornecedor: ${error.message}`);
     }
+
+    console.log('✅ [SupplierSupabaseService] Fornecedor criado com sucesso:', supplier.id);
 
     // Converter document para cnpj para compatibilidade com o frontend
     return {
@@ -113,13 +120,15 @@ export const supplierSupabaseService = {
 
   // Atualizar fornecedor
   async updateSupplier(id: string, data: Partial<CreateSupplierData>): Promise<Supplier> {
+    console.log('🔄 [SupplierSupabaseService] Atualizando fornecedor:', id, data);
+
     // Preparar dados para o banco convertendo cnpj para document
     const updateData: any = { ...data };
     if (data.cnpj) {
       updateData.document = data.cnpj; // cnpj -> document
       delete updateData.cnpj;
     }
-    updateData.updatedAt = new Date().toISOString();
+    // Remover updatedAt - deixar o banco gerar automaticamente
 
     const { data: supplier, error } = await supabase
       .from('Supplier')

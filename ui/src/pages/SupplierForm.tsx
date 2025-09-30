@@ -48,18 +48,27 @@ export default function SupplierForm() {
   }, [id, isEditing, reset]);
 
   const onSubmit = async (data: SupplierFormData) => {
+    console.log('🚀 [SupplierForm] Iniciando submissão:', data);
     setLoading(true);
     setError(null);
 
     try {
       if (isEditing) {
+        console.log('🔄 [SupplierForm] Atualizando fornecedor:', id);
         await hybridSupplierService.updateSupplier(id!, data);
       } else {
-        await hybridSupplierService.createSupplier(data);
+        console.log('📝 [SupplierForm] Criando novo fornecedor');
+        const result = await hybridSupplierService.createSupplier(data);
+        console.log('✅ [SupplierForm] Fornecedor criado com sucesso:', result);
       }
       navigate('/suppliers');
     } catch (error: any) {
-      setError(error.response?.data?.message || `Erro ao ${isEditing ? 'atualizar' : 'criar'} fornecedor`);
+      console.error('❌ [SupplierForm] Erro ao processar:', error);
+      setError(
+        error?.message || 
+        error?.response?.data?.message || 
+        `Erro ao ${isEditing ? 'atualizar' : 'criar'} fornecedor`
+      );
     } finally {
       setLoading(false);
     }
