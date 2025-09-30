@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Upload, FileText, Cog, Download, AlertCircle, CheckCircle, ArrowLeftIcon } from 'lucide-react';
 
-import { internalServiceTypeService } from '../services';
+import { ServiceTypesService } from '../services/serviceTypesService';
 
 interface ServiceTypeImport {
   code: string;
@@ -106,8 +106,32 @@ const ImportServiceTypes: React.FC = () => {
       }
 
       // Processar importação
-      const result = await internalServiceTypeService.importServiceTypes(serviceTypes);
-      setImportResult(result);
+      console.log('🚀 [ImportServiceTypes] Iniciando importação em massa...');
+      console.log('📊 [ImportServiceTypes] Total de tipos a importar:', serviceTypes.length);
+      
+      try {
+        const result = await ServiceTypesService.importMany(serviceTypes.map(st => ({
+          code: st.code,
+          name: st.name,
+          iss_retained: st.issRetained ?? false,
+          active: st.active ?? true
+        })));
+        
+        console.log('✅ [ImportServiceTypes] Importação concluída:', result.length, 'tipos criados');
+        
+        setImportResult({
+          success: result.length,
+          errors: [],
+          imported: result
+        });
+      } catch (importError: any) {
+        console.error('❌ [ImportServiceTypes] Erro na importação:', importError);
+        setImportResult({
+          success: 0,
+          errors: [importError.message || 'Erro desconhecido na importação'],
+          imported: []
+        });
+      }
 
     } catch (error) {
       console.error('Erro na importação:', error);
